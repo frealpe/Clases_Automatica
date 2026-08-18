@@ -1,10 +1,20 @@
 import axios from 'axios';
 
-// Lectura de la URL base desde las variables de entorno de Vite (.env)
-export const API_URL = import.meta?.env?.VITE_API_URL || 'http://localhost:3000';
+// Lectura de la URL base dinámicamente para desarrollo y producción
+export const getBaseUrl = () => {
+  if (import.meta?.env?.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:3000') {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return '/api';
+  }
+  return import.meta?.env?.VITE_API_URL || 'http://localhost:3000';
+};
+
+export const API_URL = getBaseUrl();
 
 /**
- * Cliente HTTP Axios configurado con variables de entorno (.env)
+ * Cliente HTTP Axios configurado con variables de entorno (.env) y fallback relativo /api
  */
 export const apiClient = axios.create({
   baseURL: API_URL,
