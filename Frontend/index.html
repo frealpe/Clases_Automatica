@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universidad del Cauca — Departamento de Instrumentación y Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#0A0A0A",
+            "surface": "#131313",
+            "surface-glass": "rgba(255, 255, 255, 0.08)",
+            "border-glass": "rgba(255, 255, 255, 0.15)",
+            "primary-red": "#b31b1b",
+            "accent-blue-vibrant": "#5056AC",
+            "text-primary": "#FFFFFF",
+            "text-secondary": "rgba(255, 255, 255, 0.70)",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["Fira Code", "monospace"],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="./src/styles/main.css">
+</head>
+<body class="bg-[#0A0A0A] text-white selection:bg-[#5056AC] selection:text-white antialiased font-sans">
+  <div id="root"></div>
+  <script type="module" src="./src/main.jsx"></script>
+</body>
+</html>

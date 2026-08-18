@@ -1,0 +1,232 @@
+/* Stitch Design System - Academic Luminescence */
+/* Universidad del Cauca - Departamento de Instrumentación y Control */
+
+:root {
+  --bg-main: #0A0A0A;
+  --bg-card: #0f172a;
+  --bg-elevated: #1e293b;
+  --text-main: #FFFFFF;
+  --text-muted: rgba(255, 255, 255, 0.85);
+  --brand-red: #b31b1b;
+  --brand-blue: #5056AC;
+  --brand-cyan: #38bdf8;
+  --border-glass: rgba(56, 189, 248, 0.4);
+  --status-success: #10b981;
+  --status-danger: #ef4444;
+}
+
+/* Light Theme Root Class */
+body.light-mode {
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-elevated: #f1f5f9;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --brand-red: #991b1b;
+  --brand-blue: #4338ca;
+  --brand-cyan: #0284c7;
+  --border-glass: #cbd5e1;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+body.dark-mode {
+  background-color: #0A0A0A !important;
+  color: #FFFFFF !important;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Campos de Texto y Entradas de Alto Contraste (High-Contrast Input Fields) */
+.glass-input, input[type="text"], input[type="email"], input[type="password"], select, textarea {
+  background: #0f172a !important;
+  border: 2px solid rgba(56, 189, 248, 0.5) !important;
+  color: #FFFFFF !important;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+body.light-mode .glass-input,
+body.light-mode input[type="text"],
+body.light-mode input[type="email"],
+body.light-mode input[type="password"],
+body.light-mode select,
+body.light-mode textarea {
+  background: #FFFFFF !important;
+  border: 2px solid #64748b !important;
+  color: #0f172a !important;
+}
+
+.glass-input::placeholder, input::placeholder {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+body.light-mode .glass-input::placeholder,
+body.light-mode input::placeholder {
+  color: #64748b;
+}
+
+.glass-input:focus, input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
+}
+
+/* TARJETAS DE ALTO CONTRASTE Y LUMINOSIDAD (HIGH CONTRAST GLASS PANELS) */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.92) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.15) !important;
+  border-radius: 1.25rem;
+  color: #FFFFFF !important;
+  transition: all 0.3s ease;
+}
+
+body.light-mode .glass-panel {
+  background: #ffffff !important;
+  border: 2px solid #94a3b8 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+.glass-panel:hover {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.9), 0 0 30px rgba(56, 189, 248, 0.4) !important;
+  transform: translateY(-2px);
+}
+
+.glass-badge {
+  border-left: 4px solid var(--brand-blue);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.light-mode .glass-badge {
+  background: #f1f5f9;
+}
+
+/* Estilos de Modales */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(14px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: #0f172a !important;
+  border: 2px solid rgba(56, 189, 248, 0.5) !important;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.95), 0 0 30px rgba(56, 189, 248, 0.2) !important;
+  color: #ffffff !important;
+}
+
+body.light-mode .modal-content {
+  background: #ffffff !important;
+  border: 2px solid #64748b !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.modal-header {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  outline: none;
+}
+
+body.light-mode .form-group input,
+body.light-mode .form-group textarea,
+body.light-mode .form-group select {
+  background: #f8fafc;
+  border: 1px solid #94a3b8;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.btn-action,
+.btn-create {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-action {
+  background: rgba(148, 163, 184, 0.2);
+  color: inherit;
+}
+
+.btn-create {
+  background: #38bdf8;
+  color: #0f172a;
+}

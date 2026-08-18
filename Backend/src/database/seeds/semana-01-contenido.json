@@ -1,0 +1,63 @@
+{
+  "titulo": "Sistemas de Ecuaciones Lineales: Introducción y el Caso de Dos Incógnitas",
+  "subtitulo": "Notas Oficiales — Semana 1 (Grossman Cap. 1)",
+  "seccion1": {
+    "titulo": "1. Introducción a los Sistemas de Ecuaciones Lineales",
+    "def11": {
+      "nombre": "DEFINICIÓN 1.1 (Ecuación Lineal)",
+      "formula": "a₁ x₁ + a₂ x₂ + ⋯ + aₙ xₙ = b",
+      "explicacion": "Donde a₁, ..., aₙ (coeficientes) y b (término independiente) son números reales dados. Ninguna variable aparece elevada a potencias ≠ 1 ni multiplicada por otra variable."
+    },
+    "def12": {
+      "nombre": "DEFINICIÓN 1.2 (Sistema m x n)",
+      "formula": "a₁₁x₁ + a₁₂x₂ + ⋯ + a₁ₙxₙ = b₁ \n a₂₁x₁ + a₂₂x₂ + ⋯ + a₂ₙxₙ = b₂ \n ... \n aₘ₁x₁ + aₘ₂x₂ + ⋯ + aₘₙxₙ = bₘ",
+      "explicacion": "Conjunto de m ecuaciones con n incógnitas simultáneas. La n-tupla (x₁, ..., xₙ) es la solución."
+    },
+    "def13": {
+      "nombre": "DEFINICIÓN 1.3 (Consistentes e Inconsistentes)",
+      "explicacion": "Consistente si tiene solución, e Inconsistente si no tiene ninguna. Un sistema consistente tiene exactamente 1 solución (determinado) o infinitas (indeterminado) — nunca un número finito mayor que 1."
+    },
+    "ingenieria": {
+      "titulo": "APLICACIÓN EN INGENIERÍA UNICAUCA",
+      "texto": "Leyes de Kirchhoff de corrientes en nodos, equilibrio de fuerzas en estructuras y balance de materia en procesos químicos."
+    },
+    "ejemplo14": {
+      "nombre": "EJEMPLO 1.4 (Sistema con más incógnitas que ecuaciones: n > m)",
+      "sistema": "2x₁ - x₂ + 3x₃ = 5   (Ecuación 1)\n x₁ + x₂ - x₃ = 0   (Ecuación 2)",
+      "explicacion": "Este sistema consta de m = 2 ecuaciones y n = 3 incógnitas (x₁, x₂, x₃).\n\n• Verificación de la Tupla (1, -1, -2):\n  - En Eq 1: 2(1) - (-1) + 3(-2) = 2 + 1 - 6 = -3 ≠ 5. ✗ (NO satisface la primera ecuación).\n\n• Verificación de la Tupla (1, -1, 0):\n  - En Eq 1: 2(1) - (-1) + 3(0) = 2 + 1 + 0 = 3 ≠ 5. ✗ (Tampoco es solución).\n  - En Eq 2: (1) + (-1) - (0) = 0. ✓ (Satisface la segunda, pero falla en la primera).\n\n• Análisis Algorítmico y Grados de Libertad:\n  Puesto que el número de incógnitas es mayor que el número de ecuaciones (n = 3 > m = 2), existe al menos 1 variable libre (grados de libertad = n - m = 1). Para hallar la familia infinita de soluciones paramétricas se aplica el método de Gauss-Jordan (Semana 2)."
+    }
+  },
+  "seccion2": {
+    "titulo": "2. Dos Ecuaciones Lineales con Dos Incógnitas (Caso 2x2)",
+    "def21": {
+      "nombre": "DEFINICIÓN 2.1 (Sistema 2x2)",
+      "formula": "a₁ x + b₁ y = c₁ \n a₂ x + b₂ y = c₂",
+      "explicacion": "Representa dos rectas en el plano cartesiano ℝ². Resolver el sistema es hallar la intersección de ambas rectas."
+    },
+    "propiedad22": {
+      "nombre": "PROPIEDAD 2.2 (Los Tres Casos Geométricos)",
+      "casos": [
+        { "tipo": "Secantes", "desc": "Se cortan en un punto P(x,y) ➔ Solución Única (Consistente Determinado)" },
+        { "tipo": "Paralelas", "desc": "Misma pendiente, no coinciden ➔ Sin Solución (Inconsistente)" },
+        { "tipo": "Coincidentes", "desc": "Misma recta escrita dos veces ➔ Infinitas Soluciones (Indeterminado)" }
+      ]
+    },
+    "metodos": {
+      "sustitucion": "Despejar una variable de una ecuación y sustituir en la otra.",
+      "eliminacion": "Multiplicar ecuaciones por constantes y sumar para cancelar una variable."
+    },
+    "ejemplos": [
+      { "nombre": "Ejemplo 2.5 (Solución Única)", "sistema": "x + y = 5 \n x - y = 1", "sol": "Sumando: 2x=6 ➔ x=3, y=2. Punto P(3,2)." },
+      { "nombre": "Ejemplo 2.6 (Sin Solución)", "sistema": "2x + y = 4 \n 4x + 2y = 3", "sol": "Rectas paralelas distintas. Inconsistente." },
+      { "nombre": "Ejemplo 2.7 (Infinitas)", "sistema": "x - 2y = 3 \n -2x + 4y = -6", "sol": "Rectas coincidentes. Conjunto {(x,y) : x = 3+2y}." }
+    ]
+  },
+  "ejerciciosPropuestos": [
+    { "num": 1, "titulo": "Sistema 3x4", "sol": "a₁₁x₁ + a₁₂x₂ + a₁₃x₃ + a₁₄x₄ = b₁ \n a₂₁x₁ + a₂₂x₂ + a₂₃x₃ + a₂₄x₄ = b₂ \n a₃₁x₁ + a₃₂x₂ + a₃₃x₃ + a₃₄x₄ = b₃" },
+    { "num": 2, "titulo": "Prueba de Solución (2,-1,1)", "sol": "Eq1: 2 + (-1) + 1 = 2 (Sí). Eq2: 2(2) - (-1) + 1 = 6 (Sí). ✓ Es solución." },
+    { "num": 3, "titulo": "Circuito Mallas Kirchhoff", "sol": "3I₁ - I₂ = 5 \n -2I₁ + 5I₂ = 0 ➔ I₁ = 25/13 A, I₂ = 10/13 A." },
+    { "num": 4, "titulo": "Sistema 2x2 Sustitución", "sol": "3x - y = 7, x + 2y = 0 ➔ x = -2y ➔ y = -1, x = 2. Solución P(2,-1)." },
+    { "num": 5, "titulo": "Análisis de Pendientes Paralelas", "sol": "x + 3y = 6, 2x + 6y = 10 ➔ m₁ = m₂ = -1/3. ✗ Inconsistente sin solución." },
+    { "num": 6, "titulo": "Ecuación Coincidente", "sol": "3x + y = 9 ➔ Multiplicando por 2: 6x + 2y = 18 (Infinitas soluciones)." }
+  ]
+}

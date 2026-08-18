@@ -1,0 +1,103 @@
+{
+  "titulo": "Eliminación de Gauss-Jordan y Sistemas Homogéneos",
+  "subtitulo": "Notas Oficiales — Semana 2 (Grossman Cap. 1, Sec. 1.2 - 1.3)",
+  "seccion1": {
+    "titulo": "1. Sistemas Equivalentes y Clasificación",
+    "def11": {
+      "nombre": "DEFINICIÓN 1.1 (Sistemas Equivalentes)",
+      "formula": "S₁ ≡ S₂  ⟺  Sol(S₁) = Sol(S₂)",
+      "explicacion": "Dos sistemas de ecuaciones lineales son equivalentes si tienen exactamente el mismo conjunto de soluciones. Que dos sistemas sean equivalentes no significa que sus ecuaciones sean idénticas."
+    },
+    "teorema12": {
+      "nombre": "TEOREMA 1.2 (Operaciones Elementales de Fila)",
+      "explicacion": "Cada una de las tres operaciones elementales de fila sobre la matriz aumentada [A|b] produce un sistema equivalente:\n  (i) Intercambiar dos filas (Fi ↔ Fj).\n  (ii) Multiplicar una fila por un escalar c ≠ 0 (c Fi).\n  (iii) Sumar a una fila un múltiplo escalar de otra (Fi + c Fj).\nDado que cada operación es reversible, el sistema final obtenido al aplicar el algoritmo tiene exactamente las mismas soluciones que el sistema original."
+    },
+    "def13": {
+      "nombre": "DEFINICIÓN 1.3 (Sistema Consistente e Inconsistente)",
+      "explicacion": "Un sistema es Consistente si tiene al menos una solución (única o infinitas) e Inconsistente si no tiene ninguna solución. La inconsistencia se detecta al obtener una fila del tipo [0 0 ... 0 | c] con c ≠ 0, que representa la ecuación imposible 0 = c."
+    },
+    "ejemplosCasos": [
+      {
+        "nombre": "Ejemplo 1.4 (Caso 1: Sistema Inconsistente)",
+        "sistema": "x₁ + x₂ = 3\n2x₁ + 2x₂ = 7",
+        "pasos": "Matriz aumentada:\n[ 1  1 | 3 ]\n[ 2  2 | 7 ]  --(F₂ - 2F₁)-->  [ 1  1 | 3 ]\n                               [ 0  0 | 1 ]\nLa fila [0 0 | 1] representa 0 = 1 (Contradicción). El sistema es INCONSISTENTE sin solución (rectas paralelas)."
+      },
+      {
+        "nombre": "Ejemplo 1.5 (Caso 2: Solución Única)",
+        "sistema": " x₁ +  x₂ +  x₃ = 6\n2x₁ -  x₂ +  x₃ = 3\n x₁ + 2x₂ -  x₃ = 2",
+        "pasos": "Matriz reducida (RREF):\n[ 1  1  1 | 6 ] --(F₂-2F₁, F₃-F₁)--> [ 1  1  1 |  6 ]\n                                    [ 0 -3 -1 | -9 ]\n                                    [ 0  1 -2 | -4 ]\n--(F₂ ↔ F₃, F₃+3F₂)--> [ 1 1 1 | 6 ]\n                       [ 0 1 -2 | -4 ]\n                       [ 0 0 -7 | -21 ]  --( -1/7 F₃ )--> F₃: x₃ = 3.\nContinuando a RREF: x₁ = 1, x₂ = 2, x₃ = 3. Solución única: (1, 2, 3)."
+      },
+      {
+        "nombre": "Ejemplo 1.6 (Caso 3: Infinitas Soluciones)",
+        "sistema": " x₁ + 2x₂ -  x₃ = 0\n2x₁ + 4x₂ - 2x₃ = 0",
+        "pasos": "Reducción:\n[ 1  2 -1 | 0 ] --(F₂ - 2F₁)--> [ 1  2 -1 | 0 ]\n[ 2  4 -2 | 0 ]                 [ 0  0  0 | 0 ]\nRango r = 1 < n = 3 (hay n - r = 2 variables libres). Tomando x₂ = s y x₃ = t libres: x₁ = -2s + t. Conjunto solución: {(-2s+t, s, t) : s,t ∈ ℝ}."
+      }
+    ]
+  },
+  "seccion2": {
+    "titulo": "2. Eliminación de Gauss-Jordan y Forma Escalonada Reducida (RREF)",
+    "def21": {
+      "nombre": "DEFINICIÓN 2.1 (Matriz Aumentada)",
+      "formula": "[A | b] = [ a₁₁ ... a₁ₙ | b₁ ]\n          [ ... ... ... | ...]\n          [ aₘ₁ ... aₘₙ | bₘ ]",
+      "explicacion": "Asocia la matriz de coeficientes A con el vector de términos independientes b, condensando toda la información del sistema m x n sin escribir las variables."
+    },
+    "def22": {
+      "nombre": "DEFINICIÓN 2.2 (Forma Escalonada Reducida - RREF)",
+      "explicacion": "Una matriz está en RREF si: (i) El primer elemento no nulo de cada fila no nula es un 1 (pivote). (ii) Cada pivote está a la derecha del pivote de la fila anterior. (iii) Las filas nulas quedan al final. (iv) En la columna de cada pivote, todos los demás elementos son 0."
+    },
+    "teorema23": {
+      "nombre": "TEOREMA 2.3 (Criterio del Número de Soluciones por Rango)",
+      "explicacion": "Sea r el número de pivotes de [A|b] y r' el número de pivotes de A. \n• Inconsistente si r' < r (pivote en la columna de b).\n• Solución Única si es consistente y r = n (no hay variables libres).\n• Infinitas Soluciones si es consistente y r < n (hay n - r variables libres)."
+    },
+    "ingenieriaCircuito": {
+      "titulo": "APLICACIÓN EN INGENIERÍA: CORRIENTES DE MALLA EN UN CIRCUITO",
+      "descripcion": "Un circuito eléctrico de 3 mallas gobernado por la Ley de Voltajes de Kirchhoff (LVK) genera el sistema en las corrientes I₁, I₂, I₃ (amperios):",
+      "sistema": " 2I₁ -  I₂       = 5  (Malla 1)\n-I₁ + 3I₂ -  I₃ = 0  (Malla 2)\n      -I₂ + 2I₃ = 1  (Malla 3)",
+      "pasosGaussJordan": "Matriz Aumentada:\n[  2 -1  0 | 5 ]  --(1/2 F₁)--> [ 1 -1/2  0 | 5/2 ]\n[ -1  3 -1 | 0 ]  --(F₂+F₁)-->  [ 0  5/2 -1 | 5/2 ]\n[  0 -1  2 | 1 ]                [ 0   -1  2 |  1  ]\n\n--(2/5 F₂, F₁+1/2 F₂, F₃+F₂)--> [ 1  0 -1/5 | 3 ]\n                                [ 0  1 -2/5 | 1 ]\n                                [ 0  0  8/5 | 2 ]\n\n--(5/8 F₃, F₁+1/5 F₃, F₂+2/5 F₃)--> [ 1 0 0 | 13/4 ]\n                                   [ 0 1 0 |  3/2  ]\n                                   [ 0 0 1 |  5/4  ]\nSolución Exacta: I₁ = 13/4 A = 3.25 A, I₂ = 3/2 A = 1.5 A, I₃ = 5/4 A = 1.25 A."
+    }
+  },
+  "seccion3": {
+    "titulo": "3. Sistemas Homogéneos de Ecuaciones Lineales (A x = 0)",
+    "def31": {
+      "nombre": "DEFINICIÓN 3.1 (Sistema Homogéneo)",
+      "formula": "A x = 0",
+      "explicacion": "Un sistema es homogéneo si todos sus términos independientes son cero. Todo sistema homogéneo es consistente porque x = 0 (solución trivial) siempre lo satisface."
+    },
+    "teorema32": {
+      "nombre": "TEOREMA 3.2 (Existencia de Soluciones No Triviales)",
+      "explicacion": "Un sistema homogéneo A x = 0 de m ecuaciones con n incógnitas tiene soluciones no triviales si y solo si r < n (existen variables libres). En particular, si m < n (menos ecuaciones que incógnitas), el sistema homogéneo SIEMPRE tiene infinitas soluciones no triviales."
+    }
+  },
+  "ejerciciosPropuestos": [
+    {
+      "num": 1,
+      "titulo": "Prueba de Inconsistencia (0 = 5)",
+      "sol": "Sistema {2x₁ - x₂ + x₃ = 4, x₁ + 3x₃ = -1, -x₁ + x₂ + 2x₃ = 0}.\nReducción: F₁ ↔ F₂ → F₂ - 2F₁, F₃ + F₁ → F₃ + F₂ produce la fila [0 0 0 | 5] que equivale a 0 = 5.\nSistema INCONSISTENTE sin solución."
+    },
+    {
+      "num": 2,
+      "titulo": "Gauss-Jordan 3x3 (Solución Única)",
+      "sol": "Sistema {x + y + z = 2, 2x - y + z = 1, x + 2y - z = 3}.\nReducción completa RREF conduce a la matriz identidad [I | b] con b = (1, 1, 0).\nSolución única: x = 1, y = 1, z = 0."
+    },
+    {
+      "num": 3,
+      "titulo": "Análisis Paramétrico con k (x + ky = 1, kx + y = 1)",
+      "sol": "Fila 2 tras F₂ - kF₁: [0  1-k² | 1-k].\n• Si k = 1: [0 0 | 0] ➔ Infinitas soluciones (x + y = 1).\n• Si k = -1: [0 0 | 2] ➔ Inconsistente (0 = 2).\n• Si k ≠ ±1: Solución única x = y = 1 / (1 + k)."
+    },
+    {
+      "num": 4,
+      "titulo": "Sistema Homogéneo 3x5 (m < n)",
+      "sol": "Tiene m = 3 ecuaciones y n = 5 incógnitas. Como m < n, el rango máximo r ≤ 3 < 5 = n, por lo cual existen al menos n - r = 2 variables libres. Siempre tiene soluciones no triviales."
+    },
+    {
+      "num": 5,
+      "titulo": "Sistema Homogéneo con Filas Dependientes",
+      "sol": "Sistema {x₁ - x₂ + 2x₃ = 0, 2x₁ - 2x₂ + 4x₃ = 0}.\nReducción produce [1 -1 2 | 0] y [0 0 0 | 0].\nVariables libres x₂ = s, x₃ = t ➔ x₁ = s - 2t.\nConjunto solución: {(s - 2t, s, t) : s,t ∈ ℝ}."
+    },
+    {
+      "num": 6,
+      "titulo": "Pivotes en Sistema Homogéneo 3x3 Determinado",
+      "sol": "Si un sistema homogéneo 3x3 tiene únicamente la solución trivial x = 0, no hay variables libres (n = 3 = r). La matriz A en su forma escalonada tiene exactamente 3 pivotes (rango r = 3, det A ≠ 0)."
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.2 Productos vectorial y matricial</title>
+<link rel="stylesheet" href="css/estilo.css">
+<script>
+  window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>2.2 Productos vectorial y matricial</h1>
+    <p class="subtitulo">Semana 3 · Unidad 2 · Álgebra Lineal para Ingeniería — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-2-1.html">2.1 Vectores y matrices</a></li>
+    <li><a href="tema-2-2.html">2.2 Productos vectorial y matricial</a></li>
+    <li><a href="ejercicios-resueltos.html">Ejercicios resueltos</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Producto punto</span>
+  Para \(\mathbf{u}=(u_1,\ldots,u_n)\) y \(\mathbf{v}=(v_1,\ldots,v_n)\) en \(\mathbb{R}^n\):
+  \[
+    \mathbf{u}\cdot\mathbf{v} = \sum_{k=1}^n u_kv_k.
+  \]
+  Solo está definido entre vectores con el mismo número de componentes. Si
+  \(\mathbf{u}\cdot\mathbf{v}=0\) (con \(\mathbf{u},\mathbf{v}\neq\mathbf{0}\)), se dice que son
+  <em>ortogonales</em>.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Producto matriz-vector</span>
+  Sea \(A\) de tamaño \(m\times n\) y \(\mathbf{x}\in\mathbb{R}^n\). El producto \(A\mathbf{x}\)
+  es el vector de \(\mathbb{R}^m\) cuya componente \(i\) es el producto punto de la fila \(i\) de
+  \(A\) con \(\mathbf{x}\). De forma equivalente, es una <strong>combinación lineal de las
+  columnas de \(A\)</strong>:
+  \[
+    A\mathbf{x} = x_1\mathbf{a}_1 + x_2\mathbf{a}_2 + \cdots + x_n\mathbf{a}_n.
+  \]
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Forma matricial de un sistema</span>
+  El sistema de \(m\) ecuaciones con \(n\) incógnitas es exactamente la ecuación matricial
+  \(A\mathbf{x}=\mathbf{b}\), con \(A\) la matriz de coeficientes, \(\mathbf{x}\) el vector de
+  incógnitas y \(\mathbf{b}\) el vector de términos independientes. Resolver el sistema es hallar
+  el \(\mathbf{x}\) para el cual \(A\mathbf{x}\) coincide con \(\mathbf{b}\) — la misma idea de la
+  Unidad 1, ahora en notación matricial.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Producto de matrices</span>
+  Si \(A\) es \(m\times p\) y \(B\) es \(p\times n\) (columnas de \(A\) = filas de \(B\)), el
+  producto \(C=AB\) es \(m\times n\) con
+  \[
+    c_{ij} = \sum_{k=1}^p a_{ik}b_{kj}
+  \]
+  (fila \(i\) de \(A\) por columna \(j\) de \(B\)). Si las dimensiones no coinciden, \(AB\) no
+  está definido.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedades</span>
+  \((AB)C=A(BC)\); \(A(B+C)=AB+AC\); \((cA)B=A(cB)=c(AB)\); \(I_mA=A=AI_n\).
+  <strong>En general \(AB\neq BA\)</strong>: el producto de matrices no es conmutativo — incluso
+  pueden tener tamaños distintos, o uno estar definido y el otro no.
+</div>
+
+<div class="recuadro ingenieria">
+  <span class="titulo">Aplicación — consumo de recursos en producción</span>
+  Con la matriz de consumo unitario \(A=\begin{pmatrix}2&3\\1&4\\5&2\end{pmatrix}\) (acero,
+  mano de obra, energía por unidad de cada uno de 2 productos) y una producción
+  \(\mathbf{x}=(40,25)\):
+  \[
+    A\mathbf{x} = \begin{pmatrix}155\\140\\250\end{pmatrix}
+  \]
+  155 kg de acero, 140 horas de mano de obra, 250 kWh de energía — \(A\mathbf{x}\) es, otra vez,
+  una combinación lineal de columnas.
+</div>
+
+<h2>Taller interactivo — producto de matrices</h2>
+<p>
+  Elige las dimensiones de \(A\) (\(m\times p\)) y \(B\) (\(p\times n\)) — la columna de \(A\) y
+  la fila de \(B\) siempre coinciden (\(p\)), así que el producto siempre está definido. Ingresa
+  las entradas y calcula \(C=AB\) con el detalle fila por columna de cada entrada.
+</p>
+
+<div class="controles">
+  <fieldset>
+    <legend>Dimensión de A (m × p)</legend>
+    <label>m
+      <select id="dimM">
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+    </label>
+    <label>p
+      <select id="dimP">
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+      </select>
+    </label>
+  </fieldset>
+  <fieldset>
+    <legend>Dimensión de B (p × n)</legend>
+    <label>n
+      <select id="dimN">
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+      </select>
+    </label>
+  </fieldset>
+</div>
+
+<div id="gridsProducto"></div>
+
+<p><button class="btn" id="btnMultiplicar">Calcular C = AB</button></p>
+
+<div id="resultadoProducto"></div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-03/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+<script src="js/producto-matricial.js"></script>
+</body>
+</html>

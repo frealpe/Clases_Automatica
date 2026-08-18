@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Álgebra Lineal 2026 — App Móvil React Native (Evaluaciones)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #020617; color: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .header-demo { text-align: center; margin-bottom: 20px; }
+    .header-demo h1 { font-size: 1.5rem; color: #38bdf8; font-weight: 800; }
+    .header-demo p { color: #94a3b8; font-size: 0.9rem; margin-top: 4px; }
+    
+    /* Mockup de Celular Móvil React Native */
+    .phone-wrapper {
+      width: 390px;
+      height: 800px;
+      background-color: #0f172a;
+      border-radius: 44px;
+      border: 12px solid #334155;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px #475569;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .notch {
+      width: 140px;
+      height: 24px;
+      background-color: #000;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 14px;
+      z-index: 100;
+    }
+    .phone-screen {
+      flex: 1;
+      overflow-y: auto;
+      padding: 36px 16px 20px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Estilos de pantallas React Native simuladas */
+    .card { background-color: #1e293b; border-radius: 14px; padding: 16px; margin-bottom: 12px; border: 1px solid #334155; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-right: 6px; }
+    .badge-primary { background-color: #0284c7; color: #fff; }
+    .badge-secondary { background-color: #334155; color: #cbd5e1; }
+    .title-lg { font-size: 1.4rem; font-weight: 800; color: #f8fafc; margin-bottom: 4px; }
+    .sub-lg { font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px; }
+    .btn { background-color: #0284c7; color: white; border: none; border-radius: 12px; padding: 14px; width: 100%; font-weight: 800; font-size: 0.9rem; cursor: pointer; text-align: center; margin-top: 10px; }
+    .btn-green { background-color: #16a34a; }
+    .btn-outline { background-color: #334155; color: #e2e8f0; }
+
+    /* Examen y Shield */
+    .shield-box { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .shield-title { color: #38bdf8; font-size: 0.75rem; font-weight: 800; }
+    .shield-sub { color: #94a3b8; font-size: 0.65rem; }
+    .timer-badge { background: #0f172a; border: 1px solid #3b82f6; border-radius: 8px; padding: 4px 8px; text-align: center; color: #60a5fa; font-weight: 800; font-size: 0.9rem; }
+    
+    .opcion-btn { background-color: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; color: #cbd5e1; font-size: 0.85rem; text-align: left; }
+    .opcion-btn.selected { background-color: #0369a1; border-color: #38bdf8; color: #fff; font-weight: 600; }
+
+    /* Modal Alerta IA */
+    .modal-ia { display: none; position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
+    .modal-ia-box { background: #1e1b4b; border: 2px solid #ef4444; border-radius: 16px; padding: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="header-demo">
+    <h1>📱 Vista de Previsualización: App Móvil React Native</h1>
+    <p>Álgebra Lineal 2026 · Simulación interactiva con temporizador, anti-captura y reporte de falencias</p>
+  </div>
+
+  <div class="phone-wrapper">
+    <div class="notch"></div>
+    <div class="phone-screen" id="app-root">
+      <!-- Inyectado dinámicamente -->
+    </div>
+
+    <!-- Modal Alerta de Salida / IA -->
+    <div class="modal-ia" id="modal-ia">
+      <div class="modal-ia-box">
+        <div style="font-size: 32px; margin-bottom: 8px;">🚨</div>
+        <h3 style="color: #f87171; font-size: 14px; font-weight: 800; margin-bottom: 8px;">INFRACCIÓN DETECTADA</h3>
+        <p style="color: #cbd5e1; font-size: 12px; line-height: 1.4; margin-bottom: 14px;">
+          Se detectó cambio de ventana o intento de consulta externa (IA/ChatGPT). El examen se cerrará inmediatamente.
+        </p>
+        <button class="btn" style="background: #dc2626;" onclick="cerrarExamenPorIA()">Ver Reporte de Infracción</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Datos y Estado Simulado de React Native
+    const semanas = [
+      { id: 1, numero: '01', unidad: '1. Sistemas de ecuaciones lineales', ra: 'RA1', min: 15, subtemas: ['1.1. Introducción a sistemas de ecuaciones', '1.2. Dos ecuaciones con dos incógnitas'] },
+      { id: 2, numero: '02', unidad: '1. Sistemas de ecuaciones lineales', ra: 'RA1', min: 20, subtemas: ['1.3. Eliminación de Gauss-Jordan', '1.4. Sistemas homogéneos de ecuaciones'] },
+      { id: 3, numero: '03', unidad: '2. Vectores y matrices', ra: 'RA2', min: 15, subtemas: ['2.1. Vectores y matrices', '2.2. Productos vectorial y matricial'] }
+    ];
+
+    let pantalla = 'home';
+    let semanaSel = null;
+    let respuestas = {};
+    let timerId = null;
+    let tiempoRestante = 0;
+
+    function render() {
+      const root = document.getElementById('app-root');
+      if (pantalla === 'home') {
+        root.innerHTML = `
+          <div style="font-size: 10px; color: #38bdf8; font-weight: 800; letter-spacing: 0.5px;">UNIVERSIDAD DEL CAUCA · 2026</div>
+          <div class="title-lg">Álgebra Lineal</div>
+          <div class="sub-lg">Evaluación Móvil de Logros</div>
+          
+          <div class="card" style="background: #1e293b;">
+            <div style="font-size: 12px; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;">Progreso de Evaluaciones</div>
+            <div style="height: 6px; background: #0f172a; border-radius: 3px; overflow: hidden; margin-bottom: 6px;">
+              <div style="width: 15%; height: 100%; background: #38bdf8;"></div>
+            </div>
+            <div style="font-size: 10px; color: #64748b;">16 semanas disponibles · Grossman 7a/8a ed.</div>
+          </div>
+
+          <div style="font-weight: 700; font-size: 14px; margin: 12px 0 8px 0; color: #f1f5f9;">Semanas del Semestre</div>
+          ${semanas.map(s => `
+            <div class="card" onclick="verSemana(${s.id})" style="cursor: pointer;">
+              <div>
+                <span class="badge badge-primary">Semana ${s.numero}</span>
+                <span class="badge badge-secondary">${s.ra}</span>
+              </div>
+              <div style="font-weight: 700; color: #f8fafc; font-size: 14px; margin-top: 6px;">${s.unidad}</div>
+              <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">⏱ Examen corto: ${s.min} min</div>
+            </div>
+          `).join('')}
+        `;
+      } else if (pantalla === 'detalle') {
+        root.innerHTML = `
+          <div onclick="irHome()" style="color: #38bdf8; font-size: 12px; font-weight: 700; cursor: pointer; margin-bottom: 12px;">← Volver al Semestre</div>
+          <span class="badge badge-primary">SEMANA ${semanaSel.numero}</span>
+          <span class="badge badge-secondary">${semanaSel.ra}</span>
+          <div class="title-lg" style="margin-top: 8px;">${semanaSel.unidad}</div>
+          <div class="sub-lg">Stanley I. Grossman (Capítulo 1)</div>
+
+          <div class="card">
+            <div style="font-weight: 700; color: #e2e8f0; font-size: 13px; margin-bottom: 6px;">🎯 Resultado de Aprendizaje (RA)</div>
+            <div style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">
+              Resolver y clasificar sistemas de ecuaciones lineales mediante eliminación de Gauss-Jordan y análisis gráfico.
+            </div>
+          </div>
+
+          <div class="card" style="background: #1e1b4b; border-color: #4338ca;">
+            <div style="color: #a5b4fc; font-weight: 800; font-size: 12px; margin-bottom: 8px;">🔒 Protocolo Anti-IA y Anti-Trampa</div>
+            <div style="font-size: 11px; color: #c7d2fe; line-height: 1.4;">
+              • Captura de pantalla bloqueada.<br>
+              • Detección de salida o minimizado de la app.<br>
+              • Examen cronometrado de ${semanaSel.min} minutos.
+            </div>
+          </div>
+
+          <button class="btn" onclick="iniciarExamen()">COMENZAR EVALUACIÓN (${semanaSel.min} MIN)</button>
+        `;
+      } else if (pantalla === 'examen') {
+        const min = Math.floor(tiempoRestante / 60);
+        const seg = tiempoRestante % 60;
+        const timeStr = `${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
+
+        root.innerHTML = `
+          <div class="shield-box">
+            <div>
+              <div class="shield-title">🔒 MODULACIÓN PROTEGIDA</div>
+              <div class="shield-sub">Anti-captura y Anti-IA activados</div>
+            </div>
+            <div class="timer-badge">${timeStr}</div>
+          </div>
+
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span style="font-size: 11px; color: #94a3b8; font-weight: 800;">PREGUNTA 1 DE 2</span>
+              <span class="badge badge-primary">📖 TEORÍA</span>
+            </div>
+            <div style="font-size: 13px; font-weight: 700; color: #f8fafc; margin-bottom: 12px;">
+              ¿Cuál es la interpretación geométrica de un sistema 2x2 que no posee solución (inconsistente)?
+            </div>
+
+            <div class="opcion-btn ${respuestas['p1'] === 'a' ? 'selected' : ''}" onclick="marcar('p1', 'a')">
+              A) Las rectas se intersecan en un único punto.
+            </div>
+            <div class="opcion-btn ${respuestas['p1'] === 'b' ? 'selected' : ''}" onclick="marcar('p1', 'b')">
+              B) Las dos rectas son paralelas y no se cruzan.
+            </div>
+            <div class="opcion-btn ${respuestas['p1'] === 'c' ? 'selected' : ''}" onclick="marcar('p1', 'c')">
+              C) Las dos rectas son idénticas y coinciden.
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span style="font-size: 11px; color: #94a3b8; font-weight: 800;">PREGUNTA 2 DE 2</span>
+              <span class="badge" style="background: #4338ca; color: #fff;">🧮 EJERCICIO</span>
+            </div>
+            <div style="font-size: 13px; font-weight: 700; color: #f8fafc; margin-bottom: 12px;">
+              Dado el sistema 2x - 3y = 7 y 4x - 6y = 14, ¿cuántas soluciones posee?
+            </div>
+
+            <div class="opcion-btn ${respuestas['p2'] === 'a' ? 'selected' : ''}" onclick="marcar('p2', 'a')">
+              A) Solución única (x=2, y=-1).
+            </div>
+            <div class="opcion-btn ${respuestas['p2'] === 'b' ? 'selected' : ''}" onclick="marcar('p2', 'b')">
+              B) Sin solución (inconsistente).
+            </div>
+            <div class="opcion-btn ${respuestas['p2'] === 'c' ? 'selected' : ''}" onclick="marcar('p2', 'c')">
+              C) Infinitas soluciones (sistema dependiente).
+            </div>
+          </div>
+
+          <button class="btn btn-green" onclick="enviarExamen()">ENVIAR EVALUACIÓN</button>
+        `;
+      } else if (pantalla === 'reporte') {
+        root.innerHTML = `
+          <div class="card" style="background: #064e3b; border-color: #10b981; text-align: center; padding: 20px;">
+            <div style="font-size: 32px;">🎉</div>
+            <div style="font-weight: 800; font-size: 16px; color: #fff; margin: 6px 0;">¡LOGRO ALCANZADO CON ÉXITO!</div>
+            <div style="font-size: 11px; color: #e2e8f0; margin-bottom: 12px;">${semanaSel.ra}: Sistemas de Ecuaciones Lineales</div>
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 10px; font-size: 20px; font-weight: 800; color: #6ee7b7;">
+              5.0 / 5.0 (100%)
+            </div>
+          </div>
+
+          <div class="card" style="border-color: #10b981;">
+            <div style="color: #34d399; font-weight: 800; font-size: 13px; margin-bottom: 4px;">🌟 ¡Felicitaciones!</div>
+            <div style="font-size: 12px; color: #e2e8f0; line-height: 1.4;">
+              Demuestras un dominio riguroso de la teoría y resolución de ejercicios de la Semana ${semanaSel.numero}.
+            </div>
+          </div>
+
+          <button class="btn btn-outline" onclick="irHome()">🏠 Volver a las Semanas</button>
+        `;
+      }
+    }
+
+    function verSemana(id) {
+      semanaSel = semanas.find(s => s.id === id);
+      pantalla = 'detalle';
+      render();
+    }
+
+    function irHome() {
+      pantalla = 'home';
+      clearInterval(timerId);
+      render();
+    }
+
+    function iniciarExamen() {
+      pantalla = 'examen';
+      respuestas = {};
+      tiempoRestante = semanaSel.min * 60;
+      render();
+
+      clearInterval(timerId);
+      timerId = setInterval(() => {
+        if (tiempoRestante > 0) {
+          tiempoRestante--;
+          render();
+        } else {
+          clearInterval(timerId);
+          enviarExamen();
+        }
+      }, 1000);
+    }
+
+    function marcar(p, opcion) {
+      respuestas[p] = opcion;
+      render();
+    }
+
+    function enviarExamen() {
+      clearInterval(timerId);
+      pantalla = 'reporte';
+      render();
+    }
+
+    function cerrarExamenPorIA() {
+      document.getElementById('modal-ia').style.display = 'none';
+      clearInterval(timerId);
+      pantalla = 'reporte';
+      render();
+    }
+
+    // Listener para simular detección de cambio de pestaña (Anti-IA)
+    window.addEventListener('blur', () => {
+      if (pantalla === 'examen') {
+        document.getElementById('modal-ia').style.display = 'flex';
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
