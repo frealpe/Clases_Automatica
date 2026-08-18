@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# Script de Despliegue Automatizado - Servidor Multimateria Unicauca 2026
+# Script de Despliegue Automatizado y Seguro - Servidor Multimateria Unicauca 2026
 # Servidor de Destino: 176.57.150.155
 # ==============================================================================
 # Uso:
@@ -85,7 +85,7 @@ for arg in "$@"; do
 done
 
 echo -e "${BLUE}======================================================================${NC}"
-echo -e "${BLUE}🚀 INICIANDO DESPLIEGUE A SERVIDOR: http://${SERVER_IP}${NC}"
+echo -e "${BLUE}🚀 INICIANDO DESPLIEGUE SEGURO A SERVIDOR: http://${SERVER_IP}${NC}"
 echo -e "${BLUE}======================================================================${NC}"
 
 # ------------------------------------------------------------------------------
@@ -123,15 +123,13 @@ if [ "$DEPLOY_FRONTEND" = true ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Transferencia de Código y Despliegue al Servidor Remoto
+# 4. Transferencia de Código, Configuración Nginx y Despliegue de Servicios
 # ------------------------------------------------------------------------------
 if [ "$DEPLOY_BACKEND" = true ]; then
   echo -e "\n${YELLOW}[4/5] Transfiriendo archivos del Backend a ${SERVER_IP}:${REMOTE_BACKEND_DIR}...${NC}"
   
-  # Crear directorio remoto si no existe
   run_ssh "mkdir -p ${REMOTE_BACKEND_DIR} ${REMOTE_BACKEND_DIR}/uploads"
 
-  # Transferir artefactos usando rsync con sshpass (o scp fallback)
   if command -v rsync &> /dev/null && command -v sshpass &> /dev/null && [ -n "$SSH_PASSWORD" ]; then
     RSYNC_RSH="sshpass -p '$SSH_PASSWORD' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
     rsync -avz --delete \
@@ -149,7 +147,6 @@ if [ "$DEPLOY_BACKEND" = true ]; then
     run_scp -r Backend/dist Backend/package.json Backend/package-lock.json Backend/src/database/schema.sql "${SERVER_USER}@${SERVER_IP}:${REMOTE_BACKEND_DIR}/"
   fi
 
-  # Transferir el archivo .env al servidor si existe
   if [ -f "Backend/.env" ]; then
     echo -e "${BLUE}-> Copiando archivo .env al servidor...${NC}"
     run_scp Backend/.env "${SERVER_USER}@${SERVER_IP}:${REMOTE_BACKEND_DIR}/.env"
@@ -158,13 +155,12 @@ if [ "$DEPLOY_BACKEND" = true ]; then
   echo -e "${GREEN}✔ Archivos del Backend transferidos exitosamente.${NC}"
 
   # Instalar dependencias de producción y reiniciar servicio en el servidor
-  echo -e "${YELLOW}-> Instalando dependencias en el servidor y reiniciando servicio PM2...${NC}"
+  echo -e "${YELLOW}-> Instalando dependencias y gestionando servicio PM2...${NC}"
   run_ssh "bash -s" << EOF
     export PATH=/usr/bin:/usr/local/bin:\$PATH
     cd ${REMOTE_BACKEND_DIR}
     npm install --production --silent
 
-    # Iniciar o reiniciar Backend con PM2
     if command -v pm2 &> /dev/null; then
       echo "Reiniciando/Iniciando backend NestJS con PM2..."
       pm2 restart algebra-backend 2>/dev/null || pm2 start dist/main.js --name algebra-backend
@@ -194,6 +190,81 @@ if [ "$DEPLOY_FRONTEND" = true ]; then
 fi
 
 # ------------------------------------------------------------------------------
+# Configuración Segura de Nginx como Reverse Proxy
+# ------------------------------------------------------------------------------
+echo -e "\n${YELLOW}-> Verificando y aplicando Hardening de Seguridad Nginx Reverse Proxy...${NC}"
+run_ssh "bash -s" << EOF
+  if command -v nginx &> /dev/null; then
+    cat << 'NGINX_CONF' > /etc/nginx/sites-available/default
+limit_req_zone \$binary_remote_addr zone=api_limit:10m rate=20r/s;
+limit_req_zone \$binary_remote_addr zone=login_limit:10m rate=10r/m;
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name _;
+
+    root ${REMOTE_FRONTEND_DIR};
+    index index.html;
+
+    server_tokens off;
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    client_max_body_size 25M;
+
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    location /api/auth/login {
+        limit_req zone=login_limit burst=5 nodelay;
+        proxy_pass http://127.0.0.1:3000/auth/login;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+
+    location /api/ {
+        limit_req zone=api_limit burst=30 nodelay;
+        proxy_pass http://127.0.0.1:3000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:3000/uploads/;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+}
+NGINX_CONF
+    ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+    nginx -t && systemctl reload nginx
+    echo "✔ Nginx Reverse Proxy configurado con cabeceras de seguridad y rate-limiting."
+  fi
+EOF
+
+# ------------------------------------------------------------------------------
 # 5. Envío y Migración de la Copia de la Base de Datos de Desarrollo
 # ------------------------------------------------------------------------------
 if [ "$DEPLOY_DB" = true ]; then
@@ -201,7 +272,6 @@ if [ "$DEPLOY_DB" = true ]; then
   
   TEMP_DUMP="algebra_lineal_dev_dump.sql"
 
-  # Verificar si pg_dump local está disponible o usar schema.sql fuente de verdad
   if pg_dump -U "${DB_USER}" -d "${DB_NAME}" > "${TEMP_DUMP}" 2>/dev/null; then
     echo -e "${GREEN}✔ Volcado en vivo generado desde la BD local '${DB_NAME}'.${NC}"
     DB_FILE_TO_SEND="${TEMP_DUMP}"
@@ -215,11 +285,8 @@ if [ "$DEPLOY_DB" = true ]; then
 
   echo -e "${YELLOW}-> Importando datos en PostgreSQL en el servidor remoto...${NC}"
   run_ssh "bash -s" << EOF
-    # Garantizar base de datos y contraseña postgres
     sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" 2>/dev/null || true
     sudo -u postgres psql -c "CREATE DATABASE ${DB_NAME};" 2>/dev/null || true
-    
-    # Importar esquema y datos de desarrollo
     sudo -u postgres psql -d ${DB_NAME} -f ${REMOTE_BACKEND_DIR}/database_dump.sql
 EOF
 
@@ -231,5 +298,5 @@ EOF
 fi
 
 echo -e "\n${GREEN}======================================================================${NC}"
-echo -e "${GREEN}🎉 DESPLIEGUE FINALIZADO EXITOSAMENTE EN: http://${SERVER_IP}${NC}"
+echo -e "${GREEN}🎉 DESPLIEGUE SEGURO FINALIZADO EXITOSAMENTE EN: http://${SERVER_IP}${NC}"
 echo -e "${GREEN}======================================================================${NC}"
