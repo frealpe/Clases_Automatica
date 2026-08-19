@@ -32,11 +32,36 @@ export default function ExamenModal({ isOpen, onClose, semana, examenProgramado 
   inicioMsRef.current = inicioMs;
   const entregandoRef = useRef(false);
 
+const normalizarListaPreguntas = (lista) => {
+  if (!Array.isArray(lista)) return [];
+  return lista.map((p) => {
+    let opciones = p.opciones;
+    if (typeof opciones === 'string') {
+      try {
+        opciones = JSON.parse(opciones);
+      } catch (e) {
+        opciones = [];
+      }
+    }
+    if (!Array.isArray(opciones)) opciones = [];
+
+    const opcionesNorm = opciones.map((op, idx) => {
+      if (typeof op === 'string') {
+        const id = ['a', 'b', 'c', 'd', 'e'][idx] || String(idx);
+        return { id, texto: op };
+      }
+      const id = String(op?.id || op?.letra || ['a', 'b', 'c', 'd', 'e'][idx] || idx);
+      const texto = String(op?.texto || op?.opcion || op?.label || JSON.stringify(op));
+      return { id, texto };
+    });
+
+    return { ...p, opciones: opcionesNorm };
+  });
+};
+
   useEffect(() => {
     if (!isOpen) return;
     setFase('intro');
-    // Modo programado: la pantalla de intro no carga nada todavía (espera el clic de "Comenzar"
-    // que dispara requestFullscreen() + la carga real); modo por semana sí arranca cargando ya.
     setCargando(!modoProgramado);
     setFinalizado(false);
     setResultado(null);
@@ -46,11 +71,10 @@ export default function ExamenModal({ isOpen, onClose, semana, examenProgramado 
     setSegundosRestantes(null);
     entregandoRef.current = false;
 
-    // Modo "bajo demanda" (por semana): sin pantalla de aviso, arranca de inmediato como antes.
     if (!modoProgramado && semana) {
       setInicioMs(Date.now());
       cargarPreguntasExamenFromService(semana.id).then((lista) => {
-        setPreguntas(lista || []);
+        setPreguntas(normalizarListaPreguntas(lista));
         setCargando(false);
       });
     }
@@ -181,7 +205,7 @@ export default function ExamenModal({ isOpen, onClose, semana, examenProgramado 
     setErrorCarga('');
     try {
       const data = await cargarPreguntasExamenProgramadoFromService(examenProgramado.id);
-      setPreguntas(data?.preguntas || []);
+      setPreguntas(normalizarListaPreguntas(data?.preguntas));
       setSegundosRestantes((data?.duracionMin || examenProgramado.duracionMin || 15) * 60);
       setInicioMs(Date.now());
       setFase('en-curso');
@@ -261,27 +285,46 @@ export default function ExamenModal({ isOpen, onClose, semana, examenProgramado 
         )}
 
         {!cargando && !finalizado && (!modoProgramado || fase === 'en-curso') && preguntas.map((p, idx) => (
-          <div key={p.id} className="question-card" style={{ marginBottom: '14px' }}>
-            <div className="card-top">
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '800' }}>
+          <div key={p.id} className="p-4 rounded-xl border border-slate-700/60 bg-slate-900/60 mb-4 shadow-lg">
+            <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+              <span className="text-xs font-extrabold text-slate-400">
                 PREGUNTA {idx + 1} DE {preguntas.length}
               </span>
-              <span className="question-type">
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-800 text-sky-300 border border-slate-700">
                 {p.tipo === 'teoria' ? '📖 TEORÍA' : '🧮 EJERCICIO'}
               </span>
             </div>
-            <div className="question-body" style={{ whiteSpace: 'pre-line' }}>{p.pregunta}</div>
-            <div className="options-grid">
-              {p.opciones.map((op) => (
-                <div
-                  key={op.id}
-                  className={`option-item ${respuestas[p.id] === op.id ? 'correct' : ''}`}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => elegirOpcion(p.id, op.id)}
-                >
-                  <strong>{op.id.toUpperCase()})</strong> {op.texto}
-                </div>
-              ))}
+            <div className="text-xs font-medium text-slate-100 mb-3 whitespace-pre-line leading-relaxed">
+              {p.pregunta}
+            </div>
+            <div className="flex flex-col gap-2">
+              {p.opciones.map((op) => {
+                const estaSeleccionada = respuestas[p.id] === op.id;
+                return (
+                  <label
+                    key={op.id}
+                    onClick={() => elegirOpcion(p.id, op.id)}
+                    className={`flex items-center gap-3 p-3 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
+                      estaSeleccionada
+                        ? 'bg-sky-500/20 border-sky-400 text-sky-200 ring-2 ring-sky-500/60 shadow-md scale-[1.005]'
+                        : 'bg-slate-950/80 hover:bg-slate-800/80 border-slate-800 text-slate-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`pregunta-${p.id}`}
+                      value={op.id}
+                      checked={estaSeleccionada}
+                      onChange={() => elegirOpcion(p.id, op.id)}
+                      className="w-4 h-4 text-sky-500 bg-slate-900 border-slate-700 focus:ring-sky-400 cursor-pointer shrink-0"
+                    />
+                    <div className="flex-1 leading-relaxed">
+                      <strong className="font-extrabold text-sky-300 mr-1.5">{op.id.toUpperCase()})</strong>
+                      {op.texto}
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           </div>
         ))}
