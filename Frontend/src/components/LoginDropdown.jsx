@@ -201,7 +201,7 @@ export default function LoginDropdown({ isOpen, onClose }) {
   };
 
   return (
-    <div className={`absolute right-0 top-14 w-88 border backdrop-blur-2xl rounded-2xl p-5 shadow-2xl z-50 transition-all animate-fadeIn ${
+    <div className={`absolute right-0 top-14 w-[90vw] sm:w-[400px] max-w-[420px] border backdrop-blur-2xl rounded-2xl p-5 shadow-2xl z-50 transition-all animate-fadeIn ${
       esLight
         ? 'bg-white border-slate-300 text-slate-900 shadow-xl'
         : 'bg-[#131313]/95 border-white/20 text-white'
