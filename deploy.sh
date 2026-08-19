@@ -159,7 +159,7 @@ if [ "$DEPLOY_BACKEND" = true ]; then
   run_ssh "bash -s" << EOF
     export PATH=/usr/bin:/usr/local/bin:\$PATH
     cd ${REMOTE_BACKEND_DIR}
-    npm install --production --silent
+    npm install --legacy-peer-deps --production
 
     if command -v pm2 &> /dev/null; then
       echo "Reiniciando/Iniciando backend NestJS con PM2..."

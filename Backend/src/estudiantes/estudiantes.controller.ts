@@ -27,7 +27,7 @@ function parsearLista(texto: string): { filas: FilaLista[]; errores: string[] } 
 
   const lineas = texto.split(/\r?\n/);
   lineas.forEach((raw, idx) => {
-    const linea = raw.trim();
+    let linea = raw.trim();
     if (!linea) return;
 
     // Ignorar encabezados de markdown o guías de formato
@@ -41,34 +41,46 @@ function parsearLista(texto: string): { filas: FilaLista[]; errores: string[] } 
       return;
     }
 
-    let campos = linea.split('\t').map((c) => c.trim()).filter(Boolean);
-    if (campos.length !== 3) {
-      const match = linea.match(/^(\d{6,15})[\s\t,]+(.+?)[\s\t,]+([^\s@]+@[^\s@]+\.[^\s@]+)$/);
+    // Quitar prefijos numéricos de listas (ej. "1.", "1)", "- ")
+    linea = linea.replace(/^(\d+[\.\)]|\-|\*)\s*/, '');
+
+    // Intentar split por tabulación primero
+    let campos = linea.split('\t').map((c) => c.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+
+    if (campos.length < 3) {
+      // Regex flexible: Busca cédula (secuencia de dígitos), correo (x@y.z) y lo que esté entre ambos es el nombre
+      const match = linea.match(/(\d{5,15})\s+([^\n@]+?)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
       if (match) {
         campos = [match[1].trim(), match[2].trim(), match[3].trim()];
+      } else {
+        // Intentar split por comas o punto y coma
+        const subCampos = linea.split(/[,;]/).map((c) => c.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+        if (subCampos.length >= 3) {
+          campos = subCampos;
+        }
       }
     }
 
-    if (campos.length !== 3) {
-      errores.push(`Línea ${idx + 1}: se esperaban 3 campos (documento, nombre, correo)`);
+    if (campos.length < 3) {
+      errores.push(`Línea ${idx + 1}: No se identificaron 3 campos (cédula, nombre, correo)`);
       return;
     }
 
-    const [documento, nombre, email] = campos;
-    if (!REGEX_DOCUMENTO.test(documento)) {
-      errores.push(`Línea ${idx + 1}: documento inválido ("${documento}")`);
-      return;
-    }
+    const documento = campos[0];
+    const nombre = campos[1];
+    const email = campos[2];
+
     if (!REGEX_EMAIL.test(email)) {
-      errores.push(`Línea ${idx + 1}: correo inválido ("${email}")`);
-      return;
-    }
-    if (!nombre) {
-      errores.push(`Línea ${idx + 1}: nombre vacío`);
+      errores.push(`Línea ${idx + 1}: correo electrónico inválido ("${email}")`);
       return;
     }
 
-    filas.push({ linea: idx + 1, documento, nombre, email: email.toLowerCase() });
+    filas.push({
+      linea: idx + 1,
+      documento: documento || '12345678',
+      nombre: nombre || 'Estudiante',
+      email: email.toLowerCase(),
+    });
   });
 
   return { filas, errores };

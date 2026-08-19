@@ -35,6 +35,16 @@ export class AuthController {
     return this.authService.crearUsuarioConRol(body);
   }
 
+  @Post('usuarios/carga-masiva')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERUSUARIO', 'DOCENTE')
+  async cargaMasivaEstudiantes(
+    @Body() body: { materiaId: number; estudiantes: Array<{ documentoIdentidad: string; nombre: string; email: string }> },
+    @Req() req: any,
+  ) {
+    return this.authService.cargaMasivaEstudiantes(req.user, body.materiaId, body.estudiantes);
+  }
+
   @Patch('usuarios/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERUSUARIO', 'DOCENTE')

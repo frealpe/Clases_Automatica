@@ -120,6 +120,55 @@ export class AuthService implements OnModuleInit {
     return { ok: true, usuario: rows[0] };
   }
 
+  async cargaMasivaEstudiantes(
+    solicitante: { id: number; rol: string },
+    materiaId: number,
+    estudiantes: Array<{ documentoIdentidad: string; nombre: string; email: string }>,
+  ) {
+    if (!materiaId) {
+      throw new BadRequestException('Se requiere una materiaId válida para matricular');
+    }
+    if (!Array.isArray(estudiantes) || estudiantes.length === 0) {
+      throw new BadRequestException('No se encontraron estudiantes para procesar');
+    }
+
+    const defaultPasswordHash = await bcrypt.hash('algebra2026', 10);
+    let creados = 0;
+    let actualizados = 0;
+
+    for (const est of estudiantes) {
+      if (!est.email || !est.nombre) continue;
+      const email = est.email.trim().toLowerCase();
+      const nombre = est.nombre.trim();
+      const doc = est.documentoIdentidad ? est.documentoIdentidad.trim() : null;
+
+      // Buscar o crear usuario
+      const { rows } = await this.db.query('SELECT id FROM usuarios WHERE email = $1', [email]);
+      let estudianteId: number;
+
+      if (rows.length > 0) {
+        estudianteId = rows[0].id;
+        await this.db.query('UPDATE usuarios SET documento_identidad = COALESCE($1, documento_identidad), nombre = $2 WHERE id = $3', [doc, nombre, estudianteId]);
+        actualizados++;
+      } else {
+        const { rows: newRows } = await this.db.query(
+          `INSERT INTO usuarios (nombre, email, password_hash, rol, documento_identidad) VALUES ($1, $2, $3, 'ESTUDIANTE', $4) RETURNING id`,
+          [nombre, email, defaultPasswordHash, doc],
+        );
+        estudianteId = newRows[0].id;
+        creados++;
+      }
+
+      // Matricular en materiaId
+      await this.db.query(
+        `INSERT INTO inscripciones (estudiante_id, materia_id) VALUES ($1, $2) ON CONFLICT (estudiante_id, materia_id) DO NOTHING`,
+        [estudianteId, materiaId],
+      );
+    }
+
+    return { ok: true, creados, actualizados, total: estudiantes.length, mensaje: `Se procesaron ${estudiantes.length} estudiantes exitosamente.` };
+  }
+
   async listarUsuarios(solicitante?: { id: number; rol: string }) {
     let whereClause = '';
     const params: any[] = [];

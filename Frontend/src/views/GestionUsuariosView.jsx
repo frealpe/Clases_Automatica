@@ -386,21 +386,36 @@ function GestionUsuariosView() {
               </select>
             </div>
 
-            <button
-              onClick={() => {
-                setUsuarioEditar(null);
-                setFormUsuario({ nombre: '', email: '', documentoIdentidad: '', password: '', rol: getRolPorPestaña(), materiaIds: [] });
-                setErrorModalUsuario('');
-                setMostrarPasswordModal(false);
-                setModalUsuarioAbierto(true);
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer ${
-                esLight ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-black hover:bg-slate-100'
-              }`}
-            >
-              <span className="material-symbols-outlined text-base">person_add</span>
-              {getTituloBotonAlta()}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setModalCargaMasivaAbierto(true)}
+                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer ${
+                  esLight
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 font-bold'
+                }`}
+                title="Cargar y matricular estudiantes adjuntando un archivo Estudiantes.md"
+              >
+                <span className="material-symbols-outlined text-base">upload_file</span>
+                Cargar Estudiantes (.md)
+              </button>
+
+              <button
+                onClick={() => {
+                  setUsuarioEditar(null);
+                  setFormUsuario({ nombre: '', email: '', documentoIdentidad: '', password: '', rol: getRolPorPestaña(), materiaIds: [] });
+                  setErrorModalUsuario('');
+                  setMostrarPasswordModal(false);
+                  setModalUsuarioAbierto(true);
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer ${
+                  esLight ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-black hover:bg-slate-100'
+                }`}
+              >
+                <span className="material-symbols-outlined text-base">person_add</span>
+                {getTituloBotonAlta()}
+              </button>
+            </div>
           </div>
 
           {/* TABLA DE USUARIOS */}
@@ -826,6 +841,7 @@ function GestionUsuariosView() {
         isOpen={modalCargaMasivaAbierto}
         onClose={() => {
           setModalCargaMasivaAbierto(false);
+          cargarUsuarios();
           cargarEstudiantesDeMateria(materiaSeleccionadaId);
         }}
         materiaId={materiaSeleccionadaId}

@@ -70,4 +70,18 @@ export const usuariosService = {
       throw error;
     }
   },
+
+  // Carga masiva de estudiantes desde archivo .md / lista
+  async cargaMasivaEstudiantes(materiaId, estudiantes) {
+    try {
+      const response = await apiClient.post('/auth/usuarios/carga-masiva', {
+        materiaId,
+        estudiantes,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error en carga masiva de estudiantes:', error);
+      throw error;
+    }
+  },
 };
