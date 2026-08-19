@@ -1,7 +1,8 @@
 import {
-  Controller, Get, Put, Post, Patch, Delete, Param, Query, Body,
-  UploadedFile, UseInterceptors, BadRequestException, OnModuleInit,
+  Controller, Get, Put, Post, Patch, Delete, Param, Query, Body, Req,
+  UploadedFile, UseInterceptors, UseGuards, BadRequestException, ForbiddenException, OnModuleInit,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { DatabaseService } from '../database/database.service';
@@ -58,33 +59,45 @@ function extraerProyectoZip(buffer: Buffer, destino: string): string {
     throw new BadRequestException(`El .zip supera el límite de ${MAX_ARCHIVOS_PROYECTO} archivos`);
   }
 
-  let bytesTotales = 0;
+  let totalBytes = 0;
   for (const entrada of entradas) {
-    bytesTotales += entrada.header.size;
-    const rutaDestino = path.resolve(destino, entrada.entryName);
-    if (rutaDestino !== destino && !rutaDestino.startsWith(destino + path.sep)) {
-      throw new BadRequestException('El .zip contiene rutas inválidas (path traversal)');
+    if (!entrada.isDirectory) {
+      totalBytes += entrada.header.size;
+      if (totalBytes > MAX_BYTES_PROYECTO) {
+        throw new BadRequestException(`El .zip supera el tamaño máximo descomprimido de 50MB`);
+      }
     }
-  }
-  if (bytesTotales > MAX_BYTES_PROYECTO) {
-    throw new BadRequestException('El proyecto descomprimido supera el límite de 50MB');
   }
 
   fs.rmSync(destino, { recursive: true, force: true });
   fs.mkdirSync(destino, { recursive: true });
-  zip.extractAllTo(destino, true);
+  for (const entrada of entradas) {
+    const rutaAbsoluta = path.normalize(path.join(destino, entrada.entryName));
+    if (!rutaAbsoluta.startsWith(path.normalize(destino))) {
+      throw new BadRequestException('Intento de desbordamiento de directorio (Zip Slip)');
+    }
+    if (entrada.isDirectory) {
+      fs.mkdirSync(rutaAbsoluta, { recursive: true });
+    } else {
+      fs.mkdirSync(path.dirname(rutaAbsoluta), { recursive: true });
+      fs.writeFileSync(rutaAbsoluta, entrada.getData());
+    }
+  }
 
   if (fs.existsSync(path.join(destino, 'index.html'))) {
-    return '';
+    return 'index.html';
   }
-  const items = fs.readdirSync(destino, { withFileTypes: true });
-  const carpetas = items.filter((i) => i.isDirectory());
-  if (carpetas.length === 1 && fs.existsSync(path.join(destino, carpetas[0].name, 'index.html'))) {
-    return carpetas[0].name;
+
+  const itemsRaiz = fs.readdirSync(destino);
+  if (itemsRaiz.length === 1) {
+    const subcarpeta = path.join(destino, itemsRaiz[0]);
+    if (fs.statSync(subcarpeta).isDirectory() && fs.existsSync(path.join(subcarpeta, 'index.html'))) {
+      return path.join(itemsRaiz[0], 'index.html');
+    }
   }
 
   fs.rmSync(destino, { recursive: true, force: true });
-  throw new BadRequestException('El .zip debe incluir index.html en la raíz (o en una única carpeta contenedora)');
+  throw new BadRequestException('El .zip debe contener un archivo index.html en la raíz o en su carpeta principal');
 }
 
 @Controller('semanas')
@@ -93,33 +106,29 @@ export class SemanasController implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      // 1. Asegurar columna contenido_json en PostgreSQL DB
-      await this.db.query(`ALTER TABLE semanas ADD COLUMN IF NOT EXISTS contenido_json JSONB;`);
-
-      // 2. Leer las semillas desde los archivos JSON externos (Semana 1, Semana 2, etc.)
-      const semillas = [
-        { id: 1, archivo: 'semana-01-contenido.json' },
-        { id: 2, archivo: 'semana-02-contenido.json' },
-      ];
-
-      for (const sem of semillas) {
-        const rutaSemilla = path.join(__dirname, '..', 'database', 'seeds', sem.archivo);
-        if (fs.existsSync(rutaSemilla)) {
-          const contenidoRaw = fs.readFileSync(rutaSemilla, 'utf8');
-          await this.db.query(
-            `UPDATE semanas SET contenido_json = $1 WHERE id = $2`,
-            [contenidoRaw, sem.id]
-          );
-        }
-      }
+      await this.db.query(`
+        ALTER TABLE semanas ADD COLUMN IF NOT EXISTS contenido_json JSONB;
+        ALTER TABLE semanas ADD COLUMN IF NOT EXISTS ejercicios_resueltos_url VARCHAR(255);
+        ALTER TABLE semanas ADD COLUMN IF NOT EXISTS banco_preguntas_url VARCHAR(255);
+      `);
     } catch (err) {
       console.error('Error al inicializar las semillas JSON de semanas en PostgreSQL:', err);
     }
   }
 
   @Get()
-  async obtenerTodas(@Query('materiaId') materiaId?: string) {
+  @UseGuards(JwtAuthGuard)
+  async obtenerTodas(@Req() req: any, @Query('materiaId') materiaId?: string) {
     const mid = materiaId ? parseInt(materiaId, 10) : 1;
+
+    // Si el usuario es DOCENTE, verificar estricta propiedad de la asignatura:
+    if (req.user && req.user.rol === 'DOCENTE') {
+      const { rows: m } = await this.db.query('SELECT docente_id FROM materias WHERE id = $1', [mid]);
+      if (m.length > 0 && m[0].docente_id !== req.user.id) {
+        throw new ForbiddenException('No tienes permiso para ver el material de apoyo de las asignaturas de otro docente.');
+      }
+    }
+
     const { rows } = await this.db.query(
       `SELECT ${COLUMNAS_SEMANA} FROM semanas WHERE materia_id = $1 ORDER BY numero`,
       [mid],
@@ -128,12 +137,24 @@ export class SemanasController implements OnModuleInit {
   }
 
   @Get(':id')
-  async obtenerUna(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard)
+  async obtenerUna(@Req() req: any, @Param('id') id: string) {
+    const semanaId = parseIdOrThrow(id);
     const { rows } = await this.db.query(
       `SELECT ${COLUMNAS_SEMANA} FROM semanas WHERE id = $1`,
-      [parseIdOrThrow(id)],
+      [semanaId],
     );
-    return rows[0];
+    const semana = rows[0];
+    if (!semana) throw new BadRequestException('Semana no encontrada');
+
+    if (req.user && req.user.rol === 'DOCENTE') {
+      const { rows: m } = await this.db.query('SELECT docente_id FROM materias WHERE id = $1', [semana.materiaId]);
+      if (m.length > 0 && m[0].docente_id !== req.user.id) {
+        throw new ForbiddenException('No tienes permiso para ver el material de apoyo de las asignaturas de otro docente.');
+      }
+    }
+
+    return semana;
   }
 
   // API REST para guardar/actualizar cualquier JSON de clase en PostgreSQL
