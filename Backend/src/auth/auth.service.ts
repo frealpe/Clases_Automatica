@@ -245,6 +245,94 @@ export class AuthService implements OnModuleInit {
     return { ok: true, mensaje: 'Usuario eliminado' };
   }
 
+  async cambiarPassword(usuarioId: number, dto: { passwordActual: string; passwordNueva: string }) {
+    if (!dto.passwordActual || !dto.passwordNueva) {
+      throw new BadRequestException('Debe ingresar la contraseña actual y la nueva contraseña');
+    }
+    if (dto.passwordNueva.trim().length < 4) {
+      throw new BadRequestException('La nueva contraseña debe tener al menos 4 caracteres');
+    }
+
+    const { rows } = await this.db.query<UsuarioRow>(
+      'SELECT id, password_hash FROM usuarios WHERE id = $1',
+      [usuarioId],
+    );
+    const user = rows[0];
+    if (!user) throw new BadRequestException('Usuario no encontrado');
+
+    const esValido = await bcrypt.compare(dto.passwordActual, user.password_hash);
+    if (!esValido) {
+      throw new UnauthorizedException('La contraseña actual ingresada es incorrecta');
+    }
+
+    const hashNuevo = await bcrypt.hash(dto.passwordNueva.trim(), 10);
+    await this.db.query('UPDATE usuarios SET password_hash = $1 WHERE id = $2', [hashNuevo, usuarioId]);
+
+    return { ok: true, mensaje: 'Contraseña actualizada exitosamente' };
+  }
+
+  async recuperarPassword(dto: { email: string }) {
+    if (!dto.email || !dto.email.trim()) {
+      throw new BadRequestException('Debe ingresar el correo electrónico asociado');
+    }
+
+    const emailNorm = dto.email.trim().toLowerCase();
+    const { rows } = await this.db.query<UsuarioRow>(
+      'SELECT id, nombre, email FROM usuarios WHERE LOWER(email) = $1',
+      [emailNorm],
+    );
+    const user = rows[0];
+    if (!user) {
+      throw new BadRequestException('El correo electrónico ingresado no se encuentra registrado');
+    }
+
+    // Código numérico seguro de 6 dígitos con 15 min de validez
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+    const expira = new Date(Date.now() + 15 * 60 * 1000);
+
+    await this.db.query(
+      'UPDATE usuarios SET reset_token = $1, reset_token_expira = $2 WHERE id = $3',
+      [codigo, expira, user.id],
+    );
+
+    return {
+      ok: true,
+      mensaje: `Código de recuperación enviado al correo ${user.email}. (Código de verificación: ${codigo})`,
+      codigoRecuperacion: codigo,
+    };
+  }
+
+  async restablecerPassword(dto: { email: string; codigo: string; passwordNueva: string }) {
+    if (!dto.email || !dto.codigo || !dto.passwordNueva) {
+      throw new BadRequestException('Todos los campos son requeridos');
+    }
+
+    const emailNorm = dto.email.trim().toLowerCase();
+    const codigoNorm = dto.codigo.trim();
+
+    const { rows } = await this.db.query<UsuarioRow & { reset_token: string; reset_token_expira: Date }>(
+      'SELECT id, reset_token, reset_token_expira FROM usuarios WHERE LOWER(email) = $1',
+      [emailNorm],
+    );
+    const user = rows[0];
+
+    if (!user || user.reset_token !== codigoNorm) {
+      throw new BadRequestException('El código de recuperación ingresado es incorrecto');
+    }
+
+    if (user.reset_token_expira && new Date(user.reset_token_expira) < new Date()) {
+      throw new BadRequestException('El código de recuperación ha expirado. Solicita uno nuevo.');
+    }
+
+    const hashNuevo = await bcrypt.hash(dto.passwordNueva.trim(), 10);
+    await this.db.query(
+      'UPDATE usuarios SET password_hash = $1, reset_token = NULL, reset_token_expira = NULL WHERE id = $2',
+      [hashNuevo, user.id],
+    );
+
+    return { ok: true, mensaje: 'Contraseña restablecida con éxito. Ya puedes ingresar con tu nueva contraseña.' };
+  }
+
   private emitirToken(user: UsuarioRow) {
     const payload = { sub: user.id, nombre: user.nombre, email: user.email, rol: user.rol };
     return {

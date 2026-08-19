@@ -25,12 +25,10 @@ export default function App() {
                            location.pathname.startsWith('/usuarios');
 
   useEffect(() => {
-    document.body.className = themeMode === 'light' ? 'light-mode overflow-hidden' : 'dark-mode overflow-hidden';
+    document.body.className = themeMode === 'light' ? 'light-mode min-h-screen' : 'dark-mode min-h-screen';
   }, [themeMode]);
 
   useEffect(() => {
-    // GET /materias ahora exige sesión (se filtra por rol en el backend); sin token, la landing
-    // pública (/) sigue mostrando las materias de ejemplo ya presentes en el store.
     if (tokenJWT) {
       cargarMateriasFromService();
     }
@@ -43,16 +41,18 @@ export default function App() {
   const esLight = themeMode === 'light';
 
   return (
-    <div className={`relative h-screen w-screen overflow-hidden font-sans antialiased transition-colors duration-300 ${
+    <div className={`relative min-h-screen md:h-screen w-full md:w-screen overflow-y-auto md:overflow-hidden font-sans antialiased transition-colors duration-300 ${
       esLight ? 'bg-slate-50 text-slate-900' : 'bg-[#0a0a0a] text-white selection:bg-white/20'
     }`}>
-      {/* Background 3D Scroll Video (SE OCULTA EN VISTAS DE APPLICACIÓN / ADMIN) */}
+      {/* Background 3D Scroll Video */}
       {!esLight && !esVistaProyectos && <ScrollVideo />}
 
-      {/* Content Wrapper estricto sin scrollbar vertical */}
-      <div className="relative z-10 flex flex-col h-full w-full overflow-hidden">
+      {/* Content Wrapper Adaptativo a Móviles y Escritorio */}
+      <div className="relative z-10 flex flex-col min-h-screen md:h-full w-full overflow-y-auto md:overflow-hidden">
         <Navbar />
-        <main className={`flex-1 w-full overflow-hidden ${esVistaProyectos ? 'px-4 pt-20 pb-3' : 'max-w-[1600px] mx-auto px-4 pt-20 pb-2'}`}>
+        <main className={`flex-1 w-full overflow-y-auto md:overflow-hidden ${
+          esVistaProyectos ? 'px-2 sm:px-4 pt-20 pb-4' : 'max-w-[1600px] mx-auto px-2 sm:px-4 pt-20 pb-4'
+        }`}>
           <Routes>
             <Route path="/" element={<EstudianteView />} />
             <Route path="/labor" element={<MisMateriasView />} />

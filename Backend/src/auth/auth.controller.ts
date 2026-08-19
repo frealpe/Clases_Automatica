@@ -46,6 +46,27 @@ export class AuthController {
     return this.authService.actualizarUsuario(id, body);
   }
 
+  @Patch('cambiar-password')
+  @UseGuards(JwtAuthGuard)
+  async cambiarPassword(
+    @Body() body: { passwordActual: string; passwordNueva: string },
+    @Req() req: any,
+  ) {
+    return this.authService.cambiarPassword(req.user.id, body);
+  }
+
+  @Post('recuperar-password')
+  async recuperarPassword(@Body() body: { email: string }) {
+    return this.authService.recuperarPassword(body);
+  }
+
+  @Post('restablecer-password')
+  async restablecerPassword(
+    @Body() body: { email: string; codigo: string; passwordNueva: string },
+  ) {
+    return this.authService.restablecerPassword(body);
+  }
+
   @Delete('usuarios/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERUSUARIO', 'DOCENTE')

@@ -14,8 +14,12 @@ CREATE TABLE IF NOT EXISTS usuarios (
     password_hash VARCHAR(255) NOT NULL,
     rol user_role_enum NOT NULL DEFAULT 'ESTUDIANTE',
     documento_identidad VARCHAR(20),
+    reset_token VARCHAR(100),
+    reset_token_expira TIMESTAMP,
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS reset_token VARCHAR(100);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS reset_token_expira TIMESTAMP;
 CREATE UNIQUE INDEX IF NOT EXISTS usuarios_documento_identidad_key
     ON usuarios (documento_identidad) WHERE documento_identidad IS NOT NULL;
 
