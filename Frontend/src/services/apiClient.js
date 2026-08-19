@@ -3,7 +3,7 @@ import axios from 'axios';
 // Lectura de la URL base dinámicamente para desarrollo y producción
 export const getBaseUrl = () => {
   if (import.meta?.env?.VITE_API_URL && import.meta.env.VITE_API_URL !== 'http://localhost:3000') {
-    return import.meta.env.VITE_API_URL;
+    return import.meta.env.VITE_API_URL.replace(/^http:\/\//i, 'https://');
   }
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     return '/api';

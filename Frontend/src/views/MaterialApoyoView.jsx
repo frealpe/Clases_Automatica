@@ -7,6 +7,13 @@ import Sidebar from '../components/Sidebar';
 import ExamenModal from '../components/ExamenModal';
 import NotasSemana01 from '../components/NotasSemana01';
 
+const getDownloadUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://')) return url.replace(/^http:\/\//i, 'https://');
+  if (url.startsWith('/notas') || url.startsWith('/uploads')) return url;
+  return `${API_URL}${url}`.replace(/^http:\/\//i, 'https://');
+};
+
 export default function MaterialApoyoView() {
   const navigate = useNavigate();
   const materias = useCourseStore((state) => state.materias);
@@ -240,7 +247,7 @@ export default function MaterialApoyoView() {
                         <div className="flex flex-wrap gap-1 mb-2 pt-1.5 border-t border-slate-700/30">
                           {s.guiaPdfUrl && (
                             <a
-                              href={`${API_URL}${s.guiaPdfUrl}`}
+                              href={getDownloadUrl(s.guiaPdfUrl)}
                               download
                               onClick={(e) => e.stopPropagation()}
                               className="px-2 py-0.5 rounded text-[10px] border font-bold bg-slate-800 border-slate-600 text-sky-300 flex items-center gap-0.5 hover:bg-slate-700 no-underline"
@@ -250,7 +257,7 @@ export default function MaterialApoyoView() {
                           )}
                           {s.notasPdfUrl && (
                             <a
-                              href={`${API_URL}${s.notasPdfUrl}`}
+                              href={getDownloadUrl(s.notasPdfUrl)}
                               download
                               onClick={(e) => e.stopPropagation()}
                               className="px-2 py-0.5 rounded text-[10px] border font-bold bg-slate-800 border-slate-600 text-emerald-300 flex items-center gap-0.5 hover:bg-slate-700 no-underline"
@@ -260,7 +267,7 @@ export default function MaterialApoyoView() {
                           )}
                           {s.diapositivasPdfUrl && (
                             <a
-                              href={`${API_URL}${s.diapositivasPdfUrl}`}
+                              href={getDownloadUrl(s.diapositivasPdfUrl)}
                               download
                               onClick={(e) => e.stopPropagation()}
                               className="px-2 py-0.5 rounded text-[10px] border font-bold bg-slate-800 border-slate-600 text-violet-300 flex items-center gap-0.5 hover:bg-slate-700 no-underline"
