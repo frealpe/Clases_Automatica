@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 2 — Eliminación de Gauss-Jordan y sistemas homogéneos</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Semana 2 — Eliminación de Gauss-Jordan y sistemas homogéneos</h1>
+    <p class="subtitulo">Álgebra Lineal para Ingeniería · Universidad del Cauca · Unidad 1 (Grossman, cap. 1)</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-2b.html">1.2b Sistemas equivalentes</a></li>
+    <li><a href="tema-1-3.html">1.3 Gauss-Jordan</a></li>
+    <li><a href="tema-1-4.html">1.4 Sistemas homogéneos</a></li>
+    <li><a href="ejercicios-resueltos.html">Ejercicios resueltos</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="ficha">
+  <table>
+    <tr><td class="clave">Semana</td><td>2 de 16</td></tr>
+    <tr><td class="clave">Unidad</td><td>1 — Sistemas de ecuaciones lineales</td></tr>
+    <tr><td class="clave">Subtemas</td><td>1.2b (sistemas equivalentes, consistentes e inconsistentes), 1.3 (<em>m</em> ecuaciones con <em>n</em> incógnitas, Gauss-Jordan), 1.4 (sistemas homogéneos)</td></tr>
+    <tr><td class="clave">Resultados de aprendizaje</td><td>RA1.2b, RA1.3, RA1.4</td></tr>
+    <tr><td class="clave">Horas de clase</td><td>4</td></tr>
+  </table>
+</div>
+
+<h2>Relevancia para ingeniería</h2>
+<p>
+  Los sistemas reales rara vez tienen solo dos incógnitas: un circuito con muchas mallas, una
+  estructura con muchos nodos, o un proceso con muchas corrientes de materia dan sistemas de
+  decenas o cientos de ecuaciones. La eliminación de Gauss-Jordan es el algoritmo sistemático
+  — y la base de todo el software numérico de ingeniería — para resolver cualquier sistema, sin
+  importar su tamaño, sin depender de decisiones ad-hoc sobre qué variable despejar primero. Los
+  sistemas homogéneos, por su parte, aparecen al buscar modos propios, estados de equilibrio nulos,
+  o condiciones de compatibilidad de un sistema estructural.
+</p>
+
+<h2>Contenidos de la semana</h2>
+<div class="tarjetas">
+  <a class="tarjeta" href="tema-1-2b.html">
+    <span class="etiqueta">1.2b</span>
+    <h3>Sistemas equivalentes y clasificación</h3>
+    <p>Sistemas equivalentes, operaciones elementales de fila, consistencia e inconsistencia, y
+       los tres casos posibles (inconsistente, solución única, infinitas soluciones).</p>
+  </a>
+  <a class="tarjeta" href="tema-1-3.html">
+    <span class="etiqueta">1.3</span>
+    <h3><em>m</em> ecuaciones con <em>n</em> incógnitas</h3>
+    <p>Matriz aumentada, forma escalonada reducida (RREF), algoritmo de Gauss-Jordan, y una
+       aplicación completa a corrientes de malla en un circuito eléctrico.</p>
+  </a>
+  <a class="tarjeta" href="tema-1-4.html">
+    <span class="etiqueta">1.4</span>
+    <h3>Sistemas homogéneos</h3>
+    <p>Solución trivial, condición para soluciones no triviales, y una visualización 3D del
+       conjunto solución cuando hay variables libres.</p>
+  </a>
+  <a class="tarjeta" href="ejercicios-resueltos.html">
+    <span class="etiqueta">Ejercicios</span>
+    <h3>Ejercicios resueltos</h3>
+    <p>Los 6 ejercicios propuestos de <code>notas.tex</code>, resueltos paso a paso: clasificación
+       de sistemas, un caso con parámetro <em>k</em>, y sistemas homogéneos.</p>
+  </a>
+</div>
+
+<h2>Plan de la sesión (4 horas)</h2>
+<table class="datos">
+  <tr><th>Hora</th><th>Actividad</th></tr>
+  <tr><td>1</td><td>Sistemas equivalentes: definición, operaciones elementales de fila como transformaciones equivalentes; clasificación consistente/inconsistente; detección de fila contradictoria.</td></tr>
+  <tr><td>2</td><td>Matriz aumentada, forma escalonada reducida; algoritmo de Gauss-Jordan paso a paso (teoría + ejemplo guiado). Exploración en <code>visualizacion/</code> (sección <em>1.3 Gauss-Jordan</em>).</td></tr>
+  <tr><td>3</td><td>Taller: reducir sistemas 3×3 y 2×3 a forma escalonada reducida; identificar consistencia e inconsistencia.</td></tr>
+  <tr><td>4</td><td>Sistemas homogéneos: solución trivial, condición para soluciones no triviales, relación con variables libres (teoría + ejemplos). Control formativo de la Semana 1.</td></tr>
+</table>
+
+<h2>Bibliografía</h2>
+<ul>
+  <li>Grossman, S. I., Flores Godoy, J. J. <em>Álgebra lineal</em>. 7a/8a ed., McGraw-Hill, cap. 1, §1.3–1.4.</li>
+  <li>Lay, D. C., Lay, S. R., McDonald, J. J. <em>Álgebra lineal y sus aplicaciones</em>. Pearson.</li>
+</ul>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-02/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

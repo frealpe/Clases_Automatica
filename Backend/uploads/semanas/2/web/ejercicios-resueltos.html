@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicios resueltos — Semana 2</title>
+<link rel="stylesheet" href="css/estilo.css">
+<script>
+  window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Ejercicios resueltos</h1>
+    <p class="subtitulo">Semana 2 · Unidad 1 · Álgebra Lineal para Ingeniería — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-2b.html">1.2b Sistemas equivalentes</a></li>
+    <li><a href="tema-1-3.html">1.3 Gauss-Jordan</a></li>
+    <li><a href="tema-1-4.html">1.4 Sistemas homogéneos</a></li>
+    <li><a href="ejercicios-resueltos.html">Ejercicios resueltos</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<p>Material complementario: soluciones de la lista de ejercicios de <code>notas.tex</code> §4,
+de entrega antes de la Semana 3 (ver <code>guia.tex</code> § Actividades). Cada ejercicio se
+resuelve por eliminación de Gauss-Jordan, salvo indicación contraria.</p>
+
+<div class="ejercicio">
+  <span class="num">1</span>Clasificar el sistema
+  \(\{2x_1-x_2+x_3=4,\; x_1+3x_3=-1,\; -x_1+x_2+2x_3=0\}\).
+  \[
+    \left(\begin{array}{ccc|c}2&-1&1&4\\1&0&3&-1\\-1&1&2&0\end{array}\right)
+    \xrightarrow{F_1\leftrightarrow F_2}
+    \left(\begin{array}{ccc|c}1&0&3&-1\\2&-1&1&4\\-1&1&2&0\end{array}\right)
+  \]
+  \[
+    \xrightarrow{F_2-2F_1,\;F_3+F_1}
+    \left(\begin{array}{ccc|c}1&0&3&-1\\0&-1&-5&6\\0&1&5&-1\end{array}\right)
+    \xrightarrow{F_3+F_2}
+    \left(\begin{array}{ccc|c}1&0&3&-1\\0&-1&-5&6\\0&0&0&5\end{array}\right)
+  \]
+  La fila \([0\;0\;0\mid 5]\) es la ecuación \(0=5\): contradicción.
+  <div class="resultado">El sistema es <strong>inconsistente</strong>: no tiene solución.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">2</span>Resolver el sistema
+  \(\{x+y+z=2,\;2x-y+z=1,\;x+2y-z=3\}\).
+  \[
+    \left(\begin{array}{ccc|c}1&1&1&2\\2&-1&1&1\\1&2&-1&3\end{array}\right)
+    \xrightarrow{F_2-2F_1,\;F_3-F_1}
+    \left(\begin{array}{ccc|c}1&1&1&2\\0&-3&-1&-3\\0&1&-2&1\end{array}\right)
+  \]
+  \[
+    \xrightarrow{F_2\leftrightarrow F_3}
+    \left(\begin{array}{ccc|c}1&1&1&2\\0&1&-2&1\\0&-3&-1&-3\end{array}\right)
+    \xrightarrow{F_3+3F_2}
+    \left(\begin{array}{ccc|c}1&1&1&2\\0&1&-2&1\\0&0&-7&0\end{array}\right)
+  \]
+  \[
+    \xrightarrow{-\frac{1}{7}F_3}
+    \left(\begin{array}{ccc|c}1&1&1&2\\0&1&-2&1\\0&0&1&0\end{array}\right)
+    \xrightarrow{\substack{F_2+2F_3\\F_1-F_3}}
+    \left(\begin{array}{ccc|c}1&1&0&2\\0&1&0&1\\0&0&1&0\end{array}\right)
+    \xrightarrow{F_1-F_2}
+    \left(\begin{array}{ccc|c}1&0&0&1\\0&1&0&1\\0&0&1&0\end{array}\right)
+  \]
+  <div class="resultado">\(x=1,\quad y=1,\quad z=0.\)</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">3</span>Discutir, según el parámetro \(k\), el sistema
+  \(\{x+ky=1,\;kx+y=1\}\).
+  <p>La matriz aumentada reduce así:</p>
+  \[
+    \left(\begin{array}{cc|c}1&k&1\\k&1&1\end{array}\right)
+    \xrightarrow{F_2-kF_1}
+    \left(\begin{array}{cc|c}1&k&1\\0&1-k^2&1-k\end{array}\right)
+  \]
+  <p>Nótese que \(1-k^2=(1-k)(1+k)\) y \(1-k=(1-k)\cdot 1\).</p>
+  <ul>
+    <li>Si \(k=1\): fila 2 queda \([0\;0\mid 0]\) &rArr;
+        <strong>infinitas soluciones</strong>: \(x+y=1\) (una fila de ceros).</li>
+    <li>Si \(k=-1\): fila 2 queda \([0\;0\mid 2]\) &rArr;
+        <strong>inconsistente</strong>: \(0=2\), sin solución.</li>
+    <li>Si \(k\neq\pm 1\): \(1-k^2\neq 0\), se divide y se obtiene
+        \(x=y=\dfrac{1}{1+k}\quad(k\neq\pm 1)\).</li>
+  </ul>
+  <div class="resultado">Tres casos según \(k\): \(k=1\) (infinitas), \(k=-1\) (inconsistente),
+  \(k\neq\pm1\) (única, \(x=y=\tfrac{1}{1+k}\)).</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">4</span>Un sistema homogéneo tiene \(m=3\) ecuaciones y \(n=5\) incógnitas.
+  Justificar que tiene soluciones no triviales, sin resolverlo.
+  <p>El sistema tiene \(m=3\) ecuaciones y \(n=5\) incógnitas (\(m<n\)). Por el teorema de
+  soluciones no triviales, todo sistema homogéneo con más incógnitas que ecuaciones tiene al
+  menos una variable libre, luego tiene soluciones no triviales. (El rango máximo posible es
+  \(r\leq m=3 < 5=n\), así que siempre habrá \(n-r\geq 2\) variables libres.)</p>
+  <div class="resultado">Sí tiene soluciones no triviales: garantizado por \(m<n\).</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">5</span>Resolver el sistema homogéneo
+  \(\{x_1-x_2+2x_3=0,\;2x_1-2x_2+4x_3=0\}\) (la segunda es el doble de la primera).
+  \[
+    \left(\begin{array}{ccc|c}1&-1&2&0\\2&-2&4&0\end{array}\right)
+    \xrightarrow{F_2-2F_1}
+    \left(\begin{array}{ccc|c}1&-1&2&0\\0&0&0&0\end{array}\right)
+  \]
+  <p>Rango \(r=1\): <strong>variables libres</strong> \(x_2=s\) y \(x_3=t\).<br>
+  De la primera fila: \(x_1 = x_2 - 2x_3 = s - 2t\).</p>
+  <div class="resultado">
+    Conjunto solución: \(\{(s-2t,\;s,\;t)\mid s,t\in\mathbb{R}\}\).<br>
+    Ejemplos: \((0,0,0)\) (trivial, \(s=t=0\)); \((1,1,0)\) (\(s=1,t=0\)); \((-2,0,1)\)
+    (\(s=0,t=1\)).
+  </div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">6</span>Un sistema homogéneo \(3\times 3\) tiene solución trivial única.
+  ¿Cuántos pivotes tiene la forma escalonada de la matriz de coeficientes?
+  <p>Un sistema homogéneo \(3\times 3\) con solución trivial única no tiene variables libres.
+  Como \(n=3\) incógnitas, el número de pivotes debe ser \(r=3\) (ninguna columna sin pivote). La
+  forma escalonada de la matriz de coeficientes \(A\) (sin la columna de ceros, que siempre queda
+  igual) tiene <strong>3 pivotes</strong>, uno por fila. (Equivalentemente: \(A\) es no singular,
+  \(\det A\neq 0\).)</p>
+  <div class="resultado">3 pivotes (uno por fila): \(A\) es no singular.</div>
+</div>
+
+<div class="paginacion">
+  <a href="tema-1-4.html">&larr; 1.4 Sistemas homogéneos</a>
+  <a href="index.html">Inicio &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-02/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

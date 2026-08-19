@@ -262,6 +262,16 @@ server {
         add_header X-Content-Type-Options "nosniff" always;
     }
 
+    location /notas/ {
+        alias ${REMOTE_FRONTEND_DIR}/notas/;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    location /api/notas/ {
+        alias ${REMOTE_FRONTEND_DIR}/notas/;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
     location ~ /\. {
         deny all;
         access_log off;
@@ -325,6 +335,16 @@ server {
 
     location /uploads/ {
         proxy_pass http://127.0.0.1:3000/uploads/;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    location /notas/ {
+        alias ${REMOTE_FRONTEND_DIR}/notas/;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    location /api/notas/ {
+        alias ${REMOTE_FRONTEND_DIR}/notas/;
         add_header X-Content-Type-Options "nosniff" always;
     }
 

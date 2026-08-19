@@ -127,7 +127,11 @@ export default function MaterialApoyoView() {
             <div className="flex-1 overflow-y-auto pt-2 pr-1">
               {semanaClaseActiva?.claseWebUrl ? (
                 <iframe
-                  src={`${API_URL}${semanaClaseActiva.claseWebUrl}`}
+                  src={
+                    semanaClaseActiva.claseWebUrl.startsWith('/notas')
+                      ? semanaClaseActiva.claseWebUrl
+                      : `${API_URL}${semanaClaseActiva.claseWebUrl}`
+                  }
                   title={`Material Web — Sesión ${semanaClaseActiva.numero}`}
                   className="w-full h-full min-h-[70vh] border-0 rounded-xl bg-white"
                 />

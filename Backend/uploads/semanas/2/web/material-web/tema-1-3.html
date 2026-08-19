@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.3 m ecuaciones con n incógnitas — Gauss-Jordan</title>
+<link rel="stylesheet" href="css/estilo.css">
+<script>
+  window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>1.3 <em>m</em> ecuaciones con <em>n</em> incógnitas</h1>
+    <p class="subtitulo">Semana 2 · Unidad 1 · Álgebra Lineal para Ingeniería — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-2b.html">1.2b Sistemas equivalentes</a></li>
+    <li><a href="tema-1-3.html">1.3 Gauss-Jordan</a></li>
+    <li><a href="tema-1-4.html">1.4 Sistemas homogéneos</a></li>
+    <li><a href="ejercicios-resueltos.html">Ejercicios resueltos</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Matriz aumentada</span>
+  Al sistema de \(m\) ecuaciones con \(n\) incógnitas
+  \[
+  \begin{aligned}
+    a_{11}x_1 + \cdots + a_{1n}x_n &= b_1 \\
+    &\;\vdots \\
+    a_{m1}x_1 + \cdots + a_{mn}x_n &= b_m
+  \end{aligned}
+  \]
+  se le asocia la matriz aumentada
+  \[
+    [A \mid \mathbf{b}] =
+    \left(\begin{array}{ccc|c}
+      a_{11} & \cdots & a_{1n} & b_1 \\
+      \vdots & \ddots & \vdots & \vdots \\
+      a_{m1} & \cdots & a_{mn} & b_m
+    \end{array}\right),
+  \]
+  que contiene toda la información del sistema sin escribir las incógnitas.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Operaciones elementales de fila</span>
+  Sobre la matriz aumentada se permiten tres operaciones, cada una equivalente a una manipulación
+  algebraica válida del sistema (no cambian el conjunto solución):
+  <ol>
+    <li>Intercambiar dos filas.</li>
+    <li>Multiplicar una fila por un escalar distinto de cero.</li>
+    <li>Sumar a una fila un múltiplo escalar de otra fila.</li>
+  </ol>
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Forma escalonada reducida por filas (RREF)</span>
+  Una matriz está en <em>forma escalonada reducida</em> (RREF, por sus siglas en inglés) si:
+  <ol>
+    <li>Toda fila no nula tiene como primer elemento no nulo (el <em>pivote</em>) un 1.</li>
+    <li>Cada pivote está a la derecha del pivote de la fila anterior.</li>
+    <li>Las filas nulas (si las hay) están al final.</li>
+    <li>En la columna de cada pivote, todos los demás elementos son 0.</li>
+  </ol>
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Eliminación de Gauss-Jordan</span>
+  Es el algoritmo que, mediante una secuencia de operaciones elementales de fila, lleva la matriz
+  aumentada \([A\mid\mathbf{b}]\) a su forma escalonada reducida. Las incógnitas que corresponden
+  a una columna con pivote quedan determinadas directamente; las que no tienen pivote son
+  <em>variables libres</em>, y el sistema tiene infinitas soluciones parametrizadas por ellas. La
+  <em>eliminación gaussiana</em> es la variante que solo lleva la matriz a forma escalonada (no
+  reducida) y luego resuelve por sustitución hacia atrás — mismo resultado, menos operaciones
+  pero un paso final adicional.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Teorema — Número de soluciones</span>
+  Sea \(r\) el número de pivotes (filas no nulas) de la forma escalonada de \([A\mid\mathbf{b}]\),
+  y sea \(r'\) el número de pivotes de \(A\) sola. El sistema:
+  <ul>
+    <li>es <strong>inconsistente</strong> si \(r' < r\) (hay un pivote en la columna de
+        \(\mathbf{b}\), es decir una fila del tipo \([0\;\cdots\;0\mid c]\) con \(c\neq 0\));</li>
+    <li>tiene <strong>solución única</strong> si es consistente y \(r=n\) (no hay variables
+        libres);</li>
+    <li>tiene <strong>infinitas soluciones</strong> si es consistente y \(r<n\) (hay \(n-r\)
+        variables libres).</li>
+  </ul>
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Resolver por Gauss-Jordan</span>
+  \[
+  \begin{aligned}
+    x_1 + x_2 + x_3 &= 6 \\
+    2x_1 - x_2 + x_3 &= 3 \\
+    x_1 + 2x_2 - x_3 &= 2
+  \end{aligned}
+  \]
+  Matriz aumentada y reducción:
+  \[
+    \left(\begin{array}{ccc|c} 1&1&1&6\\ 2&-1&1&3\\ 1&2&-1&2 \end{array}\right)
+    \xrightarrow{F_2-2F_1,\; F_3-F_1}
+    \left(\begin{array}{ccc|c} 1&1&1&6\\ 0&-3&-1&-9\\ 0&1&-2&-4 \end{array}\right)
+  \]
+  \[
+    \xrightarrow{F_2\leftrightarrow F_3}
+    \left(\begin{array}{ccc|c} 1&1&1&6\\ 0&1&-2&-4\\ 0&-3&-1&-9 \end{array}\right)
+    \xrightarrow{F_3+3F_2}
+    \left(\begin{array}{ccc|c} 1&1&1&6\\ 0&1&-2&-4\\ 0&0&-7&-21 \end{array}\right)
+  \]
+  De la última fila, \(x_3=3\); retrocediendo (o continuando a RREF), \(x_2=-4+2(3)=2\), y
+  \(x_1=6-2-3=1\). Solución única: \((1,2,3)\).
+</div>
+
+<h2>Aplicación en ingeniería: corrientes de malla en un circuito</h2>
+
+<div class="recuadro ingenieria">
+  <span class="titulo">Relevancia para ingeniería</span>
+  Un circuito de tres mallas tiene, en la malla 1, una resistencia propia de \(2\,\Omega\) y una
+  fuente de \(5\,\text{V}\); la malla 2 comparte \(1\,\Omega\) con la malla 1 y \(1\,\Omega\) con
+  la malla 3, más \(1\,\Omega\) propio (resistencia total \(3\,\Omega\)), sin fuente; la malla 3
+  tiene resistencia propia \(2\,\Omega\) y una fuente de \(1\,\text{V}\). Al aplicar la ley de
+  voltajes de Kirchhoff (LVK) a cada malla se obtiene el sistema, en las corrientes de malla
+  \(I_1,I_2,I_3\) (amperios):
+  \[
+  \begin{aligned}
+    2I_1 - I_2 &= 5 \\
+    -I_1 + 3I_2 - I_3 &= 0 \\
+    -I_2 + 2I_3 &= 1
+  \end{aligned}
+  \]
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Solución sin un método sistemático (sustitución)</span>
+  De la primera ecuación, \(I_2 = 2I_1-5\). De la tercera, \(I_3 = \dfrac{1+I_2}{2} =
+  \dfrac{2I_1-4}{2} = I_1-2\). Sustituyendo ambas en la segunda ecuación:
+  \[
+    -I_1 + 3(2I_1-5) - (I_1-2) = 0 \;\Longrightarrow\; 4I_1 - 13 = 0 \;\Longrightarrow\; I_1 = \tfrac{13}{4}.
+  \]
+  Con \(I_1=\tfrac{13}{4}\): \(I_2 = 2\cdot\tfrac{13}{4}-5 = \tfrac{3}{2}\), y
+  \(I_3 = \tfrac{13}{4}-2 = \tfrac{5}{4}\). Este método funcionó, pero requirió decidir en qué
+  orden despejar cada variable; con más de tres incógnitas se vuelve difícil de organizar y
+  propenso a errores. La eliminación de Gauss-Jordan resuelve el mismo problema con un
+  procedimiento fijo, sin decisiones de por medio.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Solución por Gauss-Jordan (con fracciones exactas)</span>
+  \[
+    \left(\begin{array}{ccc|c} 2&-1&0&5\\ -1&3&-1&0\\ 0&-1&2&1 \end{array}\right)
+    \xrightarrow{\;\frac{1}{2}F_1\;}
+    \left(\begin{array}{ccc|c} 1&-\tfrac{1}{2}&0&\tfrac{5}{2}\\ -1&3&-1&0\\ 0&-1&2&1 \end{array}\right)
+    \xrightarrow{F_2+F_1}
+    \left(\begin{array}{ccc|c} 1&-\tfrac{1}{2}&0&\tfrac{5}{2}\\ 0&\tfrac{5}{2}&-1&\tfrac{5}{2}\\ 0&-1&2&1 \end{array}\right)
+  \]
+  \[
+    \xrightarrow{\frac{2}{5}F_2}
+    \left(\begin{array}{ccc|c} 1&-\tfrac{1}{2}&0&\tfrac{5}{2}\\ 0&1&-\tfrac{2}{5}&1\\ 0&-1&2&1 \end{array}\right)
+    \xrightarrow{\substack{F_1+\frac{1}{2}F_2 \\ F_3+F_2}}
+    \left(\begin{array}{ccc|c} 1&0&-\tfrac{1}{5}&3\\ 0&1&-\tfrac{2}{5}&1\\ 0&0&\tfrac{8}{5}&2 \end{array}\right)
+  \]
+  \[
+    \xrightarrow{\frac{5}{8}F_3}
+    \left(\begin{array}{ccc|c} 1&0&-\tfrac{1}{5}&3\\ 0&1&-\tfrac{2}{5}&1\\ 0&0&1&\tfrac{5}{4} \end{array}\right)
+    \xrightarrow{\substack{F_1+\frac{1}{5}F_3 \\ F_2+\frac{2}{5}F_3}}
+    \left(\begin{array}{ccc|c} 1&0&0&\tfrac{13}{4}\\ 0&1&0&\tfrac{3}{2}\\ 0&0&1&\tfrac{5}{4} \end{array}\right)
+  \]
+  Misma solución que por sustitución: \(I_1=\tfrac{13}{4}\), \(I_2=\tfrac{3}{2}\),
+  \(I_3=\tfrac{5}{4}\) amperios.
+  <div class="resultado">
+    \(I_1 = 13/4\ \text{A},\quad I_2 = 3/2\ \text{A},\quad I_3 = 5/4\ \text{A}\)
+  </div>
+  <p>Nótese que ninguna fracción se aproximó a decimal en ningún paso: trabajar con fracciones
+  exactas evita el error de redondeo que se acumularía si se truncaran los decimales en cada
+  operación — relevante en cualquier cálculo de ingeniería hecho a mano o verificado a mano.</p>
+</div>
+
+<div class="paginacion">
+  <a href="tema-1-2b.html">&larr; 1.2b Sistemas equivalentes</a>
+  <a href="tema-1-4.html">1.4 Sistemas homogéneos &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-02/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

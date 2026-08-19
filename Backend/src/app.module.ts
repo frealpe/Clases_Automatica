@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import * as path from 'path';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { JwtStrategy } from './auth/jwt.strategy';
@@ -22,8 +24,20 @@ import { DatabaseModule } from './database/database.module';
         signOptions: { expiresIn: '2h' },
       }),
     }),
+    ServeStaticModule.forRoot({
+      rootPath: path.join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
   ],
-  controllers: [AuthController, PreguntasController, EvaluacionesController, MateriasController, SemanasController, EstudiantesController, ExamenesProgramadosController],
+  controllers: [
+    AuthController,
+    PreguntasController,
+    EvaluacionesController,
+    MateriasController,
+    SemanasController,
+    EstudiantesController,
+    ExamenesProgramadosController,
+  ],
   providers: [AuthService, JwtStrategy],
 })
 export class AppModule {}
