@@ -24,7 +24,7 @@ function GestionUsuariosView() {
   const acentoCian = esLight ? 'text-sky-700 font-bold' : 'text-[#38bdf8] font-bold';
 
   const [pestañaActiva, setPestañaActiva] = useState(
-    location.state?.pestaña || (esSuperusuario ? 'superusuarios' : 'docentes')
+    location.state?.pestaña || (esSuperusuario ? 'superusuarios' : 'estudiantes')
   );
 
   // Estado Usuarios

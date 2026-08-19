@@ -18,12 +18,11 @@ export class AuthController {
     return this.authService.registrar(body);
   }
 
-  // Listar usuarios: docentes y superusuarios
   @Get('usuarios')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERUSUARIO', 'DOCENTE')
-  async listarUsuarios() {
-    return this.authService.listarUsuarios();
+  async listarUsuarios(@Req() req: any) {
+    return this.authService.listarUsuarios(req.user);
   }
 
   // Alta de cuentas DOCENTE/SUPERUSUARIO: solo un SUPERUSUARIO puede otorgar esos roles.

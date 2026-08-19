@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException, OnModuleInit } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, ForbiddenException, OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { DatabaseService } from '../database/database.service';
@@ -77,24 +77,9 @@ export class AuthService implements OnModuleInit {
   }
 
   async registrar(dto: { nombre: string; email: string; password: string; rol?: string }) {
-    const emailNorm = dto.email.trim().toLowerCase();
-    const { rows: existentes } = await this.db.query(
-      'SELECT id FROM usuarios WHERE LOWER(email) = $1',
-      [emailNorm],
+    throw new ForbiddenException(
+      'El registro público se encuentra deshabilitado. Las cuentas de docente y estudiante son creadas únicamente por el administrador o docente desde la plataforma privada.',
     );
-    if (existentes.length > 0) {
-      throw new BadRequestException('El correo ya se encuentra registrado');
-    }
-
-    const hash = await bcrypt.hash(dto.password, 10);
-    const rolEfectivo = (dto.rol === 'DOCENTE' || dto.rol === 'SUPERUSUARIO') ? dto.rol : 'ESTUDIANTE';
-
-    const { rows } = await this.db.query<UsuarioRow>(
-      'INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES ($1,$2,$3,$4) RETURNING id, nombre, email, password_hash, rol',
-      [dto.nombre, emailNorm, hash, rolEfectivo],
-    );
-
-    return this.emitirToken(rows[0]);
   }
 
   async crearUsuarioConRol(dto: { nombre: string; email: string; password: string; rol: string; documentoIdentidad?: string; materiaIds?: number[] }) {
@@ -135,7 +120,16 @@ export class AuthService implements OnModuleInit {
     return { ok: true, usuario: rows[0] };
   }
 
-  async listarUsuarios() {
+  async listarUsuarios(solicitante?: { id: number; rol: string }) {
+    let whereClause = '';
+    const params: any[] = [];
+
+    // Un DOCENTE sólo puede ver su propia cuenta y a los estudiantes (nunca a otros docentes ni superusuarios).
+    if (solicitante && solicitante.rol === 'DOCENTE') {
+      whereClause = `WHERE u.id = $1 OR u.rol = 'ESTUDIANTE'`;
+      params.push(solicitante.id);
+    }
+
     const { rows } = await this.db.query(
       `SELECT u.id, u.nombre, u.email, u.rol, u.documento_identidad AS "documentoIdentidad", u.creado_en AS "creadoEn",
               COALESCE(
@@ -150,7 +144,9 @@ export class AuthService implements OnModuleInit {
                 '[]'
               ) AS "materiasAsignadas"
        FROM usuarios u
+       ${whereClause}
        ORDER BY u.nombre ASC`,
+      params,
     );
     return rows;
   }
