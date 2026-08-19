@@ -102,9 +102,9 @@ export const semanasService = {
     }
   },
 
-  async actualizarConfigExamen(id, { duracionExamenMin, preguntasExamenCount } = {}) {
+  async actualizarConfigExamen(id, { duracionExamenMin, preguntasExamenCount, tipoExamen } = {}) {
     try {
-      const response = await apiClient.patch(`/semanas/${id}/examen-config`, { duracionExamenMin, preguntasExamenCount });
+      const response = await apiClient.patch(`/semanas/${id}/examen-config`, { duracionExamenMin, preguntasExamenCount, tipoExamen });
       return response.data;
     } catch (err) {
       return null;

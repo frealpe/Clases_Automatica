@@ -19,7 +19,7 @@ const MAX_BYTES_PDF = 25 * 1024 * 1024; // 25MB
 const COLUMNAS_SEMANA = `id, materia_id AS "materiaId", numero, unidad_nombre AS "unidadNombre",
   capitulo_grossman AS "capituloGrossman", ra, ra_descripcion AS "raDescripcion",
   objetivos_json AS "objetivosJson", duracion_examen_min AS "duracionExamenMin",
-  preguntas_examen_count AS "preguntasExamenCount", contenido_json AS "contenidoJson",
+  preguntas_examen_count AS "preguntasExamenCount", tipo_examen AS "tipoExamen", contenido_json AS "contenidoJson",
   notas_pdf_url AS "notasPdfUrl", guia_pdf_url AS "guiaPdfUrl", diapositivas_pdf_url AS "diapositivasPdfUrl",
   clase_web_url AS "claseWebUrl", ejercicios_resueltos_url AS "ejerciciosResueltosUrl",
   banco_preguntas_url AS "bancoPreguntasUrl"`;
@@ -110,6 +110,7 @@ export class SemanasController implements OnModuleInit {
         ALTER TABLE semanas ADD COLUMN IF NOT EXISTS contenido_json JSONB;
         ALTER TABLE semanas ADD COLUMN IF NOT EXISTS ejercicios_resueltos_url VARCHAR(255);
         ALTER TABLE semanas ADD COLUMN IF NOT EXISTS banco_preguntas_url VARCHAR(255);
+        ALTER TABLE semanas ADD COLUMN IF NOT EXISTS tipo_examen VARCHAR(30) DEFAULT 'combinada';
       `);
     } catch (err) {
       console.error('Error al inicializar las semillas JSON de semanas en PostgreSQL:', err);
@@ -206,14 +207,16 @@ export class SemanasController implements OnModuleInit {
   @Patch(':id/examen-config')
   async actualizarConfigExamen(
     @Param('id') id: string,
-    @Body() body: { duracionExamenMin?: number; preguntasExamenCount?: number | null },
+    @Body() body: { duracionExamenMin?: number; preguntasExamenCount?: number | null; tipoExamen?: string },
   ) {
     const semanaId = parseIdOrThrow(id);
     const duracion = Number.isFinite(body?.duracionExamenMin) ? body.duracionExamenMin : 15;
     const cantidad = body?.preguntasExamenCount ?? null;
+    const tipo = ['teoria', 'ejercicio', 'combinada'].includes(body?.tipoExamen || '') ? body.tipoExamen : 'combinada';
+
     const { rows } = await this.db.query(
-      `UPDATE semanas SET duracion_examen_min = $1, preguntas_examen_count = $2 WHERE id = $3 RETURNING ${COLUMNAS_SEMANA}`,
-      [duracion, cantidad, semanaId],
+      `UPDATE semanas SET duracion_examen_min = $1, preguntas_examen_count = $2, tipo_examen = $3 WHERE id = $4 RETURNING ${COLUMNAS_SEMANA}`,
+      [duracion, cantidad, tipo, semanaId],
     );
     return { ok: true, semana: rows[0] };
   }

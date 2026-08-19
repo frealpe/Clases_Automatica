@@ -26,17 +26,29 @@ export class PreguntasController {
   @Get('semana/:semanaId/examen')
   async obtenerExamenAleatorio(@Param('semanaId', ParseIntPipe) semanaId: number) {
     const { rows: semanaRows } = await this.db.query(
-      `SELECT preguntas_examen_count AS "preguntasExamenCount" FROM semanas WHERE id = $1`,
+      `SELECT preguntas_examen_count AS "preguntasExamenCount", tipo_examen AS "tipoExamen" FROM semanas WHERE id = $1`,
       [semanaId],
     );
     const cantidad: number | null = semanaRows[0]?.preguntasExamenCount ?? null;
+    const tipoExamen: string = semanaRows[0]?.tipoExamen ?? 'combinada';
 
-    const { rows } = await this.db.query(
-      cantidad
-        ? `SELECT ${PREGUNTA_COLUMNAS} FROM preguntas WHERE semana_id = $1 ORDER BY RANDOM() LIMIT $2`
-        : `SELECT ${PREGUNTA_COLUMNAS} FROM preguntas WHERE semana_id = $1 ORDER BY RANDOM()`,
-      cantidad ? [semanaId, cantidad] : [semanaId],
-    );
+    let query = `SELECT ${PREGUNTA_COLUMNAS} FROM preguntas WHERE semana_id = $1`;
+    const params: any[] = [semanaId];
+
+    if (tipoExamen === 'teoria') {
+      query += ` AND tipo = 'teoria'`;
+    } else if (tipoExamen === 'ejercicio') {
+      query += ` AND tipo = 'ejercicio'`;
+    }
+
+    query += ` ORDER BY RANDOM()`;
+
+    if (cantidad) {
+      params.push(cantidad);
+      query += ` LIMIT $2`;
+    }
+
+    const { rows } = await this.db.query(query, params);
     return rows;
   }
 

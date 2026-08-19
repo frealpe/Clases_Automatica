@@ -77,7 +77,8 @@ function GestionContenidoViewBase() {
       semanas.forEach((s) => {
         siguiente[s.id] = {
           duracionExamenMin: String(s.min ?? 15),
-          preguntasExamenCount: s.preguntasExamenCount != null ? String(s.preguntasExamenCount) : ''
+          preguntasExamenCount: s.preguntasExamenCount != null ? String(s.preguntasExamenCount) : '',
+          tipoExamen: s.tipoExamen || 'combinada'
         };
       });
       return siguiente;
@@ -194,9 +195,10 @@ function GestionContenidoViewBase() {
     const preguntasExamenCount = borrador.preguntasExamenCount === ''
       ? null
       : parseInt(borrador.preguntasExamenCount, 10);
+    const tipoExamen = borrador.tipoExamen || 'combinada';
 
     setGuardandoExamen((prev) => ({ ...prev, [id]: true }));
-    const res = await semanasService.actualizarConfigExamen(id, { duracionExamenMin, preguntasExamenCount });
+    const res = await semanasService.actualizarConfigExamen(id, { duracionExamenMin, preguntasExamenCount, tipoExamen });
     setGuardandoExamen((prev) => ({ ...prev, [id]: false }));
     mostrarMensaje(`examen-${id}`, res?.ok ? '✅ Examen configurado' : '❌ Error al guardar');
     if (res?.ok) cargarSemanasFromService(materiaActivaId);
@@ -514,13 +516,44 @@ function GestionContenidoViewBase() {
                     {mensaje[`banco-zip-${s.id}`] && <span className="text-[9px] font-mono font-bold">{mensaje[`banco-zip-${s.id}`]}</span>}
                   </div>
 
-                  {/* CONFIGURAR EXAMEN WEB: DURACIÓN Y CANTIDAD DE PREGUNTAS ALEATORIAS POR ESTUDIANTE */}
+                  {/* CONFIGURAR EXAMEN WEB: MODALIDAD (TEORÍA/EJERCICIOS/COMBINADA), DURACIÓN Y CANTIDAD DE PREGUNTAS */}
                   <div
-                    className={`min-w-0 p-2 rounded-lg border flex flex-col items-center justify-center gap-0.5 text-center ${
+                    className={`min-w-0 p-2 rounded-lg border flex flex-col items-center justify-center gap-1 text-center ${
                       esLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/70 border-slate-800'
                     }`}
                   >
-                    <span className="text-[10px] font-bold leading-tight">Examen Web</span>
+                    <div className="flex items-center justify-between w-full px-0.5">
+                      <span className="text-[10px] font-bold leading-tight">Examen Web</span>
+                      <span
+                        className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border ${
+                          (examenBorrador[s.id]?.tipoExamen || s.tipoExamen) === 'teoria'
+                            ? 'bg-sky-500/10 text-sky-400 border-sky-500/30'
+                            : (examenBorrador[s.id]?.tipoExamen || s.tipoExamen) === 'ejercicio'
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                            : 'bg-violet-500/10 text-violet-400 border-violet-500/30'
+                        }`}
+                      >
+                        {(examenBorrador[s.id]?.tipoExamen || s.tipoExamen) === 'teoria'
+                          ? '📘 Teoría'
+                          : (examenBorrador[s.id]?.tipoExamen || s.tipoExamen) === 'ejercicio'
+                          ? '✏️ Ejercicios'
+                          : '🔀 Combinada'}
+                      </span>
+                    </div>
+
+                    <select
+                      value={examenBorrador[s.id]?.tipoExamen ?? 'combinada'}
+                      onChange={(e) => handleCambiarExamenBorrador(s.id, 'tipoExamen', e.target.value)}
+                      title="Tipo de evaluación (Teoría, Ejercicios o Combinada)"
+                      className={`w-full text-[10px] font-bold rounded-md px-1 py-0.5 border outline-none text-center ${
+                        esLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+                      }`}
+                    >
+                      <option value="combinada">🔀 Combinada (Teoría + Ejercicios)</option>
+                      <option value="teoria">📘 Solo Teoría</option>
+                      <option value="ejercicio">✏️ Solo Ejercicios</option>
+                    </select>
+
                     <div className="flex items-center gap-1 w-full">
                       <input
                         type="number"
@@ -548,11 +581,11 @@ function GestionContenidoViewBase() {
                     <button
                       onClick={() => handleGuardarConfigExamen(s.id)}
                       disabled={guardandoExamen[s.id]}
-                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md cursor-pointer transition-all ${
+                      className={`w-full text-[10px] font-extrabold py-0.5 rounded-md cursor-pointer transition-all ${
                         esLight ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-black hover:bg-slate-100'
                       }`}
                     >
-                      {guardandoExamen[s.id] ? 'Guardando...' : 'Guardar'}
+                      {guardandoExamen[s.id] ? 'Guardando...' : 'Guardar Config.'}
                     </button>
                     {mensaje[`examen-${s.id}`] && <span className="text-[9px] font-mono font-bold">{mensaje[`examen-${s.id}`]}</span>}
                   </div>

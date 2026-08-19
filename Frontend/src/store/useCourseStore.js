@@ -175,6 +175,7 @@ export const useCourseStore = create((set, get) => ({
           : [{ ra: s.ra || '', descripcion: s.raDescripcion || '' }],
         min: s.duracionExamenMin,
         preguntasExamenCount: s.preguntasExamenCount ?? null,
+        tipoExamen: s.tipoExamen || 'combinada',
         contenidoJson: s.contenidoJson || null,
         notasPdfUrl: s.notasPdfUrl || null,
         guiaPdfUrl: s.guiaPdfUrl || null,
