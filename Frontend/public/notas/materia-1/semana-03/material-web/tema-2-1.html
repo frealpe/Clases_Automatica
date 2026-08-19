@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.1 Vectores y matrices</title>
+<link rel="stylesheet" href="css/estilo.css">
+<script>
+  window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>2.1 Vectores y matrices</h1>
+    <p class="subtitulo">Semana 3 · Unidad 2 · Álgebra Lineal para Ingeniería — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-2-1.html">2.1 Vectores y matrices</a></li>
+    <li><a href="tema-2-2.html">2.2 Productos vectorial y matricial</a></li>
+    <li><a href="ejercicios-resueltos.html">Ejercicios resueltos</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Vector</span>
+  Un <em>vector</em> de \(n\) componentes es una \(n\)-tupla ordenada de números reales. Se
+  escribe como vector columna
+  \[
+    \mathbf{x} = \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{pmatrix} \in \mathbb{R}^n,
+  \]
+  o, cuando el espacio lo requiere, como vector fila \(\mathbf{x}=(x_1,\ldots,x_n)\). Salvo que
+  se indique lo contrario, un vector se entiende como columna.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Matriz</span>
+  Una <em>matriz</em> \(A\) de tamaño \(m\times n\) es un arreglo rectangular de \(m\cdot n\)
+  números reales, ordenados en \(m\) filas y \(n\) columnas:
+  \[
+    A = \begin{pmatrix}
+      a_{11} & a_{12} & \cdots & a_{1n} \\
+      a_{21} & a_{22} & \cdots & a_{2n} \\
+      \vdots & \vdots & \ddots & \vdots \\
+      a_{m1} & a_{m2} & \cdots & a_{mn}
+    \end{pmatrix} = (a_{ij}).
+  \]
+  El primer subíndice de \(a_{ij}\) indica la fila; el segundo, la columna. Un vector columna de
+  \(\mathbb{R}^n\) es, en particular, una matriz \(n\times 1\); un vector fila es una matriz
+  \(1\times n\).
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo</span>
+  \[
+    A = \begin{pmatrix} 1 & -2 & 0 \\ 3 & 4 & 5 \end{pmatrix}
+  \]
+  es una matriz \(2\times 3\): \(a_{12}=-2\) (fila 1, columna 2), \(a_{23}=5\) (fila 2, columna
+  3). No es cuadrada.
+</div>
+
+<h2>Matrices especiales</h2>
+<ul>
+  <li><strong>Matriz fila</strong>: tamaño \(1\times n\). <strong>Matriz columna</strong>: tamaño \(m\times 1\).</li>
+  <li><strong>Matriz cuadrada</strong>: \(m=n\); se dice de orden \(n\).</li>
+  <li><strong>Matriz nula</strong> \(\mathbf{0}\): todas sus entradas son \(0\).</li>
+  <li><strong>Matriz diagonal</strong>: cuadrada, con \(a_{ij}=0\) para todo \(i\neq j\).</li>
+  <li><strong>Matriz identidad</strong> \(I_n\): diagonal de orden \(n\) con \(a_{ii}=1\) para todo \(i\).</li>
+</ul>
+<p>
+  Dos matrices \(A=(a_{ij})\) y \(B=(b_{ij})\) son <em>iguales</em> si tienen el mismo tamaño y
+  \(a_{ij}=b_{ij}\) para todo \(i,j\).
+</p>
+
+<h2>Suma, resta y multiplicación por escalar</h2>
+<div class="recuadro definicion">
+  Para matrices \(A=(a_{ij})\) y \(B=(b_{ij})\) del <strong>mismo tamaño</strong> \(m\times n\), y
+  un escalar \(c\in\mathbb{R}\), se definen entrada a entrada:
+  \[
+    A+B = (a_{ij}+b_{ij}), \qquad A-B = (a_{ij}-b_{ij}), \qquad cA = (c\,a_{ij}).
+  \]
+  La suma <strong>solo</strong> está definida cuando ambas matrices tienen exactamente el mismo
+  tamaño.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedades algebraicas</span>
+  Para matrices \(A,B,C\) del mismo tamaño y escalares \(c,d\in\mathbb{R}\):
+  \(A+B=B+A\); \((A+B)+C=A+(B+C)\); \(A+\mathbf{0}=A\); \(c(A+B)=cA+cB\);
+  \((c+d)A=cA+dA\); \(c(dA)=(cd)A\).
+</div>
+
+<h2>Taller interactivo — suma, resta y escalar</h2>
+<p>
+  Elige el tamaño de las matrices \(A\) y \(B\) (deben ser del mismo tamaño), ingresa sus
+  entradas y un escalar \(c\), y calcula \(A+B\), \(A-B\) y \(cA\).
+</p>
+
+<div class="controles">
+  <fieldset>
+    <legend>Tamaño (filas × columnas, igual para A y B)</legend>
+    <label>Filas
+      <select id="matFilas">
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+    </label>
+    <label>Columnas
+      <select id="matCols">
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+      </select>
+    </label>
+  </fieldset>
+  <fieldset>
+    <legend>Escalar</legend>
+    <label>c <input type="number" id="matEscalar" value="2" step="1"></label>
+  </fieldset>
+</div>
+
+<div id="gridsMatrices"></div>
+
+<p><button class="btn" id="btnCalcularMat">Calcular A+B, A-B y cA</button></p>
+
+<div id="resultadoMat"></div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-03/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+<script src="js/matrices-2-1.js"></script>
+</body>
+</html>

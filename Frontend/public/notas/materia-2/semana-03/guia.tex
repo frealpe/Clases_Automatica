@@ -1,0 +1,123 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{\textcolor{unicaucaverde}{\Large Guía de Aprendizaje --- Semana 3}\\[4pt]
+  \large Funciones y modularidad}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{tabular}{|>{\bfseries}p{4cm}|p{10cm}|}
+\hline
+Semana & 3 de 16 \\ \hline
+Unidad & Fundamentos de programación en C \\ \hline
+Subtemas & Funciones (declaración/definición/prototipo), paso de parámetros por valor, ámbito de
+  variables (locales/globales) \\ \hline
+Horas de clase & 4 \\ \hline
+Resultado de aprendizaje & RA3 (Módulo 3, parte 1 de 2; continúa en Semana 4 con ámbito avanzado
+  y recursión) \\ \hline
+\end{tabular}
+\end{center}
+
+\section*{Relevancia para ingeniería}
+
+Ningún programa de ingeniería real cabe en un solo bloque de código: un firmware de control, un
+programa de adquisición de datos o una simulación numérica se construyen combinando piezas más
+pequeñas y probadas por separado. Las funciones son esa unidad básica de construcción: le permiten
+al programador dividir un problema grande en partes manejables, probar cada una de forma aislada,
+y reutilizar código ya escrito en vez de copiarlo y pegarlo (con el riesgo de introducir errores
+al duplicarlo).
+
+\section{Objetivo de la semana}
+
+Diseñar y escribir funciones en C con parámetros y valor de retorno, aplicando diseño descendente
+para dividir un problema en subproblemas, y distinguir el ámbito (alcance) de variables locales y
+globales.
+
+\section{Resultados de aprendizaje de la semana}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item[\textbf{RA3.1.}] Declarar, definir y llamar funciones en C con parámetros y valor de
+        retorno (incluidas funciones \texttt{void}), aplicando diseño descendente para dividir un
+        programa en subproblemas.
+  \item[\textbf{RA3.2.}] Explicar y predecir el comportamiento del paso de parámetros por valor, y
+        distinguir el ámbito y tiempo de vida de variables locales frente a variables globales.
+\end{itemize}
+
+\section{Contenidos}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{3.1.} Funciones: definición, prototipo, parámetros, valor de retorno, funciones
+        \texttt{void}, diseño descendente.
+  \item \textbf{3.2.} Paso de parámetros por valor; ámbito de variables (locales y globales).
+\end{itemize}
+
+\section{Plan de la sesión (4 horas)}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item[\textbf{Hora 1.}] Control formativo corto (10 min) de la Semana 2 (condicionales y
+        ciclos); qué es una función, diseño descendente, prototipo vs. definición (teoría +
+        ejemplos).
+  \item[\textbf{Hora 2.}] Taller: escribir funciones con retorno (\texttt{areaCirculo},
+        \texttt{esPar}, \texttt{maximo}) y funciones \texttt{void} (\texttt{imprimirTabla}).
+  \item[\textbf{Hora 3.}] Paso de parámetros por valor: qué copia y qué no copia; ámbito de
+        variables locales y globales (teoría + ejemplos).
+  \item[\textbf{Hora 4.}] Taller: programa modular con varias funciones que colaboran (una que
+        lee/calcula, otra que clasifica el resultado, otra que reporta), y una variable global de
+        conteo compartida entre funciones.
+\end{enumerate}
+
+\section{Actividades}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{En clase}: talleres de las horas 2 y 4 (ver arriba).
+  \item \textbf{Trabajo autónomo}: ejercicios propuestos de \texttt{notas.tex} §5.
+  \item \textbf{Software}: un compilador de C (\texttt{gcc} local o compilador en línea) para
+        escribir, compilar y ejecutar cada ejemplo y ejercicio.
+\end{itemize}
+
+\section{Material de apoyo}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \texttt{notas.tex} --- desarrollo teórico completo de 3.1 y 3.2, con ejemplos de código y
+        ejercicios resueltos.
+  \item \texttt{diapositivas.tex} --- síntesis visual de la sesión.
+\end{itemize}
+
+\section{Evaluación de la semana}
+
+Taller calificado al cierre de la Hora 4: escribir un programa modular de al menos 3 funciones
+(una con retorno no-\texttt{void}, una \texttt{void}, y uso correcto de una variable local vs. una
+global), para verificar RA3.1 y RA3.2 antes de avanzar a la Semana 4.
+
+\section{Bibliografía de la semana}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Deitel, P., Deitel, H. \emph{C: How to Program}. 8a ed., Pearson, cap. 5.
+  \item Kernighan, B. W., Ritchie, D. M. \emph{The C Programming Language}. 2a ed., Prentice Hall,
+        cap. 4.
+  \item Cairo, L. J. \emph{Fundamentos de programación}. 4a ed., McGraw-Hill.
+\end{enumerate}
+
+\end{document}

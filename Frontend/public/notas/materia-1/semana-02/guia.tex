@@ -1,0 +1,128 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{\textcolor{unicaucaverde}{\Large Guía de Aprendizaje — Semana 2}\\[4pt]
+  \large Eliminación de Gauss-Jordan y sistemas homogéneos}
+\author{Álgebra Lineal para Ingeniería --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{tabular}{|>{\bfseries}p{4cm}|p{10cm}|}
+\hline
+Semana & 2 de 16 \\ \hline
+Unidad & 1 --- Sistemas de ecuaciones lineales (Grossman, cap. 1) \\ \hline
+Subtemas & 1.2b (sistemas equivalentes, consistentes e inconsistentes), 1.3 ($m$ ecuaciones con $n$ incógnitas, Gauss-Jordan), 1.4 (sistemas homogéneos) \\
+\hline
+Horas de clase & 4 \\ \hline
+Resultado de aprendizaje & RA1 (parte 2 de 2; ver \texttt{guia1/guia.tex}) \\ \hline
+\end{tabular}
+\end{center}
+
+\section*{Relevancia para ingeniería}
+
+Los sistemas reales rara vez tienen solo dos incógnitas: un circuito con muchas mallas, una
+estructura con muchos nodos, o un proceso con muchas corrientes de materia dan sistemas de
+decenas o cientos de ecuaciones. La eliminación de Gauss-Jordan es el algoritmo sistemático
+--- y la base de todo el software numérico de ingeniería --- para resolver cualquier sistema,
+sin importar su tamaño. Los sistemas homogéneos, por su parte, aparecen al buscar modos propios,
+estados de equilibrio nulos, o condiciones de compatibilidad de un sistema estructural.
+
+\section{Objetivo de la semana}
+
+Resolver sistemas de $m$ ecuaciones con $n$ incógnitas mediante eliminación de Gauss-Jordan, y
+reconocer las propiedades particulares de los sistemas homogéneos.
+
+\section{Resultados de aprendizaje de la semana}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item[\textbf{RA1.2b.}] Definir sistemas equivalentes y justificar por qué las operaciones
+        elementales de fila preservan la equivalencia; clasificar un sistema como consistente
+        (solución única o infinitas) o inconsistente (sin solución) e identificar la fila
+        contradictoria en la forma escalonada.
+  \item[\textbf{RA1.3.}] Llevar la matriz aumentada de un sistema a su forma escalonada
+        reducida mediante operaciones elementales de fila (eliminación de Gauss-Jordan), y leer
+        de ella el conjunto solución (única, ninguna, o infinitas con variables libres).
+  \item[\textbf{RA1.4.}] Reconocer un sistema homogéneo, justificar que siempre tiene la solución
+        trivial, y determinar cuándo tiene soluciones no triviales.
+\end{itemize}
+
+\section{Contenidos}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{1.2b.} Sistemas equivalentes (definición y justificación vía operaciones de
+        fila). Consistencia e inconsistencia: detección en la forma escalonada.
+  \item \textbf{1.3.} $m$ ecuaciones con $n$ incógnitas: eliminación de Gauss-Jordan y gaussiana.
+  \item \textbf{1.4.} Sistemas homogéneos de ecuaciones.
+\end{itemize}
+
+\section{Plan de la sesión (4 horas)}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item[\textbf{Hora 1.}] Sistemas equivalentes: definición, operaciones elementales de fila
+        como transformaciones equivalentes; clasificación consistente / inconsistente; detección
+        de fila contradictoria.
+  \item[\textbf{Hora 2.}] Matriz aumentada, forma escalonada reducida; algoritmo de Gauss-Jordan
+        paso a paso (teoría + ejemplo guiado). Exploración en \texttt{visualizacion/} (sección
+        \emph{1.3 Gauss-Jordan}).
+  \item[\textbf{Hora 3.}] Taller: reducir sistemas $3\times 3$ y $2\times 3$ a forma escalonada
+        reducida; identificar consistencia e inconsistencia.
+  \item[\textbf{Hora 4.}] Sistemas homogéneos: solución trivial, condición para soluciones no
+        triviales, relación con variables libres (teoría + ejemplos). Control formativo de la
+        Semana 1 (10~min).
+\end{enumerate}
+
+\section{Actividades}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{En clase}: talleres de las horas 2 y 4 (ver arriba).
+  \item \textbf{Trabajo autónomo}: lista de ejercicios de \texttt{notas.tex} §1--2, de entrega
+        antes de la Semana 3.
+  \item \textbf{Software}: en \texttt{visualizacion/index.html}, sección \emph{1.3
+        Gauss-Jordan}, ingresar un sistema y avanzar paso a paso por las operaciones de fila
+        hasta la forma escalonada reducida.
+\end{itemize}
+
+\section{Material de apoyo}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \texttt{notas.tex} --- desarrollo teórico completo de 1.3 y 1.4, con ejemplos y ejercicios.
+  \item \texttt{diapositivas.tex} --- síntesis visual de la sesión.
+  \item \texttt{visualizacion/index.html} --- sección \emph{1.3 Gauss-Jordan} (interactivo, paso
+        a paso).
+\end{itemize}
+
+\section{Evaluación de la semana}
+
+Quiz de la Unidad 1 (ver \texttt{guia1/guia.tex} § Evaluación): incluye reducción de un sistema
+por Gauss-Jordan y clasificación de un sistema homogéneo, además de los temas de la Semana 1.
+
+\section{Bibliografía de la semana}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Grossman, S. I., Flores Godoy, J. J. \emph{Álgebra lineal}. 7a/8a ed., McGraw-Hill,
+        cap. 1, §1.3--1.4.
+  \item Lay, D. C., Lay, S. R., McDonald, J. J. \emph{Álgebra lineal y sus aplicaciones}. Pearson.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Práctica guiada: de Quartus Prime a Platform Designer (Qsys)</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Práctica guiada: de Quartus Prime a Platform Designer</h1>
+    <p class="subtitulo">8 capturas paso a paso — Semana 1 · Énfasis, Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-1.html">1.1 Soft-core y Nios II</a></li>
+    <li><a href="tema-1-2.html">1.2 Flujo de herramientas</a></li>
+    <li><a href="tema-1-3.html">1.3 BSP y compilación</a></li>
+    <li><a href="practica.html">Práctica guiada</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<p>
+  Esta guía recorre, capturas en mano, el flujo completo descrito en <a href="tema-1-2.html">1.2</a>:
+  desde crear un proyecto en <strong>Quartus Prime</strong> hasta dejar un sistema Nios II completo,
+  listo para <strong>Generate HDL</strong>, en <strong>Platform Designer</strong> (Qsys), y de ahí hasta
+  la FPGA programada. Tiene tres partes: los <a href="#paso-1">8 pasos iniciales</a> (capturas de
+  pantalla, del asistente de proyecto a la primera vista de Platform Designer); después,
+  <a href="#ensamblar-sistema">el ensamblado completo del sistema</a> — componente por componente, con
+  los errores reales que aparecieron en el camino — hasta descargar y correr el primer programa; y por
+  último <a href="#jtag-uart-pines-programador">la configuración del JTAG UART, la compilación en
+  Quartus, el Pin Planner y la programación final</a>, donde aparece también el <strong>HPS</strong>
+  (SOCVHPS) del Cyclone V. Cada paso explica no solo <em>qué</em> botón se presiona, sino <em>por
+  qué</em> esa decisión importa para el resto del laboratorio.
+</p>
+
+<div class="aviso">
+  <span class="titulo">Hardware de esta práctica</span>
+  Las capturas usan el proyecto "<code>Gpio</code>" sobre el dispositivo
+  <strong>Cyclone V (E/GX/GT/SX/SE/ST), <code>5CSEBA6U23I7</code></strong> — confirmado como el hardware
+  correcto para esta práctica. Es una familia distinta a la <strong>Cyclone IV E
+  <code>EP4CE115F29C7</code></strong> de la <strong>DE2-115</strong> que aún describen
+  <code>guia.tex</code>/<code>notas.tex</code> de esta semana; esos dos archivos quedan pendientes de
+  actualizarse para reflejar <code>5CSEBA6U23I7</code> como la tarjeta real (no se tocó en esta guía).
+</div>
+
+<div class="paso" id="paso-1">
+  <h3><span class="num">1</span> Directorio, nombre y entidad de nivel superior del proyecto</h3>
+  <p>
+    El <em>New Project Wizard</em> de Quartus Prime (<em>File → New Project Wizard</em>) pide tres datos
+    antes de crear nada: el <strong>directorio de trabajo</strong>, el <strong>nombre del proyecto</strong>
+    y la <strong>entidad de nivel superior</strong> (<em>Top-Level Entity</em>). En la captura, el
+    proyecto se llama <code>Gpio</code> y la entidad de nivel superior lleva el mismo nombre — Quartus
+    obliga a que exista un archivo de diseño cuya entidad se llame exactamente igual al nombre puesto
+    aquí.
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué importa</span>
+    <ul>
+      <li><strong>Ruta sin espacios:</strong> el sintetizador genera decenas de archivos temporales
+        (netlists, bases de datos de ruteo, reportes de timing). Herramientas basadas en scripts Tcl
+        pueden interpretar un espacio en la ruta como separador de argumentos y fallar de forma críptica
+        durante la síntesis — por eso conviene una ruta como <code>C:\FPGA\Practica1</code> y no
+        <code>C:\Mis Proyectos\Practica 1</code>.</li>
+      <li><strong>Entidad de nivel superior:</strong> en VHDL/Verilog el diseño es estrictamente
+        jerárquico. Esta entidad define las interfaces físicas (pines) que se conectarán al chip; Quartus
+        construye el árbol de dependencias ("Elaboration") descendiendo desde ella. Es, además, el mismo
+        módulo donde más adelante se instanciará el sistema Nios II generado por Platform Designer
+        (ver <a href="tema-1-2.html">1.2</a>).</li>
+    </ul>
+  </div>
+  <figure>
+    <img src="img/paso-01-directorio-proyecto.png" alt="New Project Wizard de Quartus Prime: cuadro de diálogo pidiendo directorio de trabajo, nombre del proyecto y entidad de nivel superior, ambos como 'Gpio'.">
+    <figcaption>New Project Wizard — directorio de trabajo, nombre del proyecto ("Gpio") y entidad de nivel superior.</figcaption>
+  </figure>
+</div>
+
+<div class="paso" id="paso-2">
+  <h3><span class="num">2</span> Tipo de proyecto: vacío vs. plantilla</h3>
+  <p>
+    La segunda página del asistente pregunta si el proyecto parte de cero (<strong>Empty project</strong>)
+    o de una <strong>Project template</strong> preexistente. La captura muestra <em>Empty project</em>
+    seleccionado.
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué importa</span>
+    <em>Empty project</em> es la opción correcta para hardware personalizado. Una plantilla puede traer
+    archivos de restricciones (SDC) o asignaciones de pines preconfiguradas para una tarjeta distinta a
+    la que se va a usar; si la tarjeta física no coincide exactamente, el <em>Fitter</em> (Place &amp;
+    Route) fallará al intentar asignar señales a bancos de E/S inexistentes o con estándares de voltaje
+    incompatibles (LVCMOS, SSTL, etc.).
+  </div>
+  <figure>
+    <img src="img/paso-02-tipo-proyecto.png" alt="Página 'Project Type' del asistente: opción 'Empty project' seleccionada frente a 'Project template'.">
+    <figcaption>Selección del tipo de proyecto: "Empty project" frente a una plantilla preexistente.</figcaption>
+  </figure>
+</div>
+
+<div class="paso" id="paso-3">
+  <h3><span class="num">3</span> Selección del dispositivo físico (Target Device)</h3>
+  <p>
+    Aquí la abstracción del código se encuentra con el silicio real. La captura muestra la familia
+    <strong>Cyclone V (E/GX/GT/SX/SE/ST)</strong> y, dentro de la tabla de dispositivos disponibles, el
+    modelo <code>5CSEBA6U23I7</code> resaltado — con 41 910 ALMs, 314 E/S totales y grado de velocidad
+    <code>I7</code>.
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué importa</span>
+    <ul>
+      <li><strong>Capacidad lógica (ALMs):</strong> define cuántos <em>Adaptive Logic Modules</em> hay
+        disponibles para mapear la lógica del diseño — incluido el núcleo Nios II que se agregará luego.</li>
+      <li><strong>E/S totales (GPIOs):</strong> limita cuántas señales físicas puede exponer el diseño;
+        relevante para el proyecto "Gpio" de esta captura, que previsiblemente maneja pines de
+        entrada/salida de propósito general.</li>
+      <li><strong>Grado de velocidad (Speed Grade, aquí "I7"):</strong> indica los retardos intrínsecos
+        del silicio. El <em>Timing Analysis</em> de Quartus usa este dato para asegurar que los tiempos
+        de establecimiento y retención (setup/hold) de los flip-flops se cumplan bajo el reloj del
+        sistema, evitando metaestabilidad.</li>
+    </ul>
+    Elegir el dispositivo equivocado no impide compilar, pero sí invalida el bitstream resultante: no
+    programará (o programará mal) una tarjeta con una FPGA distinta a la seleccionada aquí — de ahí la
+    nota sobre Cyclone V vs. Cyclone IV al inicio de esta página.
+  </div>
+  <figure>
+    <img src="img/paso-03-dispositivo.png" alt="Página 'Family, Device & Board Settings': familia Cyclone V (E/GX/GT/SX/SE/ST) y dispositivo 5CSEBA6U23I7 resaltado en la tabla de dispositivos disponibles.">
+    <figcaption>Familia Cyclone V y dispositivo específico <code>5CSEBA6U23I7</code> seleccionado en la tabla de dispositivos disponibles.</figcaption>
+  </figure>
+</div>
+
+<div class="paso">
+  <h3><span class="num">4</span> El entorno principal de Quartus Prime</h3>
+  <p>
+    Con el proyecto ya creado, esta es la ventana principal: <em>Project Navigator</em> (panel izquierdo,
+    pestaña <em>Hierarchy</em>) muestra el dispositivo objetivo y la jerarquía del diseño; el panel
+    <em>Tasks</em>, abajo a la izquierda, expone el flujo de compilación completo.
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué importa</span>
+    El panel <em>Tasks</em> no es una lista de botones sueltos — es un pipeline secuencial y dependiente,
+    muy distinto a compilar software:
+    <ol>
+      <li><strong>Analysis &amp; Synthesis:</strong> analiza el HDL, optimiza la lógica booleana y mapea
+        las ecuaciones a primitivas del dispositivo (LUTs, registros).</li>
+      <li><strong>Fitter (Place &amp; Route):</strong> ubica físicamente esas primitivas en coordenadas
+        de la matriz de la FPGA y enruta las interconexiones, resolviendo un problema de optimización
+        NP-complejo para cumplir las restricciones de tiempo.</li>
+      <li><strong>Assembler:</strong> traduce el mapa físico resultante al archivo binario de
+        configuración (<code>.sof</code>) que programa las celdas SRAM internas de la FPGA.</li>
+    </ol>
+    Cada etapa depende de que la anterior haya terminado sin errores; no tiene sentido, por ejemplo,
+    correr el Fitter si Analysis &amp; Synthesis reportó errores de sintaxis.
+  </div>
+  <figure>
+    <img src="img/paso-04-entorno-principal.png" alt="Ventana principal de Quartus Prime con el panel Project Navigator (Hierarchy) a la izquierda, el panel Tasks/Compilation abajo, y el lienzo central vacío con el logo de Quartus Prime.">
+    <figcaption>Entorno principal de Quartus Prime: jerarquía del proyecto, panel de tareas de compilación e IP Catalog.</figcaption>
+  </figure>
+</div>
+
+<div class="paso">
+  <h3><span class="num">5</span> Creación de un nuevo archivo de diagrama de bloques (.bdf)</h3>
+  <p>
+    Desde <em>File → New</em> se abre este diálogo con las categorías de archivo disponibles. La captura
+    muestra <strong>"Block Diagram/Schematic File"</strong> resaltado dentro de <em>Design Files</em>.
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué importa</span>
+    Aunque el diseño RTL en VHDL o Verilog es el estándar de la industria, Quartus permite captura
+    esquemática mediante archivos <code>.bdf</code>. En proyectos que integran un sistema Nios II, el BDF
+    suele ser justamente el archivo de <strong>nivel superior</strong>: los ingenieros escriben módulos
+    complejos en HDL (o los generan con Platform Designer), obtienen un símbolo gráfico a partir de ese
+    código, y luego interconectan visualmente esos símbolos en el lienzo del BDF. Esto mejora la
+    legibilidad del flujo de datos y de las señales de control entre subsistemas — es el mismo archivo
+    donde, en el <a href="tema-1-2.html">flujo completo</a>, se instanciará el sistema generado por
+    Platform Designer.
+  </div>
+  <figure>
+    <img src="img/paso-05-nuevo-archivo-bdf.png" alt="Diálogo 'New' de Quartus con la lista de tipos de archivo; 'Block Diagram/Schematic File' resaltado dentro de Design Files.">
+    <figcaption>Diálogo de nuevo archivo: "Block Diagram/Schematic File" (.bdf) seleccionado.</figcaption>
+  </figure>
+</div>
+
+<div class="paso" id="paso-6">
+  <h3><span class="num">6</span> El lienzo del diagrama de bloques</h3>
+  <p>
+    El archivo <code>Block1.bdf</code> recién creado se abre como una superficie en blanco, con la barra
+    de herramientas de edición esquemática (selección, símbolo, herramientas de línea ortogonal, etc.)
+    en la parte superior del lienzo.
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué importa</span>
+    En este lienzo, las líneas que se dibujan no son variables en memoria como en software: representan
+    <strong>trazas de interconexión física entre bloques de hardware</strong>. Al instanciar pines de
+    entrada/salida aquí y nombrarlos, Quartus esperará que — en una etapa posterior, usando el
+    <em>Pin Planner</em> — cada nombre se asocie a una coordenada de pin físico del dispositivo elegido en
+    el <a href="#paso-3">paso 3</a>, para acoplarse con la electrónica externa de la tarjeta.
+  </div>
+  <figure>
+    <img src="img/paso-06-lienzo-bdf.png" alt="Lienzo vacío del archivo Block1.bdf en el editor esquemático de Quartus, con cuadrícula de puntos de fondo y barra de herramientas de dibujo esquemático arriba.">
+    <figcaption>Lienzo en blanco de <code>Block1.bdf</code>, listo para instanciar y conectar símbolos.</figcaption>
+  </figure>
+</div>
+
+<div class="paso">
+  <h3><span class="num">7</span> Del diseño de bajo nivel a la integración de sistema: menú Tools → Qsys</h3>
+  <p>
+    Cuando el diseño supera la lógica combinacional básica y requiere una arquitectura orientada a
+    procesador, la captura esquemática por sí sola no basta. La captura muestra el menú
+    <strong>Tools</strong> desplegado, con la opción <strong>Qsys</strong> resaltada — el nombre con el
+    que Quartus 18.1 todavía identifica a Platform Designer.
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué importa</span>
+    Al abrir Qsys / Platform Designer, el enfoque cambia del diseño de bajo nivel (RTL/esquemático) a la
+    <strong>integración a nivel de sistema</strong>. En vez de escribir a mano el HDL de un bus de datos,
+    decodificadores de dirección y lógica de arbitraje, la herramienta automatiza esa infraestructura
+    usando el estándar <strong>Avalon Memory-Mapped</strong> descrito en
+    <a href="tema-1-1.html">1.1</a>. Es la puerta de entrada al siguiente paso del laboratorio: ensamblar
+    el núcleo Nios II junto con memoria, JTAG UART y System ID.
+  </div>
+  <figure>
+    <img src="img/paso-07-menu-tools-qsys.png" alt="Menú Tools de Quartus desplegado, con la opción Qsys resaltada entre TimeQuest Timing Analyzer, Programmer, IP Catalog y Nios II Software Build Tools for Eclipse.">
+    <figcaption>Menú <em>Tools</em> de Quartus Prime — "Qsys" (Platform Designer) resaltado.</figcaption>
+  </figure>
+</div>
+
+<div class="paso">
+  <h3><span class="num">8</span> Primera vista de Platform Designer (Qsys)</h3>
+  <p>
+    La ventana de Qsys, recién abierta sobre un sistema todavía sin guardar (<code>unsaved.qsys</code>),
+    ya trae un componente por defecto: <code>clk_0</code>, una fuente de reloj con sus puertos
+    <code>clk_in</code>/<code>clk_in_reset</code> y sus salidas <code>clk</code>/<code>reset</code>
+    marcadas como <em>exported</em> (exportadas al top-level). La pestaña <strong>System Contents</strong>
+    está activa; junto a ella están <strong>Address Map</strong> e <strong>Interconnect Requirements</strong>.
+    A la izquierda, el <strong>IP Catalog</strong> lista las categorías de componentes disponibles
+    (Basic Functions, DSP, Interface Protocols, Memory Interfaces and Controllers, Processors and
+    Peripherals, entre otras) y, abajo, el panel <strong>Hierarchy</strong> refleja el árbol del sistema
+    en construcción (<code>clk</code>, <code>reset</code>, <code>clk_0</code>).
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué importa</span>
+    <ul>
+      <li><strong>El reloj se agrega primero, siempre:</strong> en diseño digital síncrono, la gestión
+        del árbol de reloj es el factor más crítico. <code>clk_0</code> es el componente que distribuirá
+        el <em>clock</em> y el <em>reset</em> sincronizado a todos los módulos maestros y esclavos que se
+        añadan después — el núcleo Nios II Processor, la On-Chip Memory y la JTAG UART descritos en
+        <a href="tema-1-1.html">1.1</a>.</li>
+      <li><strong>"Exported" tiene un significado preciso:</strong> marca que ese puerto del componente
+        interno queda expuesto como puerto del sistema completo, para poder conectarlo — fuera de
+        Platform Designer — a señales físicas reales en el <code>.bdf</code> del <a href="#paso-6">paso
+        6</a> (por ejemplo, <code>clk</code> a un oscilador de la tarjeta y <code>reset</code> a un
+        pulsador).</li>
+      <li><strong>0 Errors, 0 Warnings</strong> en la barra de estado inferior confirma que, hasta este
+        punto, el sistema (aunque incompleto) es internamente consistente. Ese indicador es la señal para
+        seguir agregando componentes con confianza, en vez de acumular errores hasta el final.</li>
+    </ul>
+    El resultado final de este flujo no es un ejecutable: es un bloque HDL generado (<strong>Generate
+    HDL...</strong>, botón inferior derecho) que luego se instancia en el <code>.bdf</code> como un único
+    símbolo macro-componente, perfectamente interconectado por dentro.
+  </div>
+  <figure>
+    <img src="img/paso-08-qsys-clk0.png" alt="Ventana de Platform Designer (Qsys) con un sistema sin guardar, mostrando el componente clk_0 (Clock Source) en la pestaña System Contents, el panel IP Catalog a la izquierda y el panel Hierarchy abajo a la izquierda.">
+    <figcaption>Platform Designer recién abierto: componente <code>clk_0</code> por defecto, IP Catalog y jerarquía del sistema en construcción.</figcaption>
+  </figure>
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Qué sigue después de este punto</span>
+  A partir de aquí, el siguiente tramo del laboratorio es agregar desde el IP Catalog el núcleo
+  <strong>Nios II Processor</strong>, <strong>On-Chip Memory</strong> y el módulo de depuración JTAG;
+  conectar sus líneas Avalon-MM al núcleo; configurar reset y vectores; resolver el mapa de direcciones;
+  y finalmente <strong>Generate HDL</strong>. Ese sistema generado es el que se instancia de vuelta en el
+  <code>.bdf</code> del paso 6, se compila en Quartus y se programa en la FPGA. La sección siguiente
+  desarrolla ese tramo completo, componente por componente y error por error, tal como se ensambló en
+  la práctica real.
+</div>
+
+<h2 id="ensamblar-sistema">Ensamblar el sistema en Platform Designer, paso a paso</h2>
+<p>
+  Esta segunda parte de la guía retoma exactamente donde terminó el <a href="#paso-8">paso 8</a>:
+  Platform Designer abierto con solo <code>clk_0</code> en el sistema. Documenta, componente por
+  componente, cómo se llegó de ahí a un sistema Nios II completo y listo para <strong>Generate
+  HDL</strong> — incluidos los errores reales que aparecieron en el camino y por qué ciertos puertos
+  se dejan sin conectar a propósito.
+</p>
+
+<div class="diagrama">
+<pre>                    ┌─────────────────┐
+                    │      clk_0      │
+                    │  Clock Source   │
+                    └────────┬────────┘
+                             │
+                    ┌────────┴────────┐
+                    │                 │
+                    ▼                 ▼
+              ┌───────────┐    ┌──────────────┐
+              │   micro   │    │   memoria    │
+              │  Nios II  │◄──►│ On-Chip RAM  │
+              └─────┬─────┘    └──────────────┘
+                    │
+              ┌─────▼─────┐
+              │ JTAG Debug│
+              └───────────┘</pre>
+  <figcaption>Objetivo del sistema mínimo: Nios II necesita, como mínimo, reloj, reset y memoria. Los
+    buses Avalon son el medio por el que el procesador habla con la memoria y con los periféricos.</figcaption>
+</div>
+
+<div class="aviso">
+  <span class="titulo">Capturas de pantalla: 4 ya incorporadas, 2 todavía pendientes</span>
+  El documento fuente de esta sección originalmente referenciaba 6 capturas
+  (<code>01_qsys_niosii_con_errores.png</code>...<code>06_generate_hdl.png</code>) que no existían
+  en el proyecto. Se agregaron 3 capturas reales (<code>img/paso9.png</code>,
+  <code>img/paso10.png</code>, <code>img/paso11.png</code>) que cubren el estado inicial con
+  errores, los parámetros de <code>memoria.s1</code> con el error de overlap, y los parámetros de
+  <code>micro</code> con Reset/Exception Vector — ya insertadas en los puntos correspondientes.
+  Una cuarta captura real, <code>img/paso13.png</code> (pestaña <strong>System Contents</strong>,
+  no <em>Address Map</em>, pero con las mismas columnas Base/End), llegó después como parte de
+  <a href="#jtag-uart-pines-programador">la sección de JTAG UART y programación</a> y de hecho
+  muestra el sistema ya resuelto — <strong>0 Errors, 1 Warning</strong> — así que cubre lo que
+  antes faltaba de la vista de direcciones limpia. Siguen sin existir en el proyecto capturas
+  dedicadas para: la tabla de configuración de memoria (ancho/tamaño) y la ventana de
+  <strong>Generate HDL</strong>. Se marca con <em>(captura pendiente)</em> el punto exacto donde
+  iría cada una.
+</div>
+
+<table class="datos">
+  <tr><th>Componente</th><th>Función</th></tr>
+  <tr><td><code>clk_0</code></td><td>Generar el reloj del sistema</td></tr>
+  <tr><td><code>micro</code></td><td>Procesador Nios II</td></tr>
+  <tr><td><code>memoria</code></td><td>Memoria interna de la FPGA</td></tr>
+  <tr><td><code>memoria.s1</code></td><td>Interfaz Avalon Memory-Mapped de la memoria</td></tr>
+  <tr><td><code>data_master</code></td><td>Acceso del procesador a datos/periféricos</td></tr>
+  <tr><td><code>instruction_master</code></td><td>Acceso del procesador a instrucciones</td></tr>
+  <tr><td><code>d_irq</code></td><td>Entrada de interrupciones</td></tr>
+  <tr><td><code>custom_instruction_master</code></td><td>Interfaz para instrucciones personalizadas</td></tr>
+  <tr><td><code>jtag_debug_module</code></td><td>Depuración mediante JTAG</td></tr>
+  <tr><td><code>reset_n</code></td><td>Reset del procesador</td></tr>
+  <tr><td><code>reset1</code></td><td>Reset de la memoria</td></tr>
+</table>
+
+<p>
+  La primera vista del sistema <code>Gpio</code> en Platform Designer, ya con <code>clk_0</code>,
+  <code>nios2_qsys_0</code> (el núcleo Nios II, todavía con su nombre por defecto) y
+  <code>onchip_memory2_0</code> (la memoria, ídem) agregados, muestra errores en la parte inferior:
+  Platform Designer comprueba que cada componente tenga sus señales obligatorias conectadas, y que
+  el procesador tenga definida su memoria de programa, su memoria de excepciones y sus periféricos
+  — las siguientes subsecciones resuelven esos errores uno por uno.
+</p>
+<figure>
+  <img src="img/paso9.png" alt="Platform Designer con el sistema Gpio recién armado: clk_0, nios2_qsys_0 (Nios II) y onchip_memory2_0 (On-Chip Memory) agregados pero sin conectar. El panel Messages muestra 6 errores y 2 advertencias: Reset slave is not specified, Exception slave is not specified, y las señales de reloj/reset de ambos componentes sin conectar.">
+  <figcaption>Estado inicial real: 6 errores y 2 advertencias antes de conectar reloj, reset,
+    <code>instruction_master</code> y <code>data_master</code>.</figcaption>
+</figure>
+
+<div class="subseccion">
+  <h4>Clock Source — <code>clk_0</code></h4>
+  <p><code>clk_0</code> genera el reloj del sistema. Conecta así:</p>
+  <div class="diagrama"><pre>clk_0.clk
+     ├────────► micro.clk
+     └────────► memoria.clk1</pre></div>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Por qué</span>
+    El procesador y la memoria necesitan trabajar sincronizados con los pulsos del reloj. Sin un reloj
+    válido conectado, Qsys/Platform Designer genera errores como:
+    <div class="diagrama"><pre>micro.clk must be connected to a clock output
+memoria.clk1 must be connected to a clock output</pre></div>
+  </div>
+</div>
+
+<div class="subseccion">
+  <h4>El componente Nios II — <code>micro</code></h4>
+  <p>
+    El componente <code>micro</code> es el procesador Nios II. Entre sus puertos pueden aparecer
+    <code>clk</code>, <code>reset_n</code>, <code>data_master</code>, <code>instruction_master</code>,
+    <code>d_irq</code>, <code>jtag_debug_module</code>, <code>jtag_debug_module_reset</code> y
+    <code>custom_instruction_master</code>. <strong>No todos deben conectarse</strong>: Platform Designer
+    muestra todas las interfaces disponibles, pero solo se usan las que necesita la arquitectura actual.
+  </p>
+
+  <p><strong><code>instruction_master</code></strong> — la interfaz con la que Nios II busca las
+  instrucciones que va a ejecutar. En esta práctica debe conectarse, porque el procesador necesita leer
+  su programa desde la memoria:</p>
+  <div class="diagrama"><pre>Nios II
+   │
+   │ instruction_master
+   ▼
+memoria.s1</pre></div>
+
+  <p><strong><code>data_master</code></strong> — permite al procesador leer y escribir datos: variables,
+  lecturas, escrituras, acceso a periféricos memory-mapped. Es normal que
+  <code>instruction_master</code> y <code>data_master</code> usen la misma memoria en un sistema
+  sencillo:</p>
+  <div class="diagrama"><pre>Nios II
+   │
+   │ data_master
+   ▼
+memoria.s1</pre></div>
+
+  <div class="recuadro ingenieria">
+    <span class="titulo">¿Por qué <code>custom_instruction_master</code> NO se conecta?</span>
+    Se usa cuando se crean <strong>instrucciones personalizadas implementadas en hardware FPGA</strong>:
+    <div class="diagrama"><pre>Nios II
+   │
+   │ custom_instruction_master
+   ▼
+Hardware personalizado</pre></div>
+    Como en esta práctica no se ha creado ningún bloque de instrucción personalizada, se deja sin
+    conectar. <strong>No es un error</strong> — solo se conectaría si más adelante se implementa
+    hardware específico para una instrucción personalizada.
+  </div>
+
+  <div class="recuadro ingenieria">
+    <span class="titulo">¿Por qué <code>d_irq</code> NO se conecta?</span>
+    Está relacionado con las interrupciones: un periférico puede avisar al procesador mediante una IRQ
+    (temporizadores, GPIO, botones, UART, sensores, periféricos personalizados):
+    <div class="diagrama"><pre>Timer / GPIO / UART
+        │
+        │ IRQ
+        ▼
+      d_irq
+        │
+        ▼
+      Nios II</pre></div>
+    Como actualmente no existe ningún periférico que genere una interrupción, se deja sin conectar.
+  </div>
+
+  <p>
+    Tampoco todas las entradas <code>clk_in</code> deben conectarse: una entrada de reloj solo debe
+    conectarse cuando el componente necesita esa señal <em>y</em> existe una fuente compatible. No se
+    conecta un puerto de reloj simplemente porque aparezca en la lista — el reloj principal de esta
+    práctica es <code>clk_0</code>.
+  </p>
+
+  <table class="datos">
+    <tr><th>Puerto</th><th>¿Conectar ahora?</th><th>Motivo</th></tr>
+    <tr><td><code>clk</code></td><td>Sí</td><td>Reloj del procesador</td></tr>
+    <tr><td><code>reset_n</code></td><td>Sí</td><td>Reset</td></tr>
+    <tr><td><code>instruction_master</code></td><td>Sí</td><td>Buscar instrucciones</td></tr>
+    <tr><td><code>data_master</code></td><td>Sí</td><td>Leer/escribir datos</td></tr>
+    <tr><td><code>d_irq</code></td><td>No</td><td>No hay periférico IRQ todavía</td></tr>
+    <tr><td><code>custom_instruction_master</code></td><td>No</td><td>No hay hardware personalizado</td></tr>
+    <tr><td>JTAG</td><td>Sistema de depuración</td><td>Se usa según el flujo estándar de Nios II</td></tr>
+  </table>
+  <p>
+    <strong>Regla:</strong> no conectar un puerto solo para "eliminar una línea" en la vista. Primero hay
+    que determinar qué función cumple ese puerto en la arquitectura.
+  </p>
+</div>
+
+<div class="subseccion">
+  <h4>Reset</h4>
+  <p>El reset coloca los componentes en un estado inicial conocido:</p>
+  <div class="diagrama"><pre>Reset Source
+     │
+     ├────────► micro.reset_n
+     └────────► memoria.reset1</pre></div>
+  <p>
+    El reset es necesario para que el procesador arranque correctamente. El sufijo <code>_n</code>
+    normalmente indica que la señal es activa en nivel bajo (activo cuando vale 0, no 1).
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Error real encontrado — misma captura del inicio de esta sección</span>
+    Con el sistema recién armado (ver la captura al inicio de <a href="#ensamblar-sistema">esta
+    sección</a>), Platform Designer mostró exactamente:
+    <div class="diagrama"><pre>Reset slave is not specified.
+Exception slave is not specified.
+nios2_qsys_0.clk must be connected to a clock output.
+nios2_qsys_0.reset_n must be connected to a reset source.
+onchip_memory_2_0.clk1 must be connected to a clock output.
+onchip_memory_2_0.reset1 must be connected to a reset source.</pre></div>
+    <code>nios2_qsys_0</code> y <code>onchip_memory_2_0</code> son los nombres de instancia que
+    Platform Designer asigna <strong>por defecto</strong> al agregar los componentes desde el IP
+    Catalog — antes de renombrarlos a <code>micro</code> y <code>memoria</code>, los nombres que usa
+    el resto de esta guía. "Reset slave is not specified" significa que Platform Designer todavía no
+    sabe qué señal será el reset; "Exception slave is not specified" significa que todavía no sabe qué
+    memoria usará Nios II para las excepciones. La solución conceptual es la misma de siempre: conectar
+    clock y reset desde sus fuentes a ambos componentes.
+  </div>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Error: "Exception slave is not specified"</span>
+    Las excepciones necesitan una ubicación donde Nios II pueda ejecutar el código correspondiente. En
+    esta práctica se usa la On-Chip Memory como memoria del sistema, así que debe estar disponible
+    (y correctamente mapeada) para que el procesador pueda alcanzarla.
+  </div>
+</div>
+
+<div class="subseccion">
+  <h4>On-Chip Memory — <code>memoria</code></h4>
+  <p>
+    La memoria se llamó <code>memoria</code>, con interfaz Avalon Memory-Mapped <code>s1</code> — por
+    eso aparece como <code>memoria.s1</code> en los diagramas anteriores. "On-Chip" significa que usa
+    recursos internos de la FPGA: no es una memoria externa conectada por pines, sino bloques de memoria
+    embebidos dentro del mismo chip donde vive Nios II. Puede usarse para instrucciones, variables,
+    stack, datos y el programa inicial.
+  </p>
+  <div class="recuadro propiedad">
+    <span class="titulo">Configuración usada en esta práctica <em>(captura pendiente: 03_onchip_memory_configuracion.png)</em></span>
+    <table class="datos">
+      <tr><td>Slave S1 Data width</td><td>32 bits</td></tr>
+      <tr><td>Total memory size</td><td>4096 bytes (4 KB)</td></tr>
+      <tr><td>Read During Write Mode</td><td><code>DONT_CARE</code></td></tr>
+      <tr><td>Slave S1 Latency (read latency)</td><td>1 ciclo</td></tr>
+      <tr><td>Reset Request</td><td>Enabled</td></tr>
+    </table>
+    Si el programa crece, el tamaño puede aumentarse. <code>Read During Write Mode</code> define el
+    comportamiento cuando ocurren una lectura y una escritura en condiciones simultáneas — para esta
+    práctica se dejó en el valor predeterminado, sin requerir un comportamiento específico. El
+    <em>read latency</em> indica cuántos ciclos pasan entre una solicitud de lectura y la disponibilidad
+    del dato. <code>Reset Request: Enabled</code> es la opción de protección/reset del componente de
+    memoria; se mantuvo la configuración que propone Platform Designer por defecto, sin necesidad de una
+    política distinta para este sistema mínimo.
+  </div>
+  <p>
+    La interfaz <code>memoria.s1</code> es un <strong>Avalon Memory-Mapped Slave</strong>:
+    <code>Nios II</code> es el maestro, <code>memoria</code> es el esclavo que responde a sus
+    solicitudes. Para una lectura:
+  </p>
+  <figure>
+    <img src="img/paso10.png" alt="Panel de parámetros de memoria.s1 en Platform Designer: Avalon Memory Mapped Slave, associated clock clk1, associated reset reset1, bits per symbol 8, explicit address span 4096, read latency 1. El panel Messages abajo muestra el error real de overlap: micro.data_master y micro.instruction_master, ambos con micro.jtag_debug_module (0x800..0xfff), overlaps memoria.s1 (0x0..0xfff).">
+    <figcaption>Parámetros de <code>memoria.s1</code> (Avalon Memory Mapped Slave, read latency 1,
+      explicit address span 4096) — y, en el panel inferior, el error real de overlap entre
+      <code>jtag_debug_module</code> y <code>memoria.s1</code> en el rango <code>0x800-0xfff</code>.</figcaption>
+  </figure>
+  <div class="diagrama"><pre>Nios II
+  │
+  │ READ + ADDRESS
+  ▼
+memoria.s1
+  │
+  │ READDATA
+  ▼
+Nios II</pre></div>
+  <p>Para una escritura:</p>
+  <div class="diagrama"><pre>Nios II
+  │
+  │ WRITE + ADDRESS + DATA
+  ▼
+memoria.s1</pre></div>
+
+  <p>
+    La On-Chip Memory puede además inicializarse con un archivo <code>.hex</code>, para que tenga
+    contenido inicial ya cuando se genera/programa el sistema:
+  </p>
+  <div class="diagrama"><pre>Programa
+   │
+   ▼
+archivo .hex
+   │
+   ▼
+On-Chip Memory
+   │
+   ▼
+Nios II</pre></div>
+
+  <p><strong>Reset Vector</strong> — indica dónde empieza a ejecutar Nios II después del reset. En esta
+  práctica: <code>Reset Vector Memory = memoria.s1</code>, <code>Reset vector offset = 0x00000000</code>.</p>
+  <div class="diagrama"><pre>Reset
+  │
+  ▼
+Nios II
+  │
+  ▼
+Reset Vector
+  │
+  ▼
+memoria.s1
+  │
+  ▼
+inicio del programa</pre></div>
+  <p>
+    Por eso la memoria seleccionada como Reset Vector debe estar correctamente conectada y presente en
+    el Address Map. Lo mismo aplica al <strong>Exception Vector</strong> (<code>memoria.s1</code> en esta
+    práctica, <code>offset = 0x00000020</code> — <strong>no</strong> el mismo offset que el Reset
+    Vector): define dónde está el código que atiende las excepciones del procesador, y también debe
+    apuntar a una memoria accesible.
+  </p>
+  <figure>
+    <img src="img/paso11.png" alt="Panel de parámetros de micro (Nios II Classic Processor) en Platform Designer: sección Reset Vector con memoria.s1 y offset 0x00000000, sección Exception Vector con memoria.s1 y offset 0x00000020. El panel Messages abajo muestra 3 errores (overlap de jtag_debug_module con memoria.s1, y clk_0.clk_in_reset sin conectar) y 1 advertencia (Nios II Classic cores are no longer recommended for new projects).">
+    <figcaption>Parámetros del procesador <code>micro</code>: Reset Vector en <code>memoria.s1</code>
+      (offset <code>0x00000000</code>) y Exception Vector también en <code>memoria.s1</code> pero con
+      offset <code>0x00000020</code> — un desplazamiento distinto, para que el código de arranque y el
+      de manejo de excepciones no ocupen la misma dirección.</figcaption>
+  </figure>
+</div>
+
+<div class="subseccion">
+  <h4>JTAG Debug Module</h4>
+  <p>
+    Permite que el computador se comunique con Nios II para depuración y para cargar el software — tiene
+    su propio espacio de direcciones dentro del sistema:
+  </p>
+  <div class="diagrama"><pre>PC
+ │
+ │ JTAG
+ ▼
+JTAG Debug Module
+ │
+ ▼
+Nios II</pre></div>
+</div>
+
+<div class="subseccion">
+  <h4>Address Map y errores de solapamiento (overlap)</h4>
+  <p><em>(captura pendiente: 02_address_map_sin_errores.png)</em> — la pestaña <strong>Address
+  Map</strong> asigna rangos de memoria a cada componente, por ejemplo <code>memoria.s1</code> en
+  <code>0x00000000</code>-<code>0x00000FFF</code> y el JTAG Debug Module en otro rango más
+  adelante; los rangos exactos los asigna Platform Designer y no deben superponerse.</p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Error real encontrado</span>
+    <div class="diagrama"><pre>micro.data_master:
+micro.jtag_debug_module (0x800...0xfff)
+overlaps memoria.s1
+
+micro.instruction_master:
+micro.jtag_debug_module (0x800...0xfff)
+overlaps memoria.s1</pre></div>
+    Significa que dos componentes ocupaban el mismo rango de direcciones. Ejemplo del problema:
+    <div class="diagrama"><pre>memoria:
+0x0000 - 0x0FFF
+
+JTAG:
+0x0800 - 0x0FFF</pre></div>
+    Los rangos se superponen entre <code>0x0800</code> y <code>0x0FFF</code>.
+  </div>
+  <p>
+    Cuando Nios II accede a una dirección, el sistema necesita saber sin ambigüedad qué componente debe
+    responder:
+  </p>
+  <div class="diagrama"><pre>Nios II
+   │
+   │ 0x0800
+   ▼
+¿Memoria?
+¿JTAG?</pre></div>
+  <p>
+    Si dos componentes usan la misma dirección, el mapa es ambiguo y Platform Designer genera un error —
+    los rangos deben quedar separados. La pestaña <strong>Address Map</strong> permite comprobar los
+    rangos asignados a cada componente; la idea es que cada uno tenga un espacio claramente diferenciado,
+    por ejemplo:
+  </p>
+  <div class="diagrama"><pre>memoria.s1:
+0x00000000 - 0x00000FFF
+
+JTAG:
+0x00010000 - 0x00010FFF</pre></div>
+  <p>
+    Los valores exactos dependen de la configuración que genere Platform Designer; lo importante es que
+    no haya solapamiento entre rangos.
+  </p>
+</div>
+
+<div class="subseccion">
+  <h4>Checklist antes de Generate HDL</h4>
+  <p>Errores iniciales típicos, todos resueltos siguiendo la estructura de conexión de las secciones
+  anteriores:</p>
+  <div class="diagrama"><pre>Reset slave is not specified.
+Exception slave is not specified.
+micro.clk must be connected to a clock output.
+memoria.clk1 must be connected to a clock output.
+micro.reset_n must be connected to a reset source.
+memoria.reset1 must be connected to a reset source.</pre></div>
+  <p>La estructura necesaria, resumida:</p>
+  <div class="diagrama"><pre>Clock
+  ↓
+Nios II + Memory
+
+Reset
+  ↓
+Nios II + Memory
+
+instruction_master
+  ↓
+Memory
+
+data_master
+  ↓
+Memory</pre></div>
+  <ul class="checklist">
+    <li>Existe <code>clk_0</code>.</li>
+    <li>Existe <code>micro</code>.</li>
+    <li>Existe <code>memoria</code>.</li>
+    <li><code>micro.clk</code> está conectado.</li>
+    <li><code>memoria.clk1</code> está conectado.</li>
+    <li><code>micro.reset_n</code> tiene una fuente válida.</li>
+    <li><code>memoria.reset1</code> tiene una fuente válida.</li>
+    <li><code>instruction_master</code> está conectado a la memoria.</li>
+    <li><code>data_master</code> está conectado a la memoria.</li>
+    <li>Reset Vector está configurado.</li>
+    <li>Exception Vector está configurado.</li>
+    <li>No existen overlaps en el Address Map.</li>
+    <li>Platform Designer muestra <code>0 Errors</code> (la advertencia de Nios II Classic puede
+      seguir presente — ver abajo).</li>
+  </ul>
+  <div class="recuadro ingenieria">
+    <span class="titulo">Lo que NO hay que hacer</span>
+    No se debe intentar conectar todos los puertos visibles solo porque aparecen en la lista. No es
+    correcto pensar "<code>d_irq</code> → cualquier puerto", "<code>custom_instruction_master</code> →
+    cualquier puerto" o "<code>clk_in</code> → cualquier reloj". Cada conexión debe tener una función.
+    La pregunta correcta siempre es: <em>¿qué función cumple este puerto, y qué componente proporciona
+    o recibe esa función?</em>
+  </div>
+</div>
+
+<div class="subseccion">
+  <h4>Generate HDL <em>(captura pendiente: 06_generate_hdl.png)</em></h4>
+  <div class="recuadro propiedad">
+    <span class="titulo">Configuración usada</span>
+    <code>Create HDL design files for synthesis: VHDL</code> — correcto si el proyecto usa VHDL.
+    <code>Create block symbol file (.bsf)</code> activado — genera un símbolo reutilizable en un diseño
+    esquemático de Quartus (el <code>.bdf</code> del paso 6). <code>Create simulation model: VHDL</code>
+    — correcto si se desea generar el modelo de simulación en VHDL.
+  </div>
+  <p>
+    Directorio de salida usado en esta práctica:
+    <code>D:\Unicauca\Labor_2026\Enfasis\Proyectos\Practica1\Gpio</code> — mantener los archivos
+    generados dentro del propio directorio del proyecto facilita su integración posterior con Quartus.
+  </p>
+  <p>
+    Al presionar <strong>Generate</strong>, Platform Designer produce los archivos HDL necesarios para
+    implementar el sistema — por ejemplo <code>Gpio.vhd</code>, <code>Gpio.sopcinfo</code>,
+    <code>Gpio.qip</code>, más archivos auxiliares (los nombres exactos varían según la versión de
+    Quartus y la configuración).
+  </p>
+  <div class="recuadro ingenieria">
+    <span class="titulo">¿Qué significa "0 Errors, 1 Warning"?</span>
+    En esta práctica, el resultado final de las comprobaciones fue exactamente <code>0 Errors, 1
+    Warning</code> — no "0 Errors" a secas: la advertencia de Nios II Classic (ver abajo) se mantiene
+    presente incluso con el sistema correctamente armado, y <strong>no</strong> impide avanzar. Un
+    <code>ERROR</code> impide continuar; un <code>WARNING</code> hay que entenderlo, pero no bloquea la
+    generación del sistema. <code>0 Errors</code> significa que Platform Designer pasó las
+    comprobaciones estructurales principales — <strong>no</strong> significa todavía que el programa de
+    Nios II esté ejecutándose, solo que el hardware está suficientemente definido para continuar con la
+    generación de HDL. Después todavía falta: generar HDL, integrar el sistema en Quartus, compilar,
+    programar la FPGA, crear/cargar el software Nios II, y ejecutar/probar.
+  </div>
+  <div class="aviso">
+    <span class="titulo">Advertencia "Nios II Classic"</span>
+    Puede aparecer el mensaje <code>Nios II Classic cores are no longer recommended for new projects</code>.
+    Es una advertencia, no un error: indica que Nios II Classic ya no es la opción recomendada para
+    proyectos nuevos (ver la nota de versión en <a href="tema-1-2.html">1.2</a>). Si la práctica requiere
+    específicamente Nios II Classic, se puede continuar con esa arquitectura sin problema.
+  </div>
+</div>
+
+<div class="subseccion">
+  <h4>Flujo completo y arquitectura final</h4>
+  <div class="diagrama"><pre>Crear proyecto Quartus
+        │
+        ▼
+Abrir Platform Designer
+        │
+        ▼
+Agregar Clock Source
+        │
+        ▼
+Agregar Nios II
+        │
+        ▼
+Agregar On-Chip Memory
+        │
+        ▼
+Conectar Clock
+        │
+        ▼
+Configurar Reset
+        │
+        ▼
+Conectar instruction_master
+        │
+        ▼
+Conectar data_master
+        │
+        ▼
+Configurar Reset Vector
+        │
+        ▼
+Configurar Exception Vector
+        │
+        ▼
+Revisar Address Map
+        │
+        ▼
+Eliminar overlaps
+        │
+        ▼
+Comprobar 0 Errors
+        │
+        ▼
+Generate HDL
+        │
+        ▼
+Integrar en Quartus
+        │
+        ▼
+Compilar FPGA
+        │
+        ▼
+Programar FPGA
+        │
+        ▼
+Crear/cargar software Nios II
+        │
+        ▼
+Probar</pre></div>
+
+  <div class="diagrama"><pre>                 clk_0
+                   │
+          ┌────────┴────────┐
+          │                 │
+          ▼                 ▼
+      micro.clk        memoria.clk1
+
+                 RESET
+                   │
+          ┌────────┴────────┐
+          │                 │
+          ▼                 ▼
+     micro.reset_n     memoria.reset1
+
+
+             Nios II / micro
+          ┌───────────────────┐
+          │                   │
+          │ instruction_master├─────────┐
+          │                   │         │
+          │ data_master       ├─────┐   │
+          │                   │     │   │
+          └───────────────────┘     │   │
+                                    ▼   ▼
+                              ┌─────────────┐
+                              │ memoria.s1  │
+                              └─────────────┘</pre>
+    <figcaption>Arquitectura final del sistema mínimo: reloj y reset distribuidos a ambos componentes;
+      <code>instruction_master</code> y <code>data_master</code> de Nios II convergen en la misma
+      memoria.</figcaption>
+  </div>
+
+  <p>
+    Nios II usa interfaces <strong>Avalon</strong> para comunicarse con los demás componentes — en este
+    sistema, <code>Avalon-MM Instruction Master</code> y <code>Avalon-MM Data Master</code> (ver
+    <a href="tema-1-1.html">1.1</a>). El bus permite operaciones de dirección, lectura, escritura, datos,
+    byte enable y selección del dispositivo; la memoria on-chip funciona como esclavo Avalon
+    Memory-Mapped:
+  </p>
+  <div class="diagrama"><pre>Nios II
+   │
+   │ Avalon-MM
+   ▼
+memoria.s1</pre></div>
+</div>
+
+<div class="subseccion">
+  <h4>Hardware y software: dos etapas separadas</h4>
+  <p>Hasta "0 Errors" y <strong>Generate</strong>, todo lo anterior es configuración de
+  <strong>hardware</strong> en Platform Designer:</p>
+  <div class="diagrama"><pre>Nios II
+Clock
+Reset
+Memory
+Avalon
+JTAG
+Address Map</pre></div>
+  <p>Después de eso empieza el <strong>software</strong>: el programa que va a ejecutar Nios II —
+  ver <a href="tema-1-3.html">1.3</a> para compilación cruzada y JTAG UART.</p>
+  <div class="codigo"><pre>int main()
+{
+    /* programa para Nios II */
+    return 0;
+}</pre></div>
+  <p>Primero se debe terminar correctamente el hardware — recién ahí tiene sentido pasar al software.</p>
+</div>
+
+<div class="subseccion">
+  <h4>Descargar el programa a la FPGA: Nios II EDS y la JTAG UART</h4>
+  <p>
+    Con el hardware generado (<code>Generate HDL</code>) e integrado, compilado y programado en la FPGA
+    (ver <a href="tema-1-2.html">1.2</a>), falta el último tramo: crear el software en C, bajarlo a la
+    memoria del sistema y ver su salida. Todo este tramo usa el mismo cable USB-Blaster con el que ya se
+    programó la FPGA — no se necesita ningún cable adicional.
+  </p>
+  <div class="diagrama"><pre>PC (Nios II EDS)
+   │
+   │ USB-Blaster / JTAG
+   ▼
+JTAG Debug Module ──── descarga el .elf a memoria (Reset Vector)
+   │
+   ▼
+Nios II ejecuta el programa
+   │
+   │ printf() → HAL del BSP
+   ▼
+JTAG UART ──── mismo cable JTAG, canal serie
+   │
+   ▼
+Terminal Nios II en el PC (stdout)</pre>
+    <figcaption>Dos usos distintos del mismo cable JTAG: programar el bitstream en la FPGA (hardware) y,
+      después, descargar/depurar el software y leer su <code>stdout</code> por la JTAG UART.</figcaption>
+  </div>
+
+  <ol>
+    <li>
+      <strong>Crear el proyecto de aplicación y BSP desde plantilla.</strong> En Nios II EDS:
+      <em>File → New → Nios II Application and BSP from Template</em>, apuntando al
+      <code>.sopcinfo</code> generado por Platform Designer, y eligiendo la plantilla
+      <strong>Hello World</strong>. El BSP se genera automáticamente a partir de ese
+      <code>.sopcinfo</code> — expone exactamente los periféricos y direcciones del sistema que se
+      armó (ver <a href="tema-1-3.html">1.3</a>).
+      <div class="codigo"><pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("Hello from Nios II!\n");
+    return 0;
+}</pre></div>
+    </li>
+    <li>
+      <strong>Build Project.</strong> Compila el BSP y la aplicación con el compilador cruzado
+      <code>nios2-elf-gcc</code> (ver <a href="tema-1-3.html">1.3</a>) — genera el ejecutable
+      <code>.elf</code> para la arquitectura Nios II, no para la máquina host.
+    </li>
+    <li>
+      <strong>Run As → Nios II Hardware.</strong> Descarga el <code>.elf</code> a la memoria on-chip del
+      sistema (la misma <code>memoria.s1</code> ensamblada arriba, en la dirección del Reset Vector) a
+      través del cable USB-Blaster, y lo ejecuta.
+    </li>
+    <li>
+      <strong>Leer la salida.</strong> El mensaje aparece en la consola Nios II del IDE — equivalente a
+      correr <code>nios2-terminal</code> desde la Nios II Command Shell. <code>printf</code> en C se
+      enruta, vía el HAL del BSP, a la JTAG UART como <code>stdout</code>.
+    </li>
+  </ol>
+
+  <div class="recuadro ingenieria">
+    <span class="titulo">Fallas comunes y cómo leerlas</span>
+    <ul>
+      <li><strong>No hay salida en la terminal Nios II:</strong> casi siempre el reloj o el reset del
+        sistema no quedaron conectados en el top-level, o se conectaron con la polaridad invertida
+        (revisar la sección <a href="#ensamblar-sistema">Reset</a> arriba — un botón activo en bajo
+        conectado como si fuera activo en alto no resetea nunca el sistema).</li>
+      <li><strong>Error "System ID mismatch" al ejecutar:</strong> el <code>.sof</code> programado en la
+        FPGA no corresponde al <code>.sopcinfo</code> usado para generar el BSP — se modificó el sistema
+        en Platform Designer sin recompilar y reprogramar el proyecto de Quartus. Se corrige
+        recompilando y reprogramando la FPGA antes de volver a ejecutar el software.</li>
+      <li><strong>Tiempo de espera agotado al programar:</strong> el cable USB-Blaster no está bien
+        conectado, o la tarjeta no tiene alimentación — revisar la conexión física antes de sospechar
+        del proyecto.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Resultado esperado antes de continuar</span>
+  <ul class="checklist">
+    <li>Clock configurado</li>
+    <li>Reset configurado</li>
+    <li>Nios II configurado</li>
+    <li>On-Chip Memory configurada</li>
+    <li><code>instruction_master</code> conectado</li>
+    <li><code>data_master</code> conectado</li>
+    <li>Reset Vector configurado</li>
+    <li>Exception Vector configurado</li>
+    <li>Address Map sin overlaps</li>
+    <li>0 Errors</li>
+    <li>Generate HDL ejecutado</li>
+  </ul>
+  Los puertos <code>custom_instruction_master</code> y <code>d_irq</code> pueden permanecer sin conexión:
+  pertenecen a funcionalidades (instrucciones personalizadas, interrupciones) que esta práctica todavía
+  no usa.
+</div>
+
+<div class="recuadro ingenieria">
+  <span class="titulo">Conclusión</span>
+  La configuración correcta <strong>no</strong> consiste en conectar todos los puertos visibles. La
+  arquitectura debe ser coherente:
+  <div class="diagrama"><pre>CLOCK
+  │
+  ▼
+Nios II
+  │
+  ├──── instruction_master ────► Memory
+  │
+  └──── data_master ───────────► Memory
+
+RESET
+  │
+  ├────► Nios II
+  └────► Memory
+
+JTAG
+  │
+  └────► Debug Nios II</pre></div>
+  <code>custom_instruction_master</code> y <code>d_irq</code> no se conectan en esta etapa porque
+  todavía no existen hardware personalizado ni periféricos que generen interrupciones. El indicador
+  principal antes de generar HDL es <code>0 Errors</code> y un Address Map sin solapamientos. Después de
+  eso se presiona <strong>Generate</strong> y se continúa con la integración del sistema en Quartus — ver
+  <a href="tema-1-2.html">1.2</a> y <a href="tema-1-3.html">1.3</a> para el resto del flujo.
+</div>
+
+<h2 id="jtag-uart-pines-programador">JTAG UART, sistema completo, Pin Planner y programación (paso 12 a 16)</h2>
+<p>
+  Esta tercera parte retoma justo donde quedó el <a href="#ensamblar-sistema">ensamblado del
+  sistema</a>: el mismo proyecto <code>Gpio</code>, sobre el mismo Cyclone V
+  <code>5CSEBA6U23I7</code> ya identificado arriba. Cinco capturas reales adicionales
+  (<code>img/paso12.png</code> a <code>img/paso16.png</code>) documentan la ventana de configuración
+  del IP JTAG UART, el sistema ya sin errores en Platform Designer, la compilación en Quartus, la
+  asignación de pines físicos en el Pin Planner y, por último, la programación de la FPGA — donde,
+  además del dispositivo Cyclone V, aparece en la misma cadena JTAG el <strong>SOCVHPS</strong>, el
+  <em>Hard Processor System</em> del SoC.
+</p>
+
+<div class="diagrama">
+<pre>                         Cyclone V SoC (5CSEBA6U23I7)
+                              │
+              ┌───────────────┴───────────────┐
+              │                               │
+             HPS                             FPGA
+      ARM Cortex-A9                    Lógica programable
+       (SOCVHPS)                              │
+                                 ┌─────────────┼─────────────┐
+                                 │             │             │
+                              Nios II     JTAG UART      (memoria)
+                             (micro)    (jtag_uart_0)   (memoria.s1)</pre>
+  <figcaption>El HPS (ARM Cortex-A9, expuesto en la cadena JTAG como <code>SOCVHPS</code>) y la FPGA
+    (donde vive el Nios II soft-core, <code>micro</code>) son dos sistemas de procesamiento distintos
+    dentro del mismo chip. Esta práctica solo programa la FPGA; el HPS no se usa todavía.</figcaption>
+</div>
+
+<div class="subseccion">
+  <h4>Configurar el IP JTAG UART — paso 12</h4>
+  <p>
+    Antes de llegar al sistema sin errores del paso siguiente, hay que configurar el IP
+    <code>jtag_uart_0</code> (<code>altera_avalon_jtag_uart</code>) que se agregó al proyecto.
+  </p>
+  <figure>
+    <img src="img/paso12.png" alt="Ventana de configuración del IP JTAG UART (altera_avalon_jtag_uart) para el componente jtag_uart_0: diagrama de bloque con clk, reset y avalon_jtag_slave como entradas, e irq como salida. A la derecha, Write FIFO (Data from Avalon to JTAG) con Buffer depth 64 bytes e IRQ threshold 8, y Read FIFO (Data from JTAG to Avalon) con los mismos valores. Abajo, advertencia: JTAG UART IP input clock need to be at least double (2x) the operating frequency of JTAG TCK on board.">
+    <figcaption>Configuración del IP <code>jtag_uart_0</code>: Write FIFO y Read FIFO, cada uno con
+      64 bytes de profundidad y umbral de IRQ en 8.</figcaption>
+  </figure>
+  <p>
+    Los dos FIFO tienen sentidos opuestos: el <strong>Write FIFO</strong> lleva datos de Avalon hacia
+    JTAG — es la ruta que sigue un <code>printf()</code> del programa en Nios II hasta la terminal del
+    PC — y el <strong>Read FIFO</strong> lleva datos de JTAG hacia Avalon, para cuando el programa lee
+    algo que el usuario escribió en la terminal. El <em>IRQ threshold</em> no es una dirección de
+    memoria: es un parámetro interno que determina cuándo el FIFO genera una interrupción por
+    ocupación. La advertencia de frecuencia (el reloj de <code>jtag_uart_0</code> debe ser al menos el
+    doble del TCK de la placa) es informativa, no un error de conexión.
+  </p>
+</div>
+
+<div class="subseccion">
+  <h4>El sistema ya resuelto en Platform Designer — paso 13</h4>
+  <figure>
+    <img src="img/paso13.png" alt="Pestaña System Contents de Qsys para el proyecto Gpio.gsys: clk_0 (Clock Source, exportado como clk_0), micro (Nios II Classic Processor) con data_master e instruction_master conectados y d_irq/custom_instruction_master sin exportar, memoria (On-Chip Memory RAM or ROM) y jtag_uart_0 (JTAG UART) con avalon_jtag_slave e irq conectado a IRQ 0 de micro. Columnas Base/End muestran jtag_uart_0 en 0x0000_0000-0x0000_0007, memoria en 0x0001_0000-0x0001_ffff y jtag_debug_module en 0x0002_0800-0x0002_0fff. Panel Messages: 1 Warning (Nios II Classic cores are no longer recommended for new projects) y 1 Info Message sobre la frecuencia del reloj del JTAG UART — 0 errores.">
+    <figcaption>Sistema <code>Gpio</code> completo: el overlap de direcciones del paso anterior quedó
+      resuelto — 0 errores, solo la advertencia esperada por usar un núcleo Nios II Classic.</figcaption>
+  </figure>
+  <p>
+    Esta captura es del mismo proyecto <code>Gpio.qsys</code>, después de resolver el error de
+    solapamiento visto en el <a href="#ensamblar-sistema">paso de <code>micro</code></a>. El mapa de
+    direcciones final queda con <code>jtag_uart_0</code> en las direcciones más bajas
+    (<code>0x0000_0000</code>–<code>0x0000_0007</code>), <code>memoria</code> ocupando 64&nbsp;KB desde
+    <code>0x0001_0000</code>, y <code>jtag_debug_module</code> — el módulo que usa el IDE para descargar
+    y depurar el programa por JTAG, no un periférico que el programa use directamente — en
+    <code>0x0002_0800</code>. El panel <em>Messages</em> ya no muestra errores: solo la advertencia de
+    que Nios II Classic no se recomienda para proyectos nuevos (Intel recomienda el núcleo
+    <em>Nios II Gen2</em> para diseños actuales) y el aviso informativo sobre la frecuencia del reloj
+    del JTAG UART visto en el paso anterior.
+  </p>
+</div>
+
+<div class="subseccion">
+  <h4>Integrar y compilar en Quartus — paso 14</h4>
+  <figure>
+    <img src="img/paso14.png" alt="Quartus Prime Lite Edition con Principal.bdf abierto: bloque Gpio (el sistema generado por Platform Designer) instanciado como inst1, con un pin de entrada conectado a su puerto clk_clk. El panel Tasks muestra Compile Design con Analysis & Synthesis, Fitter (Place & Route), Assembler y TimeQuest Timing Analysis completados (marcas verdes). El panel de mensajes muestra worst-case setup/hold/recovery/removal/minimum pulse width slack, Design is not fully constrained for setup and hold requirements, y Quartus Prime Full Compilation was successful, 0 errors, 27 warnings.">
+    <figcaption>Compilación completa en Quartus: el sistema Qsys, instanciado como <code>inst1</code>
+      dentro de <code>Principal.bdf</code>, compila con 0 errores.</figcaption>
+  </figure>
+  <p>
+    El diseño de nivel superior real de este proyecto es <code>Principal.bdf</code>, con el bloque
+    <code>Gpio</code> generado por Platform Designer instanciado dentro (<code>inst1</code>) y su reloj
+    conectado a un pin externo. La compilación pasa por las mismas cuatro etapas de siempre —
+    <em>Analysis &amp; Synthesis</em>, <em>Fitter</em>, <em>Assembler</em>,
+    <em>TimeQuest Timing Analyzer</em> — y termina en <code>0 errors, 27 warnings</code>. Los mensajes
+    de <em>slack</em> (margen temporal disponible en cada esquina de timing) y el aviso
+    <code>Design is not fully constrained</code> son normales en un proyecto sin archivo de
+    restricciones (<code>.sdc</code>) dedicado: indican que faltan restricciones de timing más finas,
+    no que el diseño esté mal. El indicador que importa antes de programar la FPGA es
+    <code>0 errors</code>.
+  </p>
+</div>
+
+<div class="subseccion">
+  <h4>Pin Planner: asignar los pines físicos — paso 15</h4>
+  <figure>
+    <img src="img/paso15.png" alt="Pin Planner de Quartus, vista Top View - Wire Bond del dispositivo Cyclone V 5CSEBA6U23I7. En la tabla inferior, el nodo CLK aparece como Direction Input, Location PIN_V11, I/O Bank 3B, VREF Group B3B_N0, I/O Standard 2.5 V (default), Current Strength 12mA (default). El panel I/O Bank Usage muestra el banco 3A con 16 pines disponibles sin asignar y el banco 3B con 32 pines, 1 asignado.">
+    <figcaption>Pin Planner: la señal lógica <code>CLK</code> asignada al pin físico
+      <code>PIN_V11</code>, en el banco de E/S 3B del Cyclone V <code>5CSEBA6U23I7</code>.</figcaption>
+  </figure>
+  <p>
+    Platform Designer define la <strong>arquitectura lógica</strong> (qué se conecta con qué dentro del
+    chip); el Pin Planner define la <strong>ubicación física</strong> (a qué pin del encapsulado sale
+    cada señal). En la captura, la señal <code>CLK</code> queda asignada al pin <code>PIN_V11</code>,
+    como entrada, dentro del banco de E/S <code>3B</code>, con estándar eléctrico
+    <code>2.5&nbsp;V</code> por defecto. Una conexión lógica correcta en Platform Designer no sirve de
+    nada si el pin físico no coincide con el que la placa realmente tiene cableado al reloj — por eso
+    este paso es tan necesario como el ensamblado del sistema.
+  </p>
+</div>
+
+<div class="subseccion">
+  <h4>Programmer: cargar el bitstream y aparece el SOCVHPS — paso 16</h4>
+  <figure>
+    <img src="img/paso16.png" alt="Ventana del Compilation Report (Flow Summary: Device 5CSEBA6U23I7, Family Cyclone V, Top-level Entity Name Principal, Flow Status Successful) con la ventana del Quartus Programmer superpuesta: Hardware Setup DE-SoC [USB-1], Mode JTAG. La cadena JTAG muestra dos dispositivos, SOCVHPS y 5CSEBA6U23, con flechas TDI/TDO. En la tabla, la fila SOCVHPS tiene checksum 00000000 y Usercode <none> sin casillas marcadas; la fila output_files/Gpio_time...cdf apunta al dispositivo 5CSEBA6U23 con checksum y usercode 0271B31E coincidentes y la casilla Program/Configure marcada. Progress: 100% (Successful). El log inferior muestra Quartus Prime Full Compilation was successful, 0 errors, 26 warnings.">
+    <figcaption>Programación exitosa: la cadena JTAG detecta <strong>SOCVHPS</strong> (el HPS) y
+      <strong>5CSEBA6U23</strong> (la FPGA); solo esta última recibe el archivo de configuración,
+      con <code>Progress: 100% (Successful)</code>.</figcaption>
+  </figure>
+  <p>
+    <code>Hardware Setup: DE-SoC [USB-1]</code> confirma que Quartus detectó el cable USB-Blaster; con
+    <code>Mode: JTAG</code>, la programación viaja por la cadena de depuración estándar (TDI hacia el
+    chip, TDO de vuelta). Esa cadena, en un Cyclone V SoC, siempre expone <strong>dos</strong>
+    dispositivos: <code>SOCVHPS</code> (el HPS, ARM Cortex-A9) y <code>5CSEBA6U23</code> (la FPGA). Solo
+    la fila de <code>5CSEBA6U23</code> tiene la casilla <em>Program/Configure</em> marcada — el archivo
+    generado (<code>output_files/Gpio_time....cdf</code>) configura la lógica FPGA, no el HPS; por eso
+    la fila <code>SOCVHPS</code> queda con <em>checksum</em> y <em>usercode</em> en
+    <code>&lt;none&gt;</code>. <code>Progress: 100% (Successful)</code> confirma que la cadena JTAG
+    respondió y que la configuración terminó sin errores.
+  </p>
+</div>
+
+<div class="recuadro ingenieria">
+  <span class="titulo">Ver <code>SOCVHPS</code> no es lo mismo que usar el HPS</span>
+  Que <code>SOCVHPS</code> aparezca en la cadena JTAG es una propiedad física del chip Cyclone V SoC —
+  aparece siempre, se use o no el HPS — y no significa que se haya cargado ningún software en el ARM
+  Cortex-A9. En esta práctica solo se programó la FPGA (<code>5CSEBA6U23</code>): el Nios II
+  (<code>micro</code>) es un procesador <em>soft-core</em>, implementado con la lógica programable de la
+  FPGA, mientras que el HPS es hardware físico fijo del SoC, independiente de lo que se sintetice en la
+  FPGA.
+  <div class="diagrama"><pre>HPS                              Nios II
+└── ARM Cortex-A9                └── procesador soft-core
+    └── hardware físico fijo         └── implementado dentro de la FPGA
+        del SoC (SOCVHPS)</pre></div>
+  Comunicar ambos — por ejemplo, que el ARM del HPS encienda un LED a través de un puerto PIO en la
+  FPGA, vía un <em>HPS-to-FPGA bridge</em> — es un laboratorio aparte, todavía no cubierto aquí.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Resumen: paso 12 a paso 16</span>
+  <table class="datos">
+    <tr><th>Paso</th><th>Imagen</th><th>Tema</th><th>Resultado</th></tr>
+    <tr><td>12</td><td><code>paso12.png</code></td><td>Configuración del IP JTAG UART</td><td>Write/Read FIFO, IRQ threshold y advertencia de reloj</td></tr>
+    <tr><td>13</td><td><code>paso13.png</code></td><td>Platform Designer, sistema completo</td><td>0 Errors, 1 Warning — mapa de direcciones final</td></tr>
+    <tr><td>14</td><td><code>paso14.png</code></td><td>Quartus, compilación</td><td>0 errors, 27 warnings — diseño verificado</td></tr>
+    <tr><td>15</td><td><code>paso15.png</code></td><td>Pin Planner</td><td><code>CLK</code> asignado a <code>PIN_V11</code>, banco 3B</td></tr>
+    <tr><td>16</td><td><code>paso16.png</code></td><td>Programmer</td><td>FPGA programada; <code>SOCVHPS</code> visible en la cadena JTAG</td></tr>
+  </table>
+</div>
+
+<div class="paginacion">
+  <a href="tema-1-3.html">&larr; 1.3 BSP y compilación cruzada</a>
+  <a href="index.html">Inicio &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-01/</code> — Énfasis, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\newcommand{\vv}[1]{\mathbf{#1}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{\textcolor{unicaucaverde}{\Large Guía de Aprendizaje — Semana 3}\\[4pt]
+  \large Vectores y matrices: definiciones y operaciones básicas}
+\author{Álgebra Lineal para Ingeniería --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{tabular}{|>{\bfseries}p{4cm}|p{10cm}|}
+\hline
+Semana & 3 de 16 \\ \hline
+Unidad & 2 --- Vectores y matrices (Grossman, cap. 2) \\ \hline
+Subtemas & 2.1 (vectores y matrices), 2.2 (productos vectorial y matricial) \\
+\hline
+Horas de clase & 4 \\ \hline
+Resultado de aprendizaje & RA2 (parte 1 de 3; ver \texttt{guia1/guia.tex}) \\ \hline
+\end{tabular}
+\end{center}
+
+\section*{Relevancia para ingeniería}
+
+Vectores y matrices son el lenguaje natural para representar varias cantidades relacionadas a la
+vez: fuerzas y momentos en un plano, señales de varios canales, tablas de datos, transformaciones
+geométricas (rotación, escalado) en gráficos por computador, o insumos y recursos en un proceso de
+producción. El producto matricial en particular condensa en una sola operación todo un conjunto de
+combinaciones lineales; es la operación base de casi todo el software numérico de ingeniería y del
+aprendizaje automático (una red neuronal es, en esencia, una cadena de productos matriciales). Esta
+semana conecta además con la Unidad 1: todo sistema de ecuaciones lineales $A\vv{x}=\vv{b}$ es, en
+el fondo, un producto matricial.
+
+\section{Objetivo de la semana}
+
+Representar cantidades mediante vectores y matrices, y calcular sus operaciones básicas (suma,
+producto por escalar, producto punto, producto matricial), incluida la representación matricial
+$A\vv{x}=\vv{b}$ de un sistema de ecuaciones lineales.
+
+\section{Resultados de aprendizaje de la semana}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item[\textbf{RA2.1.}] Definir vector y matriz, usar la notación de doble subíndice $a_{ij}$,
+        reconocer matrices especiales (fila, columna, cuadrada, nula, identidad, diagonal), y
+        efectuar suma, resta y multiplicación por escalar de matrices.
+  \item[\textbf{RA2.2.}] Calcular el producto punto de dos vectores y el producto de matrices
+        (incluido matriz por vector), verificar cuándo un producto está definido según las
+        dimensiones de los factores, y expresar un sistema de ecuaciones lineales en la forma
+        matricial $A\vv{x}=\vv{b}$.
+\end{itemize}
+
+\section{Contenidos}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{2.1.} Vectores y matrices: definiciones básicas, notación, igualdad, matrices
+        especiales, suma, resta y multiplicación por escalar.
+  \item \textbf{2.2.} Productos vectorial y matricial: producto punto, producto matriz-vector,
+        producto de matrices y sus propiedades.
+\end{itemize}
+
+\section{Plan de la sesión (4 horas)}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item[\textbf{Hora 1.}] Definición de vector (fila/columna) y de matriz $m\times n$; notación
+        $a_{ij}$; igualdad de matrices; matrices especiales (fila, columna, cuadrada, nula,
+        identidad, diagonal) (teoría + ejemplos).
+  \item[\textbf{Hora 2.}] Suma, resta y multiplicación por escalar de matrices; propiedades
+        algebraicas. Taller: operar con matrices dadas y verificar propiedades.
+  \item[\textbf{Hora 3.}] Producto punto de dos vectores; producto matriz-vector $A\vv{x}$ como
+        combinación lineal de columnas; forma matricial $A\vv{x}=\vv{b}$ de un sistema de
+        ecuaciones (conecta con la Unidad 1).
+  \item[\textbf{Hora 4.}] Producto de matrices $AB$ (condición de compatibilidad, regla fila por
+        columna) y sus propiedades, incluida la no conmutatividad en general. Taller de
+        refuerzo con los seis ejercicios de \texttt{notas.tex}.
+\end{enumerate}
+
+\section{Actividades}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{En clase}: talleres de las horas 2 y 4 (ver arriba).
+  \item \textbf{Trabajo autónomo}: lista de ejercicios de \texttt{notas.tex} §1--2, de entrega
+        antes de la Semana 4.
+\end{itemize}
+
+\section{Material de apoyo}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \texttt{notas.tex} --- desarrollo teórico completo de 2.1 y 2.2, con ejemplos y ejercicios.
+  \item \texttt{diapositivas.tex} --- síntesis visual de la sesión.
+\end{itemize}
+
+\section{Evaluación de la semana}
+
+Control formativo corto al inicio de la Semana 4 (10 minutos): dadas dos o tres matrices, calcular
+una suma, un producto por escalar y un producto matricial, y escribir un sistema pequeño en forma
+$A\vv{x}=\vv{b}$, para verificar RA2.1 y RA2.2 antes de avanzar a 2.3--2.5. Contribuye al Quiz de
+la Unidad 2 (ver \texttt{guia1/guia.tex} § Evaluación).
+
+\section{Bibliografía de la semana}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Grossman, S. I., Flores Godoy, J. J. \emph{Álgebra lineal}. 7a/8a ed., McGraw-Hill,
+        cap. 2, §2.1--2.2.
+  \item Lay, D. C., Lay, S. R., McDonald, J. J. \emph{Álgebra lineal y sus aplicaciones}. Pearson.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,234 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\setbeamercolor{structure}{fg=unicaucaverde}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstdefinestyle{vstyle}{
+  language=Verilog,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=cstyle}
+
+\title[Semana 1: Nios II]{Sistemas embebidos en FPGA: del sistema Nios II en Quartus al software en Nios II EDS}
+\subtitle{Énfasis --- Semana 1 de 16}
+\author{Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Semana 1: dónde estamos}
+  \begin{itemize}
+    \item Unidad: sistemas embebidos en FPGA con soft processor Nios II.
+    \item Subtemas 1.1--1.4 --- RA1.1, RA1.2.
+    \item 4 horas: arquitectura y flujo de herramientas, luego práctica completa
+          Quartus $\to$ Platform Designer $\to$ Nios II EDS.
+  \end{itemize}
+  \tableofcontents
+\end{frame}
+
+\section{Soft core vs. hard core}
+
+\begin{frame}{¿Qué es un soft processor?}
+  \begin{block}{Hard core}
+    Procesador fabricado como bloque fijo en el silicio (p. ej. los núcleos ARM de un SoC Zynq).
+  \end{block}
+  \begin{block}{Soft core (Nios II)}
+    Procesador descrito en HDL, sintetizado dentro del tejido lógico de la FPGA --- convive con
+    lógica propia en el mismo chip.
+  \end{block}
+  \vfill
+  Ventaja: co-diseño hardware/software en un solo dispositivo.\\
+  Costo: área lógica de la FPGA y menor frecuencia de reloj que un hard core.
+\end{frame}
+
+\section{Arquitectura Nios II}
+
+\begin{frame}{Tres núcleos, tres puntos en el espacio área/desempeño}
+  \begin{itemize}
+    \item \textbf{Nios II/e} (Economy): el más pequeño, sin caches --- el de este laboratorio.
+    \item \textbf{Nios II/s} (Standard): pipeline de 5 etapas, sin caches.
+    \item \textbf{Nios II/f} (Fast): caches de instrucciones/datos, predicción de saltos,
+          multiplicador/divisor en hardware.
+  \end{itemize}
+  \vfill
+  \textbf{Bus Avalon-MM}: interconecta maestros (el núcleo) y esclavos (memoria, periféricos);
+  Platform Designer arma el interconector y asigna direcciones automáticamente.
+\end{frame}
+
+\section{Flujo de herramientas}
+
+\begin{frame}{Tres herramientas, tres responsabilidades}
+  \begin{itemize}
+    \item \textbf{Quartus Prime}: síntesis, place \& route, programación de la FPGA.
+    \item \textbf{Platform Designer}: ensamblar el sistema (núcleo + periféricos + bus),
+          generar HDL y el archivo \texttt{.sopcinfo}.
+    \item \textbf{Nios II EDS}: a partir del \texttt{.sopcinfo}, genera el BSP y compila/ejecuta
+          software en C sobre el sistema exacto que se armó.
+  \end{itemize}
+  \vfill
+  \begin{alertblock}{Nota de versión}
+    Cyclone IV (DE2-115) y el flujo clásico Nios II EDS: soportados hasta
+    \textbf{Quartus Prime 18.1 Standard Edition}.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{BSP y compilación cruzada}
+  \begin{block}{BSP (Board Support Package)}
+    Drivers + HAL generados desde el \texttt{.sopcinfo}: exponen exactamente los periféricos y
+    direcciones del sistema armado. Si el hardware cambia, el BSP debe regenerarse.
+  \end{block}
+  \begin{block}{JTAG UART}
+    Canal serie sobre el mismo cable JTAG usado para programar la FPGA. \texttt{printf} en C se
+    enruta ahí como \texttt{stdout} --- sin puerto serie físico aparte.
+  \end{block}
+\end{frame}
+
+\section{Práctica: sistema mínimo sobre la DE2-115}
+
+\begin{frame}{La tarjeta DE2-115}
+  \begin{itemize}
+    \item FPGA Cyclone IV E \texttt{EP4CE115F29C7} (115K elementos lógicos).
+    \item Oscilador \texttt{CLOCK\_50} (50\,MHz), pulsadores \texttt{KEY} (activos en bajo),
+          LEDs, switches.
+    \item USB-Blaster integrado: un solo cable para programar y para el enlace JTAG UART.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Componentes del sistema en Platform Designer}
+  \begin{center}
+  \begin{tabular}{ll}
+    \textbf{Componente} & \textbf{Rol} \\ \hline
+    Nios II Processor (\texttt{/e}) & maestro Avalon-MM, ejecuta el software \\
+    On-Chip Memory & instrucciones + datos \\
+    JTAG UART & \texttt{stdout} del programa \\
+    System ID Peripheral & detecta hardware/software desincronizados \\
+  \end{tabular}
+  \end{center}
+  \vfill
+  \emph{System $\to$ Assign Base Addresses} $\to$ \textbf{Generate HDL} produce el módulo del
+  sistema y el \texttt{.sopcinfo}.
+\end{frame}
+
+\begin{frame}{Diagrama de bloques del sistema}
+  \begin{center}
+  \begin{tikzpicture}[
+    block/.style={draw, rounded corners, minimum width=2.6cm, minimum height=0.8cm, align=center, font=\tiny},
+    master/.style={block, fill=unicaucaverde!12, minimum width=3.8cm, font=\tiny\bfseries},
+    bus/.style={draw, unicaucaverde, thick},
+  ]
+    \node[master] (nios) at (0,2.8) {Nios II Processor (/e)\\[1pt]\normalfont\tiny maestro Avalon-MM};
+    \node[block]  (mem)   at (-3.7,0) {On-Chip Memory\\[1pt]\normalfont\tiny instr. + datos};
+    \node[block]  (uart)  at (0,0)    {JTAG UART\\[1pt]\normalfont\tiny \texttt{stdout}};
+    \node[block]  (sysid) at (3.7,0)  {System ID\\[1pt]\normalfont\tiny Peripheral};
+
+    \draw[bus] (-4.3,1.35) -- (4.3,1.35) node[midway, above, font=\tiny] {bus Avalon-MM};
+    \draw[bus] (nios.south) -- (0,1.35);
+    \draw[bus] (mem.north)  -- (-3.7,1.35);
+    \draw[bus] (uart.north) -- (0,1.35);
+    \draw[bus] (sysid.north)-- (3.7,1.35);
+
+    \draw[-{Latex[length=1.8mm]}, bus] ($(nios.west)+(-1.1,0.13)$) -- ++(1.1,0)
+      node[midway, above, font=\tiny] {clk};
+    \draw[-{Latex[length=1.8mm]}, bus] ($(nios.west)+(-1.1,-0.13)$) -- ++(1.1,0)
+      node[midway, below, font=\tiny] {reset};
+  \end{tikzpicture}
+  \end{center}
+  \vfill
+  Un único maestro Avalon-MM (el núcleo); memoria, JTAG UART y System ID como esclavos sobre el
+  mismo bus. Reloj/reset se exportan y se conectan en el top-level a \texttt{CLOCK\_50}/\texttt{KEY[0]}.
+\end{frame}
+
+\begin{frame}[fragile]{Integrar el sistema en el top-level de Quartus}
+\begin{lstlisting}[style=vstyle]
+module de2_115_niosii_top (
+    input  wire CLOCK_50,
+    input  wire [3:0] KEY
+);
+    niosII_system u0 (
+        .clk_clk        (CLOCK_50),
+        .reset_reset_n  (KEY[0])  // KEY activo en bajo
+    );
+endmodule
+\end{lstlisting}
+  \begin{alertblock}{Pines}
+    Importar la asignación oficial de pines de Terasic para la DE2-115
+    (\emph{Assignments $\to$ Import Assignments}) --- nunca escribirlos a mano.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Compilar y programar}
+  \begin{enumerate}
+    \item \emph{Processing $\to$ Start Compilation} (Analysis \& Synthesis, Fitter, Assembler).
+    \item \emph{Tools $\to$ Programmer}: seleccionar el USB-Blaster y el \texttt{.sof}, programar.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Nios II EDS: Hello World}
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    printf("Hello from Nios II!\n");
+    return 0;
+}
+\end{lstlisting}
+  \begin{enumerate}
+    \item \emph{New $\to$ Nios II Application and BSP from Template} --- apuntar al
+          \texttt{.sopcinfo}, plantilla \texttt{Hello World}.
+    \item \emph{Build Project}; \emph{Run As $\to$ Nios II Hardware}.
+    \item Verificar el mensaje en la consola / \texttt{nios2-terminal}.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Fallas comunes}
+  \begin{itemize}
+    \item Sin salida $\to$ reloj/reset sin conectar, o \texttt{KEY} con polaridad invertida.
+    \item ``System ID mismatch'' $\to$ \texttt{.sof} y \texttt{.sopcinfo} desincronizados:
+          recompilar y reprogramar.
+    \item Tiempo de espera agotado al programar $\to$ revisar cable/alimentación antes que el
+          proyecto.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Cierre de la semana}
+  \begin{itemize}
+    \item RA1.1: arquitectura Nios II y rol de cada herramienta del flujo.
+    \item RA1.2: sistema Nios II mínimo armado, compilado, programado y ejecutado con éxito.
+    \item Entregable: captura de la terminal Nios II + diagrama de bloques del sistema.
+  \end{itemize}
+  \vfill
+  \centering \Large Semana 2: periféricos propios sobre PIO.
+\end{frame}
+
+\end{document}

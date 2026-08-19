@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.1 Soft-core vs. hard-core; arquitectura Nios II</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>1.1 Procesadores soft-core vs. hard-core; arquitectura Nios II</h1>
+    <p class="subtitulo">Semana 1 · Énfasis — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-1.html">1.1 Soft-core y Nios II</a></li>
+    <li><a href="tema-1-2.html">1.2 Flujo de herramientas</a></li>
+    <li><a href="tema-1-3.html">1.3 BSP y compilación</a></li>
+    <li><a href="practica.html">Práctica guiada</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Soft processor</span>
+  Un <em>soft processor</em> (o <em>soft core</em>) es un procesador completo — ruta de datos, unidad de
+  control, banco de registros — descrito en HDL y sintetizado dentro del tejido lógico reconfigurable de
+  una FPGA, en lugar de venir fabricado como bloque fijo en el silicio (<em>hard core</em>, como los
+  núcleos ARM de un SoC Zynq o Cyclone V SoC). Nios II, de Intel/Altera, es el soft processor de
+  referencia para las familias Cyclone.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Por qué usar un soft core en vez de un microcontrolador dedicado</span>
+  Un microcontrolador dedicado suele ser más barato y de menor consumo para una tarea fija. Un soft core
+  tiene sentido cuando el procesador necesita convivir, dentro del mismo chip, con lógica digital hecha
+  a la medida — controladores propios, aceleradores en hardware, interfaces no estándar — comunicados
+  por el mismo bus interno: el diseñador decide en qué parte del sistema resolver un problema en software
+  (más flexible, más lento) y en qué parte resolverlo en lógica dedicada (más rápido, fijo), y puede mover
+  esa frontera sin cambiar de chip. El costo es área lógica de la FPGA (el soft core ocupa elementos
+  lógicos que ya no están disponibles para lógica propia) y una frecuencia de reloj bastante menor que la
+  de un hard core equivalente.
+</div>
+
+<h2>Núcleos Nios II</h2>
+<p>
+  Nios II es una arquitectura RISC de 32 bits, configurable en tres variantes que intercambian área
+  por desempeño:
+</p>
+<div class="tarjetas">
+  <div class="tarjeta">
+    <span class="etiqueta">/e</span>
+    <h3>Economy</h3>
+    <p>La más pequeña; sin <em>caches</em>, sin predicción de saltos, ejecuta cada instrucción en varios
+       ciclos. Útil cuando el área de la FPGA es el recurso más escaso — es el núcleo que se usa en la
+       práctica de esta semana.</p>
+  </div>
+  <div class="tarjeta">
+    <span class="etiqueta">/s</span>
+    <h3>Standard</h3>
+    <p>Punto intermedio; pipeline de 5 etapas, sin caches de datos ni de instrucciones.</p>
+  </div>
+  <div class="tarjeta">
+    <span class="etiqueta">/f</span>
+    <h3>Fast</h3>
+    <p>La de mejor desempeño; caches de instrucciones y datos, predicción dinámica de saltos,
+       multiplicador/divisor en hardware.</p>
+  </div>
+</div>
+<p>
+  Para un primer sistema mínimo — el de esta semana — basta el núcleo <code>/e</code>: el objetivo es
+  recorrer el flujo completo de herramientas, no maximizar desempeño.
+</p>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Bus Avalon Memory-Mapped (Avalon-MM)</span>
+  El bus Avalon-MM es el protocolo de interconexión con el que Nios II y sus periféricos se comunican
+  dentro del sistema. Cada componente es <em>maestro</em> (inicia transacciones — el núcleo Nios II) o
+  <em>esclavo</em> (responde a transacciones en un rango de direcciones — memoria, JTAG UART, PIO).
+  Platform Designer arma el interconector (<em>fabric</em>) y asigna las direcciones base
+  automáticamente a partir de los componentes que se agregan al sistema: el diseñador no escribe a mano
+  la lógica de decodificación de direcciones.
+</div>
+
+<div class="paginacion">
+  <a href="index.html">&larr; Inicio</a>
+  <a href="tema-1-2.html">1.2 El flujo de herramientas &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-01/</code> — Énfasis, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

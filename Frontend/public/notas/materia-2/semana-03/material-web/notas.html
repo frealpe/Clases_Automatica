@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notas de clase — Semana 3 (Programación)</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Notas de clase — Semana 3</h1>
+    <p class="subtitulo">Funciones y modularidad · Programación · Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="notas.html" class="activo">Notas</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="indice-secciones">
+  <h2>Contenido</h2>
+  <ol>
+    <li><a href="#sec1">Funciones: qué son y por qué modularizar</a></li>
+    <li><a href="#sec2">Declaración, definición y prototipo de una función</a></li>
+    <li><a href="#sec3">Paso de parámetros por valor</a></li>
+    <li><a href="#sec4">Ámbito de las variables: locales y globales</a></li>
+    <li><a href="#sec5">Ejercicios propuestos y soluciones</a></li>
+  </ol>
+</div>
+
+<h2 id="sec1">1. Funciones: qué son y por qué modularizar</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Función</span>
+  Una función es un bloque de código con nombre propio que realiza una tarea específica, puede
+  recibir datos de entrada (<em>parámetros</em>) y puede devolver un resultado (<em>valor de
+  retorno</em>). Una vez definida, se puede <em>llamar</em> (invocar) tantas veces como se
+  necesite desde cualquier parte del programa.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Diseño descendente / modularización</span>
+  El <em>diseño descendente</em> (<em>top-down</em>) consiste en dividir un problema grande en
+  subproblemas más pequeños y manejables, y resolver cada uno con su propia función. El programa
+  principal (<code>main</code>) queda como una secuencia corta de llamadas a funciones, cada una
+  responsable de una sola tarea bien definida.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Ventajas de modularizar</span>
+  <ul>
+    <li><strong>Reutilización</strong>: una función escrita una vez se puede llamar muchas veces,
+      en el mismo programa o en otros.</li>
+    <li><strong>Legibilidad</strong>: un <code>main</code> de 5 llamadas a funciones bien
+      nombradas se entiende más rápido que 200 líneas seguidas.</li>
+    <li><strong>Mantenibilidad</strong>: si hay que corregir cómo se calcula algo, se corrige en
+      un solo lugar (dentro de la función), no en cada copia del cálculo.</li>
+    <li><strong>Prueba independiente</strong>: cada función se puede probar por separado antes de
+      integrar el programa completo.</li>
+  </ul>
+</div>
+
+<h2 id="sec2">2. Declaración, definición y prototipo de una función</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Prototipo de función</span>
+  El <em>prototipo</em> anuncia al compilador que una función existe, cuál es su nombre, qué tipo
+  de dato retorna y qué parámetros recibe (con sus tipos), sin incluir el cuerpo:
+<pre class="codigo"><code>tipo_retorno nombre_funcion(tipo1 param1, tipo2 param2, ...);</code></pre>
+  Se coloca antes de <code>main</code> (o en un archivo de cabecera) cuando la función se
+  <em>define</em> después de donde se <em>llama</em>.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Definición de función</span>
+  La <em>definición</em> incluye el cuerpo completo: las instrucciones que la función ejecuta, y
+  la instrucción <code>return</code> que devuelve el resultado (si la función no es
+  <code>void</code>).
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Función con retorno</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+double areaCirculo(double radio);   // prototipo
+
+int main(void) {
+    double r = 3.0;
+    double area = areaCirculo(r);   // llamada
+    printf("Area = %.2f\n", area);
+    return 0;
+}
+
+double areaCirculo(double radio) {  // definicion
+    return 3.14159 * radio * radio;
+}</code></pre>
+  <code>main</code> llama a <code>areaCirculo(r)</code>: el valor de <code>r</code> se copia en
+  el parámetro <code>radio</code>, la función calcula y devuelve el área con <code>return</code>,
+  y ese valor queda disponible en <code>main</code> dentro de la variable <code>area</code>.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Función void</span>
+  Una función declarada con tipo de retorno <code>void</code> no devuelve ningún valor: se usa
+  cuando la tarea de la función es <em>hacer algo</em> (por ejemplo, imprimir) en vez de
+  <em>calcular algo</em>. No lleva <code>return valor;</code> (a lo sumo un <code>return;</code>
+  vacío para salir antes de tiempo).
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Función void</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+void imprimirTabla(int n);
+
+int main(void) {
+    imprimirTabla(5);
+    return 0;
+}
+
+void imprimirTabla(int n) {
+    for (int i = 1; i &lt;= 10; i++) {
+        printf("%d x %d = %d\n", n, i, n * i);
+    }
+}</code></pre>
+</div>
+
+<h2 id="sec3">3. Paso de parámetros por valor</h2>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Paso por valor</span>
+  En C, cuando se llama a una función, cada parámetro recibe una <em>copia</em> del valor del
+  argumento pasado. La función trabaja sobre esa copia: cualquier cambio que haga al parámetro
+  dentro de su cuerpo <strong>no se refleja</strong> en la variable original del código que hizo
+  la llamada.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — El paso por valor no modifica el original</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+void incrementar(int x) {
+    x = x + 1;              // modifica solo la copia local x
+    printf("Dentro de incrementar: x = %d\n", x);
+}
+
+int main(void) {
+    int numero = 5;
+    incrementar(numero);
+    printf("Despues de incrementar: numero = %d\n", numero);
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Salida</span><code>Dentro de incrementar: x =
+  6</code>, seguido de <code>Despues de incrementar: numero = 5</code>. <code>numero</code> no
+  cambió, porque <code>x</code> es una copia independiente que vive solo mientras se ejecuta
+  <code>incrementar</code>. Para que una función SÍ pueda modificar una variable del llamador hace
+  falta pasarle su <em>dirección de memoria</em> (un puntero) — tema de la Semana 14.</div>
+</div>
+
+<h2 id="sec4">4. Ámbito de las variables: locales y globales</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Variable local</span>
+  Una variable declarada <em>dentro</em> de una función (incluidos sus parámetros) es
+  <em>local</em> a esa función: solo existe y es visible mientras la función se está ejecutando,
+  y desaparece al terminar. Dos funciones distintas pueden tener variables locales con el mismo
+  nombre sin interferir entre sí.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Variable global</span>
+  Una variable declarada <em>fuera</em> de todas las funciones (normalmente al inicio del
+  archivo) es <em>global</em>: existe durante toda la ejecución del programa y es visible desde
+  cualquier función definida después de ella.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Variable global compartida entre funciones</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int contadorEventos = 0;   // variable global
+
+void registrarEvento(void) {
+    contadorEventos++;     // modifica la variable global directamente
+}
+
+int main(void) {
+    registrarEvento();
+    registrarEvento();
+    registrarEvento();
+    printf("Eventos registrados: %d\n", contadorEventos);   // imprime 3
+    return 0;
+}</code></pre>
+  A diferencia de un parámetro, una variable global no se copia: todas las funciones que la usan
+  leen y escriben la <em>misma</em> variable.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Usar variables globales con cuidado</span>
+  Abusar de variables globales dificulta entender y depurar un programa, porque cualquier función
+  puede cambiarlas en cualquier momento (efectos ocultos). La práctica recomendada es preferir
+  variables locales y comunicar datos entre funciones explícitamente, por parámetros y valores de
+  retorno; reservar las variables globales para casos claramente justificados (como un contador de
+  eventos que de verdad debe compartirse entre muchas funciones).
+</div>
+
+<h2 id="sec5">5. Ejercicios propuestos y soluciones</h2>
+
+<div class="ejercicio">
+  <span class="num">1</span><strong>Escribe una función <code>double areaCirculo(double
+  radio)</code> que calcule y retorne el área de un círculo, y un <code>main</code> que la use
+  para un radio leído por teclado.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+double areaCirculo(double radio);
+
+int main(void) {
+    double r;
+    printf("Ingrese el radio: ");
+    scanf("%lf", &amp;r);
+    printf("Area = %.2f\n", areaCirculo(r));
+    return 0;
+}
+
+double areaCirculo(double radio) {
+    return 3.14159 * radio * radio;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">2</span><strong>Escribe una función <code>int esPar(int n)</code> que retorne
+  1 si n es par y 0 si es impar, y úsala en un ciclo para clasificar los números del 1 al 10.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int esPar(int n);
+
+int main(void) {
+    for (int i = 1; i &lt;= 10; i++) {
+        if (esPar(i)) {
+            printf("%d es par\n", i);
+        } else {
+            printf("%d es impar\n", i);
+        }
+    }
+    return 0;
+}
+
+int esPar(int n) {
+    return (n % 2 == 0) ? 1 : 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">3</span><strong>Escribe una función <code>void imprimirTabla(int n)</code>
+  (sin retorno) que imprima la tabla de multiplicar de n del 1 al 10.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+void imprimirTabla(int n);
+
+int main(void) {
+    int n;
+    printf("Ingrese un numero: ");
+    scanf("%d", &amp;n);
+    imprimirTabla(n);
+    return 0;
+}
+
+void imprimirTabla(int n) {
+    for (int i = 1; i &lt;= 10; i++) {
+        printf("%d x %d = %d\n", n, i, n * i);
+    }
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">4</span><strong>Escribe una función <code>int maximo(int a, int b, int
+  c)</code> que retorne el mayor de tres números enteros.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int maximo(int a, int b, int c);
+
+int main(void) {
+    printf("El mayor es %d\n", maximo(7, 15, 3));
+    return 0;
+}
+
+int maximo(int a, int b, int c) {
+    int m = a;
+    if (b &gt; m) m = b;
+    if (c &gt; m) m = c;
+    return m;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">5</span><strong>Escribe un programa con una variable global
+  <code>contadorEventos</code> y una función <code>void registrarEvento(void)</code> que la
+  incremente; llama a la función 5 veces desde <code>main</code> e imprime el total al final.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int contadorEventos = 0;
+
+void registrarEvento(void);
+
+int main(void) {
+    for (int i = 0; i &lt; 5; i++) {
+        registrarEvento();
+    }
+    printf("Eventos registrados: %d\n", contadorEventos);
+    return 0;
+}
+
+void registrarEvento(void) {
+    contadorEventos++;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Salida</span>Imprime <code>Eventos
+  registrados: 5</code>.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">6</span><strong>Dado el código <code>void incrementar(int x) { x = x + 1;
+  }</code>, llamado como <code>int numero = 10; incrementar(numero);</code>, explica por qué
+  <code>numero</code> sigue valiendo 10 después de la llamada.</strong>
+  <div class="salida"><span class="etiqueta-salida">Solución</span>En C, los parámetros se pasan
+  <strong>por valor</strong>: al llamar a <code>incrementar(numero)</code>, el parámetro
+  <code>x</code> recibe una <em>copia</em> del valor de <code>numero</code> (10). Dentro de la
+  función, <code>x = x + 1</code> modifica esa copia local (<code>x</code> pasa a valer 11), pero
+  <code>numero</code>, la variable original en <code>main</code>, es una variable distinta en
+  otra región de memoria y no se ve afectada. Al terminar la función, la copia <code>x</code>
+  desaparece y <code>numero</code> sigue valiendo 10.</div>
+</div>
+
+<div class="paginacion">
+  <a href="index.html">&larr; Inicio</a>
+  <a href="cuestionario.html">Cuestionario &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>Programacion/semana-03/</code> — Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

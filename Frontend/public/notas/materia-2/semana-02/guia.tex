@@ -1,0 +1,124 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{\textcolor{unicaucaverde}{\Large Guía de Aprendizaje --- Semana 2}\\[4pt]
+  \large Estructuras de control: condicionales y ciclos}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{tabular}{|>{\bfseries}p{4cm}|p{10cm}|}
+\hline
+Semana & 2 de 16 \\ \hline
+Unidad & Fundamentos de programación en C \\ \hline
+Subtemas & Condicionales (\texttt{if}/\texttt{else}/\texttt{switch}), ciclos
+  (\texttt{while}/\texttt{do-while}/\texttt{for}), \texttt{break}/\texttt{continue} \\ \hline
+Horas de clase & 4 \\ \hline
+Resultado de aprendizaje & RA1 (parte 2 de 2; continúa de Semana 1) \\ \hline
+\end{tabular}
+\end{center}
+
+\section*{Relevancia para ingeniería}
+
+Casi ningún programa útil ejecuta sus instrucciones en línea recta de principio a fin: necesita
+tomar decisiones (¿el sensor superó el umbral?) y repetir tareas (leer 100 muestras, iterar hasta
+converger). Las estructuras de control --- condicionales y ciclos --- son las piezas que permiten
+que un programa reaccione a los datos en vez de solo transformarlos. Todo algoritmo de control,
+procesamiento de señales o análisis numérico que verá el estudiante más adelante se construye sobre
+estas dos ideas.
+
+\section{Objetivo de la semana}
+
+Diseñar y escribir programas en C que utilicen estructuras condicionales y estructuras cíclicas
+para resolver problemas que requieren toma de decisiones y repetición de instrucciones.
+
+\section{Resultados de aprendizaje de la semana}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item[\textbf{RA2.1.}] Usar \texttt{if}, \texttt{if-else}, \texttt{else if} y \texttt{switch-case}
+        para tomar decisiones en un programa, incluyendo condiciones compuestas con operadores
+        lógicos.
+  \item[\textbf{RA2.2.}] Usar \texttt{while}, \texttt{do-while} y \texttt{for} --- incluyendo
+        ciclos anidados y las instrucciones \texttt{break}/\texttt{continue} --- para repetir
+        bloques de instrucciones, eligiendo la estructura adecuada según el problema.
+\end{itemize}
+
+\section{Contenidos}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{2.1.} Estructuras condicionales: \texttt{if}, \texttt{if-else}, \texttt{else if},
+        operador ternario, \texttt{switch-case}.
+  \item \textbf{2.2.} Ciclos: \texttt{while}, \texttt{do-while}, \texttt{for};
+        \texttt{break}/\texttt{continue}; anidamiento.
+\end{itemize}
+
+\section{Plan de la sesión (4 horas)}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item[\textbf{Hora 1.}] \texttt{if}, \texttt{if-else}, \texttt{else if} y operador ternario;
+        ejemplos (clasificar un número, aprobado/reprobado según una nota) (teoría + ejemplos).
+  \item[\textbf{Hora 2.}] Taller: condiciones compuestas con \texttt{\&\& || !}; construcción de un
+        menú de opciones con \texttt{switch-case} (por ejemplo, una calculadora básica).
+  \item[\textbf{Hora 3.}] \texttt{while}, \texttt{do-while} y \texttt{for}: diferencias, cuándo usar
+        cada uno, y las instrucciones \texttt{break}/\texttt{continue} (teoría + ejemplos).
+  \item[\textbf{Hora 4.}] Taller: ciclos anidados (tabla de multiplicar, patrones con asteriscos),
+        contadores y acumuladores, validación de entrada de usuario con \texttt{while}.
+\end{enumerate}
+
+\section{Actividades}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{En clase}: talleres de las horas 2 y 4 (ver arriba).
+  \item \textbf{Trabajo autónomo}: ejercicios propuestos de \texttt{notas.tex} §5 y refuerzo de
+        \texttt{ejercicios.tex}.
+  \item \textbf{Software}: un compilador de C (\texttt{gcc} local o compilador en línea) para
+        escribir, compilar y ejecutar cada ejemplo y ejercicio.
+\end{itemize}
+
+\section{Material de apoyo}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \texttt{notas.tex} --- desarrollo teórico completo de 2.1 y 2.2, con ejemplos de código y
+        ejercicios resueltos.
+  \item \texttt{diapositivas.tex} --- síntesis visual de la sesión.
+  \item \texttt{ejercicios.tex} --- lista adicional de ejercicios de refuerzo con soluciones
+        completas en código C.
+\end{itemize}
+
+\section{Evaluación de la semana}
+
+Control formativo corto al inicio de la Semana 3 (10 minutos): trazar a mano la salida de un
+programa corto en C con un condicional y un ciclo, para verificar RA2.1 y RA2.2 antes de avanzar a
+la siguiente unidad.
+
+\section{Bibliografía de la semana}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Deitel, P., Deitel, H. \emph{C: How to Program}. 8a ed., Pearson, cap. 3--4.
+  \item Kernighan, B. W., Ritchie, D. M. \emph{The C Programming Language}. 2a ed., Prentice Hall,
+        cap. 3.
+  \item Cairo, L. J. \emph{Fundamentos de programación}. 4a ed., McGraw-Hill.
+\end{enumerate}
+
+\end{document}

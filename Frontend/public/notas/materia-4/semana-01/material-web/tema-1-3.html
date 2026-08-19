@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.3 De hardware a software: BSP y compilación cruzada</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>1.3 De hardware a software: BSP y compilación cruzada</h1>
+    <p class="subtitulo">Semana 1 · Énfasis — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-1.html">1.1 Soft-core y Nios II</a></li>
+    <li><a href="tema-1-2.html">1.2 Flujo de herramientas</a></li>
+    <li><a href="tema-1-3.html">1.3 BSP y compilación</a></li>
+    <li><a href="practica.html">Práctica guiada</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — BSP (Board Support Package)</span>
+  El BSP es el conjunto de drivers, bibliotecas HAL (<em>Hardware Abstraction Layer</em>) y archivos de
+  configuración que Nios II EDS genera automáticamente a partir del <code>.sopcinfo</code>: expone a
+  nivel de software exactamente los periféricos, direcciones base e interrupciones del sistema que se
+  armó en Platform Designer. Si el sistema de hardware cambia — se agrega un periférico, cambia una
+  dirección base — el BSP debe regenerarse; de lo contrario el software queda describiendo un sistema
+  que ya no coincide con el bitstream programado en la FPGA.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Compilación cruzada</span>
+  El programa en C se compila en la máquina host con un compilador cruzado (<code>nios2-elf-gcc</code>,
+  parte de Nios II EDS) que genera código máquina para la arquitectura Nios II, no para la máquina host.
+  El ejecutable resultante (<code>.elf</code>) se descarga a la memoria del sistema a través del mismo
+  cable USB-Blaster usado para programar la FPGA, usando el enlace JTAG.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — JTAG UART</span>
+  La JTAG UART es un periférico Avalon-MM que expone un canal serie sobre el mismo cable JTAG usado para
+  programar la FPGA — no necesita un puerto serie físico aparte. Es el mecanismo más simple para que un
+  primer programa en Nios II se comunique con el computador anfitrión: <code>printf</code> en C se
+  enruta, vía el HAL del BSP, a la JTAG UART como salida estándar (<code>stdout</code>), y se lee desde
+  una terminal Nios II en el host.
+</div>
+
+<div class="recuadro ingenieria">
+  <span class="titulo">Cómo encajan las tres piezas</span>
+  El BSP no es un artefacto aislado: es la traducción, a nivel de software, del sistema exacto que se
+  vio en <a href="tema-1-2.html">1.2</a> generado por Platform Designer. Por eso el <code>.sopcinfo</code>
+  es el hilo conductor de todo el flujo — nace en Platform Designer, y tanto el BSP como la asignación de
+  memoria del programa dependen de él. Cambiar el hardware sin regenerar el BSP es la causa más común de
+  errores de "System ID mismatch" al ejecutar (ver la práctica guiada).
+</div>
+
+<div class="paginacion">
+  <a href="tema-1-2.html">&larr; 1.2 El flujo de herramientas</a>
+  <a href="practica.html">Práctica guiada paso a paso &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-01/</code> — Énfasis, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

@@ -1380,3 +1380,16 @@ SELECT setval(pg_get_serial_sequence('materias', 'id'), COALESCE((SELECT MAX(id)
 SELECT setval(pg_get_serial_sequence('semanas', 'id'), COALESCE((SELECT MAX(id) FROM semanas), 1));
 SELECT setval(pg_get_serial_sequence('inscripciones', 'id'), COALESCE((SELECT MAX(id) FROM inscripciones), 1));
 
+-- Vinculación automática de archivos PDF (Notas, Guías, Diapositivas) y Material Web por Semana y Materia
+UPDATE semanas SET notas_pdf_url = '/notas/materia-1/semana-01/notas.pdf', guia_pdf_url = '/notas/materia-1/semana-01/guia.pdf', diapositivas_pdf_url = '/notas/materia-1/semana-01/diapositivas.pdf', clase_web_url = '/notas/materia-1/semana-01/material-web/index.html' WHERE id = 1;
+UPDATE semanas SET notas_pdf_url = '/notas/materia-1/semana-02/notas.pdf', guia_pdf_url = '/notas/materia-1/semana-02/guia.pdf', diapositivas_pdf_url = '/notas/materia-1/semana-02/diapositivas.pdf', clase_web_url = '/notas/materia-1/semana-02/material-web/index.html' WHERE id = 2;
+UPDATE semanas SET notas_pdf_url = '/notas/materia-1/semana-03/notas.pdf', guia_pdf_url = '/notas/materia-1/semana-03/guia.pdf', diapositivas_pdf_url = '/notas/materia-1/semana-03/diapositivas.pdf', clase_web_url = '/notas/materia-1/semana-03/material-web/index.html' WHERE id = 3;
+UPDATE semanas SET notas_pdf_url = '/notas/materia-1/semana-04/notas.pdf', guia_pdf_url = '/notas/materia-1/semana-04/guia.pdf', diapositivas_pdf_url = '/notas/materia-1/semana-04/diapositivas.pdf', clase_web_url = '/notas/materia-1/semana-04/material-web/index.html' WHERE id = 4;
+
+UPDATE semanas SET notas_pdf_url = '/notas/materia-2/semana-01/notas.pdf', guia_pdf_url = '/notas/materia-2/semana-01/guia.pdf', diapositivas_pdf_url = '/notas/materia-2/semana-01/diapositivas.pdf', clase_web_url = '/notas/materia-2/semana-01/material-web/index.html' WHERE id = 201;
+UPDATE semanas SET notas_pdf_url = '/notas/materia-2/semana-02/notas.pdf', guia_pdf_url = '/notas/materia-2/semana-02/guia.pdf', diapositivas_pdf_url = '/notas/materia-2/semana-02/diapositivas.pdf', clase_web_url = '/notas/materia-2/semana-02/material-web/index.html' WHERE id = 202;
+UPDATE semanas SET notas_pdf_url = '/notas/materia-2/semana-03/notas.pdf', guia_pdf_url = '/notas/materia-2/semana-03/guia.pdf', diapositivas_pdf_url = '/notas/materia-2/semana-03/diapositivas.pdf', clase_web_url = '/notas/materia-2/semana-03/material-web/index.html' WHERE id = 203;
+
+UPDATE semanas SET notas_pdf_url = '/notas/materia-4/semana-01/notas.pdf', guia_pdf_url = '/notas/materia-4/semana-01/guia.pdf', diapositivas_pdf_url = '/notas/materia-4/semana-01/diapositivas.pdf', clase_web_url = '/notas/materia-4/semana-01/material-web/index.html' WHERE id = 401;
+
+

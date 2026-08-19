@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 4: Matrices, Matriz Inversa y Transpuesta | Álgebra Lineal</title>
+  <link rel="stylesheet" href="css/estilo.css">
+  <script>
+    MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+  <header class="top">
+    <div class="marca">
+      <h1>Álgebra Lineal para Ingeniería</h1>
+      <p class="subtitulo">Semana 4 — Unidad 2: Vectores y Matrices (Subtemas 2.3 – 2.5)</p>
+    </div>
+  </header>
+
+  <nav class="principal">
+    <ul>
+      <li><a href="index.html" class="activo">Inicio</a></li>
+      <li><a href="tema-2-3.html">2.3 Matrices y Sistemas</a></li>
+      <li><a href="tema-2-4.html">2.4 Matriz Inversa</a></li>
+      <li><a href="tema-2-5.html">2.5 Transpuesta y Simetría</a></li>
+      <li><a href="ejercicios-resueltos.html">Ejercicios Resueltos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h2>Bienvenido a la Semana 4</h2>
+
+    <div class="caja-destacada">
+      <h3>Resumen de la Semana</h3>
+      <p>En esta semana avanzamos en la formulación matricial de sistemas de ecuaciones $A\mathbf{x}=\mathbf{b}$, el concepto fundamental de <strong>Matriz Inversa $A^{-1}$</strong> como operador de resolución directa, el algoritmo de reducción de <strong>Gauss-Jordan</strong> $[A \mid I] \to [I \mid A^{-1}]$, y las propiedades algebraicas de la <strong>Matriz Transpuesta $A^T$</strong> y las matrices simétricas/antisimétricas.</p>
+    </div>
+
+    <h3>Documentos para Descarga (PDF)</h3>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+      <a href="guia.pdf" target="_blank" class="btn-accion" style="text-decoration: none; display: inline-block;">📄 Guía de Aprendizaje (PDF)</a>
+      <a href="notas.pdf" target="_blank" class="btn-accion" style="text-decoration: none; display: inline-block; background: var(--ok);">📚 Notas Teóricas Completas (PDF)</a>
+      <a href="diapositivas.pdf" target="_blank" class="btn-accion" style="text-decoration: none; display: inline-block; background: var(--verde-osc);">📊 Diapositivas de Clase (PDF)</a>
+    </div>
+
+    <h3>Contenidos Teóricos y Prácticos</h3>
+    <div class="fichas-grid">
+      <div class="ficha-card">
+        <h3>2.3. Matrices y Sistemas</h3>
+        <p>Aprende a expresar cualquier sistema lineal $m\times n$ en forma matricial $A\mathbf{x}=\mathbf{b}$ y como combinación lineal de columnas.</p>
+        <a href="tema-2-3.html" class="btn">Ver Tema 2.3 &rarr;</a>
+      </div>
+
+      <div class="ficha-card">
+        <h3>2.4. Inversa de una Matriz</h3>
+        <p>Definición de matrices no singulares, cálculo de $A^{-1}$ mediante la fórmula $2\times 2$ o Gauss-Jordan $[A|I]\to [I|A^{-1}]$, y resolución $\mathbf{x}=A^{-1}\mathbf{b}$.</p>
+        <a href="tema-2-4.html" class="btn">Ver Tema 2.4 &rarr;</a>
+      </div>
+
+      <div class="ficha-card">
+        <h3>2.5. Transpuesta y Simetría</h3>
+        <p>Propiedades de $A^T$, demostración de $(AB)^T = B^T A^T$, matrices simétricas ($A^T=A$) y la descomposición única $A = S + K$.</p>
+        <a href="tema-2-5.html" class="btn">Ver Tema 2.5 &rarr;</a>
+      </div>
+
+      <div class="ficha-card">
+        <h3>Ejercicios Resueltos</h3>
+        <p>10 ejercicios paso a paso detallando la aplicación práctica en ingeniería (análisis nodal, tanques acoplados, inversión con matriz identidad y descomposición matricial).</p>
+        <a href="ejercicios-resueltos.html" class="btn">Ver Solucionario &rarr;</a>
+      </div>
+    </div>
+
+    <h2>Herramientas Interactivas</h2>
+
+    <div id="widget-matriz-inversa" class="widget-container"></div>
+    <div id="widget-matriz-transpuesta" class="widget-container"></div>
+
+  </main>
+
+  <footer>
+    <p>Álgebra Lineal para Ingeniería — Universidad del Cauca (2026)</p>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script src="js/matriz-inversa.js"></script>
+  <script src="js/matriz-transpuesta.js"></script>
+</body>
+</html>

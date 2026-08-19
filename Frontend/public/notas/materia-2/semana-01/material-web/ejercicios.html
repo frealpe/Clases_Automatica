@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicios de refuerzo — Semana 1 (Programación)</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Ejercicios de refuerzo — Semana 1</h1>
+    <p class="subtitulo">Fundamentos de C: variables, tipos, operadores y entrada/salida · Programación · Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="notas.html">Notas</a></li>
+    <li><a href="ejercicios.html" class="activo">Ejercicios</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<p>
+  Práctica adicional para consolidar RA1.1 y RA1.2, para trabajo autónomo antes de la Semana 2.
+  Cada ejercicio incluye el enunciado y una solución completa en C.
+</p>
+
+<div class="ejercicio">
+  <span class="num">1</span><strong>Conversión de temperatura.</strong> Escribe un programa que
+  lea una temperatura en grados Celsius y la convierta a Fahrenheit, usando la fórmula
+  F = C × 9/5 + 32.
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float celsius, fahrenheit;
+
+    printf("Temperatura en Celsius: ");
+    scanf("%f", &amp;celsius);
+
+    fahrenheit = celsius * 9.0f / 5.0f + 32.0f;
+    printf("%.1f C equivalen a %.1f F\n", celsius, fahrenheit);
+
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">2</span><strong>Promedio de tres notas.</strong> Escribe un programa que lea
+  tres notas (de 0.0 a 5.0) y calcule e imprima su promedio.
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float n1, n2, n3, promedio;
+
+    printf("Ingrese 3 notas: ");
+    scanf("%f %f %f", &amp;n1, &amp;n2, &amp;n3);
+
+    promedio = (n1 + n2 + n3) / 3.0f;
+    printf("Promedio = %.2f\n", promedio);
+
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">3</span><strong>Interés simple.</strong> Escribe un programa que lea un
+  capital, una tasa de interés anual (en %) y un tiempo en años, y calcule el interés simple con
+  I = C × r × t / 100.
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float capital, tasa, tiempo, interes;
+
+    printf("Capital, tasa (%%) y tiempo (anios): ");
+    scanf("%f %f %f", &amp;capital, &amp;tasa, &amp;tiempo);
+
+    interes = capital * tasa * tiempo / 100.0f;
+    printf("Interes generado = %.2f\n", interes);
+
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">4</span><strong>Intercambiar dos variables.</strong> Escribe un programa que
+  lea dos enteros <code>a</code> y <code>b</code>, e intercambie sus valores usando una variable
+  temporal, mostrando los valores antes y después.
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int a, b, temp;
+
+    printf("Ingrese a y b: ");
+    scanf("%d %d", &amp;a, &amp;b);
+    printf("Antes:   a = %d, b = %d\n", a, b);
+
+    temp = a;
+    a = b;
+    b = temp;
+
+    printf("Despues: a = %d, b = %d\n", a, b);
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">5</span><strong>Perímetro y área de un rectángulo.</strong> Escribe un
+  programa que lea la base y la altura de un rectángulo y calcule su perímetro (2(b+h)) y su área
+  (b×h).
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float base, altura, perimetro, area;
+
+    printf("Base y altura del rectangulo: ");
+    scanf("%f %f", &amp;base, &amp;altura);
+
+    perimetro = 2 * (base + altura);
+    area = base * altura;
+
+    printf("Perimetro = %.2f\n", perimetro);
+    printf("Area = %.2f\n", area);
+
+    return 0;
+}</code></pre>
+</div>
+
+<div class="paginacion">
+  <a href="notas.html">&larr; Notas de clase</a>
+  <a href="cuestionario.html">Cuestionario &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>Programacion/semana-01/</code> — Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=cstyle}
+
+\title{\textcolor{unicaucaverde}{Ejercicios de refuerzo --- Semana 2}\\[4pt]
+  \large Condicionales y ciclos en C}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+Práctica adicional para consolidar RA2.1 y RA2.2, para trabajo autónomo antes de la Semana 3. Cada
+ejercicio incluye el enunciado y una solución completa en C.
+
+\section*{Ejercicio 1 --- Serie de Fibonacci}
+Escribe un programa que lea un entero $n$ e imprima los primeros $n$ términos de la serie de
+Fibonacci ($0, 1, 1, 2, 3, 5, 8, \dots$, cada término es la suma de los dos anteriores).
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int n, actual = 0, siguiente = 1, temp;
+
+    printf("Cuantos terminos: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        printf("%d ", actual);
+        temp = actual + siguiente;
+        actual = siguiente;
+        siguiente = temp;
+    }
+    printf("\n");
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Ejercicio 2 --- Suma de dígitos}
+Escribe un programa que lea un entero positivo y calcule la suma de sus dígitos, usando \texttt{\%}
+y \texttt{/} dentro de un ciclo \texttt{while}.
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int n, suma = 0;
+
+    printf("Ingrese un numero entero positivo: ");
+    scanf("%d", &n);
+
+    while (n > 0) {
+        suma += n % 10;   // ultimo digito
+        n /= 10;          // se elimina el ultimo digito
+    }
+    printf("Suma de digitos = %d\n", suma);
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Ejercicio 3 --- Invertir un número}
+Escribe un programa que lea un entero positivo y muestre sus dígitos en orden inverso (por
+ejemplo, \texttt{1234} $\to$ \texttt{4321}).
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int n, invertido = 0, digito;
+
+    printf("Ingrese un numero entero positivo: ");
+    scanf("%d", &n);
+
+    while (n > 0) {
+        digito = n % 10;
+        invertido = invertido * 10 + digito;
+        n /= 10;
+    }
+    printf("Numero invertido = %d\n", invertido);
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Ejercicio 4 --- Menú con validación}
+Escribe un programa con un menú (1. Sumar, 2. Restar, 3. Salir) usando \texttt{do-while} y
+\texttt{switch}, que repita el menú hasta que el usuario elija la opción 3.
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int opcion;
+    float a, b;
+
+    do {
+        printf("\n1. Sumar\n2. Restar\n3. Salir\n");
+        printf("Elija una opcion: ");
+        scanf("%d", &opcion);
+
+        switch (opcion) {
+            case 1:
+                printf("Ingrese dos numeros: ");
+                scanf("%f %f", &a, &b);
+                printf("Suma = %.2f\n", a + b);
+                break;
+            case 2:
+                printf("Ingrese dos numeros: ");
+                scanf("%f %f", &a, &b);
+                printf("Resta = %.2f\n", a - b);
+                break;
+            case 3:
+                printf("Saliendo...\n");
+                break;
+            default:
+                printf("Opcion invalida\n");
+        }
+    } while (opcion != 3);
+
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Ejercicio 5 --- Patrón de asteriscos}
+Escribe un programa que, usando ciclos anidados, imprima un triángulo de asteriscos de $n$ filas
+(fila 1 con 1 asterisco, fila 2 con 2, ..., fila $n$ con $n$).
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int n;
+    printf("Numero de filas: ");
+    scanf("%d", &n);
+
+    for (int fila = 1; fila <= n; fila++) {
+        for (int col = 1; col <= fila; col++) {
+            printf("*");
+        }
+        printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+Con $n=4$ imprime:
+\begin{verbatim}
+*
+**
+***
+****
+\end{verbatim}
+
+\section*{Ejercicio 6 --- Clasificación de un dispositivo IoT}
+Un dispositivo de instrumentación reporta si tiene sensor, si tiene actuador, su nivel de batería
+(0.0 a 100.0) y si está conectado a la red. Escribe un programa que lea estos cuatro datos y
+clasifique el dispositivo combinando condiciones con \texttt{\&\&}, \texttt{||} y \texttt{!},
+según las reglas siguientes (evaluadas en este orden):
+\begin{itemize}[leftmargin=1.2cm]
+  \item Sensor \textbf{y} actuador \textbf{y} batería $>50$ \textbf{y} conectado
+        $\to$ \emph{IoT avanzado}.
+  \item Sensor \textbf{y} batería $\geq 20$ \textbf{y} conectado $\to$ \emph{IoT básico}.
+  \item (Sensor \textbf{o} actuador) \textbf{y no} conectado $\to$ \emph{sin conexión}.
+  \item Batería $<10$ $\to$ \emph{batería crítica}.
+  \item En cualquier otro caso $\to$ \emph{no clasificado}.
+\end{itemize}
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int tieneSensor, tieneActuador, conectado;
+    float bateria;
+
+    printf("Tiene sensor? (1=si, 0=no): ");
+    scanf("%d", &tieneSensor);
+    printf("Tiene actuador? (1=si, 0=no): ");
+    scanf("%d", &tieneActuador);
+    printf("Nivel de bateria (0.0 a 100.0): ");
+    scanf("%f", &bateria);
+    printf("Conectado a la red? (1=si, 0=no): ");
+    scanf("%d", &conectado);
+
+    if (tieneSensor && tieneActuador && bateria > 50 && conectado) {
+        printf("Clasificacion: IoT avanzado\n");
+    } else if (tieneSensor && bateria >= 20 && conectado) {
+        printf("Clasificacion: IoT basico\n");
+    } else if ((tieneSensor || tieneActuador) && !conectado) {
+        printf("Clasificacion: sin conexion (revisar red)\n");
+    } else if (bateria < 10) {
+        printf("Clasificacion: bateria critica, cargar urgente\n");
+    } else {
+        printf("Clasificacion: no clasificado\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

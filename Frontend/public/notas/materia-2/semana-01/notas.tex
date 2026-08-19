@@ -1,0 +1,438 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}[definicion]{Ejemplo}
+\newtheorem{propiedad}[definicion]{Propiedad}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b
+}
+\lstset{style=cstyle}
+
+\title{\textcolor{unicaucaverde}{\Large Notas de clase --- Semana 1}\\[4pt]
+  \large Introducción a la programación y fundamentos de C}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{¿Qué es programar? Algoritmos y lenguajes}
+
+\begin{definicion}[Algoritmo]
+Un algoritmo es una secuencia finita, ordenada y no ambigua de pasos que resuelve un problema o
+realiza una tarea. Antes de escribir código, todo programa es --- o debería ser --- un algoritmo
+claro: qué datos entran, qué pasos se aplican, qué datos salen.
+\end{definicion}
+
+\begin{definicion}[Programa y lenguaje de programación]
+Un programa es la traducción de un algoritmo a un lenguaje que un computador puede ejecutar. Un
+lenguaje de programación es el conjunto de reglas (sintaxis) y significados (semántica) que
+permiten escribir esa traducción de forma no ambigua.
+\end{definicion}
+
+\begin{propiedad}[Compilados vs. interpretados]
+En un lenguaje \emph{compilado} (como C), un programa --- el compilador --- traduce todo el código
+fuente a instrucciones de máquina \emph{antes} de ejecutarlo, generando un archivo ejecutable. En
+un lenguaje \emph{interpretado} (como Python), otro programa --- el intérprete --- lee y ejecuta el
+código fuente línea a línea, sin generar un ejecutable independiente. C, al compilarse a código de
+máquina nativo, produce programas muy eficientes en tiempo y memoria: por eso es el lenguaje base de
+sistemas embebidos y de control.
+\end{propiedad}
+
+\section{El proceso de compilación en C y estructura de un programa}
+
+\begin{propiedad}[Del código fuente al ejecutable]
+Compilar un programa en C con \texttt{gcc} pasa por cuatro etapas:
+\begin{enumerate}[label=(\alph*)]
+  \item \textbf{Preprocesador}: procesa las directivas que empiezan por \texttt{\#} (como
+        \texttt{\#include}, \texttt{\#define}), sustituyéndolas antes de compilar.
+  \item \textbf{Compilador}: traduce el código fuente (ya preprocesado) a código ensamblador.
+  \item \textbf{Ensamblador}: traduce el código ensamblador a código objeto (binario, aún no
+        enlazado).
+  \item \textbf{Enlazador (linker)}: combina el código objeto con las librerías necesarias (como la
+        librería estándar, que aporta \texttt{printf}) para producir el ejecutable final.
+\end{enumerate}
+En la práctica, \texttt{gcc programa.c -o programa} ejecuta las cuatro etapas de un solo paso.
+\end{propiedad}
+
+\begin{definicion}[Estructura mínima de un programa en C]
+Todo programa en C ejecutable necesita, como mínimo, una función \texttt{main}, que es el punto de
+entrada: la primera función que se ejecuta al correr el programa.
+\end{definicion}
+
+\begin{ejemplo}[Hola mundo]
+\begin{lstlisting}[caption={Primer programa en C}]
+#include <stdio.h>   // preprocesador: incluye la libreria estandar de E/S
+
+int main(void) {
+    printf("Hola, mundo\n");   // sentencia: termina en punto y coma
+    return 0;                  // 0 indica que el programa termino sin errores
+}
+\end{lstlisting}
+\texttt{\#include <stdio.h>} le pide al preprocesador que incluya las declaraciones necesarias para
+usar \texttt{printf}. \texttt{int main(void)} declara la función principal, que devuelve un entero
+(\texttt{int}) al sistema operativo. El cuerpo de la función va entre llaves \texttt{\{ \}}, y cada
+sentencia termina en punto y coma \texttt{;}. El texto tras \texttt{//} es un comentario: el
+compilador lo ignora.
+\end{ejemplo}
+
+\section{Tipos de datos, variables y constantes}
+
+\begin{definicion}[Variable]
+Una variable es un espacio de memoria con un nombre, un tipo de dato y un valor que puede cambiar
+durante la ejecución del programa. Debe \emph{declararse} (indicar su tipo y nombre) antes de
+usarse, y puede \emph{inicializarse} (darle un valor inicial) en la misma declaración.
+\end{definicion}
+
+\begin{propiedad}[Tipos de datos básicos de C]
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Tipo} & \textbf{Representa} & \textbf{Ejemplo de literal} \\ \hline
+\texttt{int} & números enteros & \texttt{-7}, \texttt{0}, \texttt{42} \\ \hline
+\texttt{float} & reales de precisión simple & \texttt{3.14f} \\ \hline
+\texttt{double} & reales de precisión doble & \texttt{3.14159265} \\ \hline
+\texttt{char} & un solo carácter (código ASCII) & \texttt{'A'}, \texttt{'9'} \\ \hline
+\end{tabular}
+\end{center}
+El tamaño exacto en bytes de cada tipo depende del compilador y la arquitectura; se consulta en
+tiempo de compilación con el operador \texttt{sizeof}.
+\end{propiedad}
+
+\begin{propiedad}[Tabla extendida de tipos primitivos, tamaño y rango]
+Además de los cuatro tipos básicos, C ofrece variantes de tamaño y signo distintos --- útiles
+cuando importa acotar el uso de memoria o garantizar que un valor nunca sea negativo (por ejemplo,
+un conteo de muestras de un sensor). Los tamaños de la tabla corresponden a un compilador típico de
+64 bits (\texttt{gcc} en Linux/Windows); se deben verificar con \texttt{sizeof} en cada entorno.
+\begin{center}
+\small
+\begin{tabular}{|>{\ttfamily}p{3.1cm}|c|p{4.2cm}|>{\ttfamily\small}p{4.6cm}|}
+\hline
+\normalfont\textbf{Tipo} & \normalfont\textbf{Bytes} & \normalfont\textbf{Rango} & \normalfont\textbf{Ejemplo} \\ \hline
+char & 1 & $-128$ a $127$ & char c = 'A'; \\ \hline
+unsigned char & 1 & $0$ a $255$ & unsigned char c = 200; \\ \hline
+short int & 2 & $-32768$ a $32767$ & short int e = 25; \\ \hline
+unsigned short int & 2 & $0$ a $65535$ & unsigned short int e = 25; \\ \hline
+int & 4 & $-2{,}147{,}483{,}648$ a $2{,}147{,}483{,}647$ & int n = 1000; \\ \hline
+unsigned int & 4 & $0$ a $4{,}294{,}967{,}295$ & unsigned int n = 1000; \\ \hline
+long int & 4--8 & (igual o mayor que \normalfont\texttt{int}) & long int p = 100000; \\ \hline
+unsigned long int & 4--8 & (igual o mayor que \normalfont\texttt{unsigned int}) & unsigned long int p; \\ \hline
+long long int & 8 & $\approx \pm 9.2\times10^{18}$ & long long int x =\newline 10000000000LL; \\ \hline
+unsigned long long int & 8 & $0$ a $\approx 1.8\times10^{19}$ & ...x =\newline 10000000000ULL; \\ \hline
+float & 4 & $\approx \pm 3.4\times10^{38}$ & float d = 3.14f; \\ \hline
+double & 8 & $\approx \pm 1.7\times10^{308}$ & double d =\newline 3.1415926535; \\ \hline
+long double & 12--16 & $\approx \pm 1.1\times10^{4932}$ & long double d = 3.14L; \\ \hline
+\end{tabular}
+\end{center}
+\normalsize
+Los sufijos del literal indican al compilador el tipo exacto: \texttt{L} o \texttt{LL} para enteros
+largos, \texttt{U} para sin signo (combinables: \texttt{ULL}), \texttt{f} para \texttt{float} y
+\texttt{L} para \texttt{long double}.
+\end{propiedad}
+
+\begin{propiedad}[Especificadores de formato en \texttt{printf}]
+Cada tipo tiene su propio especificador; usar el incorrecto es un error común que produce salidas
+basura sin que el compilador siempre avise.
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Tipo} & \textbf{Especificador} & \textbf{Ejemplo de valor} \\ \hline
+\texttt{int} & \texttt{\%d} & \texttt{25} \\ \hline
+\texttt{unsigned int} & \texttt{\%u} & \texttt{300} \\ \hline
+\texttt{short int} & \texttt{\%hd} & \texttt{-5} \\ \hline
+\texttt{long int} & \texttt{\%ld} & \texttt{8000000} \\ \hline
+\texttt{long long int} & \texttt{\%lld} & \texttt{1234567890123} \\ \hline
+\texttt{float} & \texttt{\%f} & \texttt{1.75} \\ \hline
+\texttt{double} & \texttt{\%lf} (con \texttt{scanf}; \texttt{\%f} basta en \texttt{printf}) & \texttt{3.14159} \\ \hline
+\texttt{long double} & \texttt{\%Lf} & \texttt{9.80665} \\ \hline
+\texttt{char} & \texttt{\%c} & \texttt{'A'} \\ \hline
+\texttt{\_Bool}/\texttt{bool} & \texttt{\%d} (no existe especificador propio) & \texttt{1} / \texttt{0} \\ \hline
+\end{tabular}
+\end{center}
+\end{propiedad}
+
+\begin{ejemplo}[Rangos reales del compilador con \texttt{limits.h}, \texttt{float.h} y \texttt{stdbool.h}]
+Los valores exactos de rango dependen del compilador; las cabeceras \texttt{limits.h} y
+\texttt{float.h} definen constantes (\texttt{INT\_MAX}, \texttt{DBL\_MIN}, etc.) que permiten
+consultarlos en tiempo de compilación, en vez de memorizarlos:
+\begin{lstlisting}
+#include <stdio.h>
+#include <limits.h>   // INT_MAX, LONG_MIN, etc.
+#include <float.h>    // FLT_MAX, DBL_MIN, etc.
+#include <stdbool.h>  // bool, true, false (desde C99)
+
+int main(void) {
+    printf("int:   %zu bytes, de %d a %d\n", sizeof(int), INT_MIN, INT_MAX);
+    printf("long:  %zu bytes, de %ld a %ld\n", sizeof(long), LONG_MIN, LONG_MAX);
+    printf("float: %zu bytes, maximo %.10e\n", sizeof(float), FLT_MAX);
+
+    bool activo = true;
+    printf("bool:  %zu bytes, valor actual %d\n", sizeof(bool), activo);
+    return 0;
+}
+\end{lstlisting}
+\texttt{stdbool.h} no crea un tipo nuevo en el lenguaje: \texttt{bool} es una macro para
+\texttt{\_Bool}, y \texttt{true}/\texttt{false} son macros para \texttt{1}/\texttt{0}.
+\end{ejemplo}
+
+\begin{ejemplo}[Declaración, inicialización y \texttt{sizeof}]
+\begin{lstlisting}
+int edad = 20;
+float precio = 19.99f;
+double pi = 3.14159265358979;
+char inicial = 'F';
+
+printf("int ocupa %lu bytes\n", sizeof(int));
+printf("double ocupa %lu bytes\n", sizeof(double));
+\end{lstlisting}
+\end{ejemplo}
+
+\begin{definicion}[Constantes]
+Una constante es un valor que no cambia durante la ejecución. En C se define de dos formas: con la
+directiva de preprocesador \texttt{\#define NOMBRE valor} (sustitución de texto, sin tipo), o con
+el calificador \texttt{const} sobre una variable (\texttt{const float PI = 3.1416;}, con tipo y
+verificado por el compilador).
+\end{definicion}
+
+\begin{definicion}[Macro]
+Una \emph{macro} es un \texttt{\#define} más general: además de dar nombre a un valor, puede
+recibir parámetros. El preprocesador sustituye cada llamada a la macro por su definición
+\emph{textual}, parámetro por parámetro, antes de que el compilador vea el código. A diferencia de
+una función, la sustitución no implica una llamada real en tiempo de ejecución.
+\end{definicion}
+
+\begin{ejemplo}[Macro con parámetros: empaquetar 8 bits en un entero]
+La macro siguiente recibe 8 valores (cada uno \texttt{0} o \texttt{1}) y los combina en un solo
+entero de 8 bits usando desplazamiento (\texttt{\textless\textless}) y \texttt{OR} bit a bit (\texttt{|}):
+\begin{lstlisting}
+#define BIN8(b7,b6,b5,b4,b3,b2,b1,b0) \
+    (((b7)<<7) | ((b6)<<6) | ((b5)<<5) | ((b4)<<4) | \
+     ((b3)<<3) | ((b2)<<2) | ((b1)<<1) | ((b0)<<0))
+
+int main(void) {
+    int a = BIN8(1,1,0,0,1,0,1,0);  // 0b11001010 = 202
+    printf("%d\n", a);
+    return 0;
+}
+\end{lstlisting}
+Cada bit \texttt{bN} se desplaza \texttt{N} posiciones a la izquierda (\texttt{b7\textless\textless7} lo deja en la
+posición más significativa) y luego se combinan todos con \texttt{|}, que en cada posición da
+\texttt{1} si al menos uno de los operandos tiene \texttt{1} ahí. Como cada bit ocupa una posición
+distinta, el \texttt{OR} simplemente los reúne sin que se pisen entre sí: el resultado es el número
+de 8 bits \texttt{b7 b6 b5 b4 b3 b2 b1 b0} leído de izquierda a derecha. La barra \texttt{\textbackslash}
+al final de línea le dice al preprocesador que la definición continúa en la línea siguiente.
+\end{ejemplo}
+
+\begin{propiedad}[Reglas para nombres de variables]
+Un identificador en C empieza por una letra o guion bajo (\texttt{\_}), seguido de letras, dígitos
+o guiones bajos; distingue mayúsculas de minúsculas (\texttt{Edad} $\neq$ \texttt{edad}); y no
+puede coincidir con una palabra reservada del lenguaje (\texttt{int}, \texttt{return}, \texttt{if},
+etc.).
+\end{propiedad}
+
+\section{Operadores}
+
+\begin{propiedad}[Familias de operadores]
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{Aritméticos}: \texttt{+ - * / \%} (\texttt{\%} es el residuo de la división
+        entera; \texttt{/} entre dos \texttt{int} trunca el resultado).
+  \item \textbf{Relacionales}: \texttt{== != < > <= >=}, resultan en \texttt{0} (falso) o
+        \texttt{1} (verdadero).
+  \item \textbf{Lógicos}: \texttt{\&\&} (y), \texttt{||} (o), \texttt{!} (no), combinan
+        condiciones.
+  \item \textbf{Asignación}: \texttt{=}, y las compuestas \texttt{+= -= *= /= \%=}.
+  \item \textbf{Incremento/decremento}: \texttt{++} y \texttt{--} (prefijo o sufijo).
+\end{itemize}
+\end{propiedad}
+
+\begin{ejemplo}[División entera vs. residuo]
+\begin{lstlisting}
+int a = 7, b = 2;
+printf("%d\n", a / b);   // imprime 3 (division entera, se trunca)
+printf("%d\n", a % b);   // imprime 1 (residuo de 7 entre 2)
+printf("%f\n", (float)a / b);   // imprime 3.500000 (conversion explicita)
+\end{lstlisting}
+\end{ejemplo}
+
+\section{Entrada y salida estándar}
+
+\begin{propiedad}[\texttt{printf} y \texttt{scanf}]
+\texttt{printf} escribe en la consola una cadena de formato donde cada especificador (\texttt{\%d}
+entero, \texttt{\%f} flotante, \texttt{\%lf} double con \texttt{scanf}, \texttt{\%c} carácter,
+\texttt{\%s} cadena) se sustituye por el valor del argumento correspondiente. \texttt{scanf} lee de
+teclado hacia variables, y necesita el operador \texttt{\&} (dirección de memoria) delante de cada
+variable --- excepto para cadenas (\texttt{char[]}), donde el nombre del arreglo ya es una
+dirección.
+\end{propiedad}
+
+\begin{ejemplo}[Programa integrador: área de un círculo]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    const float PI = 3.14159f;
+    float radio, area;
+
+    printf("Radio del circulo: ");
+    scanf("%f", &radio);
+
+    area = PI * radio * radio;
+    printf("Area = %.2f\n", area);
+
+    return 0;
+}
+\end{lstlisting}
+\end{ejemplo}
+
+\section{Ejercicios propuestos}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Escribe un programa que imprima tu nombre y el nombre de la asignatura en dos líneas
+        separadas, usando dos sentencias \texttt{printf}.
+  \item Declara variables \texttt{float base} y \texttt{altura} para un triángulo, asígnales
+        valores, calcula el área ($\text{base}\times\text{altura}/2$) e imprímela con dos
+        decimales.
+  \item El siguiente código tiene tres errores de sintaxis. Identifícalos y corrígelos:
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void)
+    int x = 5
+    printf("x vale %d\n", x);
+    return 0;
+}
+\end{lstlisting}
+  \item Declara una variable \texttt{char letra = 'A';} e imprime su valor con \texttt{\%c} y su
+        código ASCII con \texttt{\%d} (recuerda que un \texttt{char} en C es, internamente, un
+        entero pequeño).
+  \item Escribe un programa que lea dos enteros con \texttt{scanf} y muestre su suma, resta,
+        producto, cociente entero y residuo.
+  \item Usando \texttt{sizeof}, escribe un programa que imprima el tamaño en bytes de \texttt{int},
+        \texttt{float}, \texttt{double} y \texttt{char} en tu compilador.
+\end{enumerate}
+
+\section{Soluciones de los ejercicios propuestos}
+
+\begin{description}
+
+\item[\textbf{Ejercicio 1.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    printf("Mi nombre es Ana Torres\n");
+    printf("Asignatura: Programacion\n");
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 2.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    float base = 6.0f, altura = 4.5f, area;
+    area = base * altura / 2;
+    printf("Area del triangulo = %.2f\n", area);
+    return 0;
+}
+\end{lstlisting}
+Con \texttt{base = 6.0} y \texttt{altura = 4.5}, el área es $6.0 \times 4.5 / 2 = 13.50$.
+
+\item[\textbf{Ejercicio 3.}]
+Los tres errores: (i) falta el paréntesis de apertura \texttt{\{} después de
+\texttt{int main(void)}; (ii) falta el punto y coma al final de \texttt{int x = 5}; (iii) sobra la
+llave de cierre \texttt{\}} final porque nunca se abrió la primera. Versión corregida:
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int x = 5;
+    printf("x vale %d\n", x);
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 4.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    char letra = 'A';
+    printf("Caracter: %c\n", letra);
+    printf("Codigo ASCII: %d\n", letra);
+    return 0;
+}
+\end{lstlisting}
+Salida: \texttt{Caracter: A} y \texttt{Codigo ASCII: 65}, porque el código ASCII de \texttt{'A'} es
+65.
+
+\item[\textbf{Ejercicio 5.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int a, b;
+    printf("Ingrese dos enteros: ");
+    scanf("%d %d", &a, &b);
+
+    printf("Suma = %d\n", a + b);
+    printf("Resta = %d\n", a - b);
+    printf("Producto = %d\n", a * b);
+    printf("Cociente entero = %d\n", a / b);
+    printf("Residuo = %d\n", a % b);
+    return 0;
+}
+\end{lstlisting}
+\texttt{scanf("\%d \%d", \&a, \&b)} lee dos enteros separados por espacio o salto de línea en una
+sola llamada.
+
+\item[\textbf{Ejercicio 6.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    printf("int:    %lu bytes\n", sizeof(int));
+    printf("float:  %lu bytes\n", sizeof(float));
+    printf("double: %lu bytes\n", sizeof(double));
+    printf("char:   %lu bytes\n", sizeof(char));
+    return 0;
+}
+\end{lstlisting}
+En la mayoría de compiladores actuales (arquitectura de 64 bits): \texttt{int} = 4,
+\texttt{float} = 4, \texttt{double} = 8, \texttt{char} = 1 byte.
+
+\end{description}
+
+\end{document}

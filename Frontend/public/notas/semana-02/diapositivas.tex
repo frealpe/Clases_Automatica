@@ -1,0 +1,331 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\setbeamercolor{structure}{fg=unicaucaverde}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\vv}[1]{\mathbf{#1}}
+
+\title[Semana 2: Gauss-Jordan]{Eliminación de Gauss-Jordan y sistemas homogéneos}
+\subtitle{Álgebra Lineal para Ingeniería --- Semana 2 de 16}
+\author{Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Semana 2: dónde estamos}
+  \begin{itemize}
+    \item Unidad 1 de 8: Sistemas de ecuaciones lineales.
+    \item Subtemas 1.2b, 1.3 y 1.4 --- RA1.2b, RA1.3, RA1.4.
+    \item 4 horas: sistemas equivalentes/clasificación $\to$ Gauss-Jordan $\to$ sistemas homogéneos.
+  \end{itemize}
+  \tableofcontents
+\end{frame}
+
+\section{Sistemas equivalentes y clasificación}
+
+\begin{frame}{Sistemas equivalentes}
+  \begin{block}{Definición}
+    Dos sistemas son \textbf{equivalentes} si tienen el mismo conjunto de soluciones.
+  \end{block}
+  \vfill
+  \begin{alertblock}{Teorema}
+    Cada operación elemental de fila produce un sistema equivalente:
+    \begin{enumerate}
+      \item Intercambiar dos filas.
+      \item Multiplicar una fila por $c\neq 0$.
+      \item Sumar a una fila un múltiplo de otra.
+    \end{enumerate}
+  \end{alertblock}
+  \vfill
+  $\Rightarrow$ Al final de Gauss-Jordan el sistema resultante es \textbf{equivalente} al original.
+\end{frame}
+
+\begin{frame}{Clasificación: consistente e inconsistente}
+  \begin{block}{Sistema consistente}
+    Tiene \textbf{al menos una solución} (puede ser única o infinitas).
+  \end{block}
+  \begin{alertblock}{Sistema inconsistente}
+    \textbf{No tiene ninguna solución.} Se detecta en la forma escalonada:
+    aparece una fila $[\,0\;\cdots\;0\mid c\,]$ con $c\neq 0$ (la ecuación $0=c$).
+  \end{alertblock}
+  \vfill
+  \textbf{Ejemplo inconsistente:}
+  \[
+    x_1+x_2=3,\quad 2x_1+2x_2=7
+    \;\xrightarrow{F_2-2F_1}\;
+    \left(\begin{array}{cc|c}1&1&3\\0&0&1\end{array}\right)
+  \]
+  La segunda fila dice $0=1$: contradicción.
+\end{frame}
+
+\begin{frame}{Ejemplo 1 — Sistema inconsistente (solución)}
+  \[
+    x_1+x_2=3, \qquad 2x_1+2x_2=7
+  \]
+  \[
+    \left(\begin{array}{cc|c}1&1&3\\2&2&7\end{array}\right)
+    \xrightarrow{F_2-2F_1}
+    \left(\begin{array}{cc|c}1&1&3\\0&0&1\end{array}\right)
+  \]
+  \begin{alertblock}{Resultado}
+    Fila $[0\ 0\mid 1]$: ecuación $0=1$ \textbf{(contradicción).}\\
+    El sistema es \textbf{inconsistente}: \textbf{no tiene solución}.\\
+    Geométricamente: las dos rectas son \textbf{paralelas}.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Ejemplo 2 — Solución única}
+  \[
+    x_1+x_2+x_3=6,\quad 2x_1-x_2+x_3=3,\quad x_1+2x_2-x_3=2
+  \]
+  Aplicando Gauss-Jordan (ver \texttt{notas.tex} Ejemplo 2):
+  \[
+    \cdots\longrightarrow
+    \left(\begin{array}{ccc|c}1&0&0&1\\0&1&0&2\\0&0&1&3\end{array}\right)
+  \]
+  \begin{block}{Resultado}
+    Rango $r=3=n$: sistema \textbf{consistente, solución única}:
+    \[
+      x_1=1,\quad x_2=2,\quad x_3=3.
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Ejemplo 3 — Infinitas soluciones}
+  \[
+    x_1+2x_2-x_3=0, \qquad 2x_1+4x_2-2x_3=0
+  \]
+  \[
+    \left(\begin{array}{ccc|c}1&2&-1&0\\2&4&-2&0\end{array}\right)
+    \xrightarrow{F_2-2F_1}
+    \left(\begin{array}{ccc|c}1&2&-1&0\\0&0&0&0\end{array}\right)
+  \]
+  \begin{block}{Resultado}
+    Rango $r=1<n=3$: \textbf{2 variables libres} ($x_2=s$, $x_3=t$).\\
+    Sistema \textbf{consistente, infinitas soluciones}:
+    \[
+      \{(-2s+t,\;s,\;t)\mid s,t\in\mathbb{R}\}.
+    \]
+  \end{block}
+  \small Ej.: $(0,0,0)$ con $s=t=0$;\quad $(1,0,1)$ con $s=0,\,t=1$.
+\end{frame}
+
+\section{Gauss-Jordan}
+
+
+\begin{frame}{Matriz aumentada}
+  \[
+    [A\mid\vv{b}] =
+    \left(\begin{array}{ccc|c}
+      a_{11} & \cdots & a_{1n} & b_1 \\
+      \vdots & \ddots & \vdots & \vdots \\
+      a_{m1} & \cdots & a_{mn} & b_m
+    \end{array}\right)
+  \]
+  Contiene toda la información del sistema, sin las incógnitas.
+\end{frame}
+
+\begin{frame}{Operaciones elementales de fila}
+  \begin{enumerate}
+    \item Intercambiar dos filas.
+    \item Multiplicar una fila por un escalar $\neq 0$.
+    \item Sumar a una fila un múltiplo de otra.
+  \end{enumerate}
+  \vfill
+  Ninguna cambia el conjunto solución del sistema.
+\end{frame}
+
+\begin{frame}{Forma escalonada reducida (RREF)}
+  \begin{itemize}
+    \item Pivote de cada fila no nula = 1.
+    \item Cada pivote a la derecha del anterior.
+    \item Filas nulas al final.
+    \item Columna de cada pivote: ceros en las demás posiciones.
+  \end{itemize}
+  \begin{alertblock}{Gauss-Jordan}
+    Algoritmo que lleva $[A\mid\vv{b}]$ a su RREF mediante operaciones elementales.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Número de soluciones}
+  Sea $r$ = pivotes de $[A\mid\vv{b}]$, $r'$ = pivotes de $A$.
+  \begin{itemize}
+    \item $r' < r$ $\Rightarrow$ \textbf{inconsistente}.
+    \item consistente y $r=n$ $\Rightarrow$ \textbf{solución única}.
+    \item consistente y $r<n$ $\Rightarrow$ \textbf{infinitas} ($n-r$ variables libres).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ejemplo}
+  \[
+  \begin{aligned}
+    x_1+x_2+x_3 &= 6 \\
+    2x_1-x_2+x_3 &= 3 \\
+    x_1+2x_2-x_3 &= 2
+  \end{aligned}
+  \]
+  Reduciendo la matriz aumentada se llega a solución única $(1,2,3)$.
+  \vfill
+  \textbf{Taller (hora 2):} \texttt{visualizacion/} sección \emph{1.3 Gauss-Jordan} --- reducir
+  paso a paso.
+\end{frame}
+
+\begin{frame}{Aplicación: corrientes de malla en un circuito}
+  Ley de voltajes de Kirchhoff en las tres mallas $\Rightarrow$ sistema en $I_1,I_2,I_3$:
+  \[
+  \begin{aligned}
+    2I_1 - I_2 &= 5 \\
+    -I_1 + 3I_2 - I_3 &= 0 \\
+    -I_2 + 2I_3 &= 1
+  \end{aligned}
+  \]
+  \begin{alertblock}{Sin método sistemático}
+    Sustitución: funciona, pero exige decidir un orden de variables --- se complica al crecer
+    el circuito.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Aplicación: misma solución por Gauss-Jordan}
+  Reduciendo $[A\mid\vv{b}]$ con \textbf{fracciones exactas} (sin redondear a decimal en ningún
+  paso) se llega a
+  \[
+    I_1=\frac{13}{4}, \qquad I_2=\frac{3}{2}, \qquad I_3=\frac{5}{4} \quad \text{(A)}
+  \]
+  igual que por sustitución --- pero de forma sistemática, sin depender del orden elegido.
+  \vfill
+  \textbf{Taller:} \texttt{visualizacion/} sección \emph{1.3 Gauss-Jordan} --- cargar el ejemplo
+  del circuito y reducir paso a paso.
+\end{frame}
+
+\section{Sistemas homogéneos}
+
+\begin{frame}{Sistema homogéneo: \texorpdfstring{$A\vv{x}=\vv{0}$}{Ax=0}}
+  \[
+  \begin{aligned}
+    a_{11}x_1+\cdots+a_{1n}x_n &= 0 \\
+    &\;\vdots \\
+    a_{m1}x_1+\cdots+a_{mn}x_n &= 0
+  \end{aligned}
+  \]
+  \begin{alertblock}{Solución trivial}
+    $\vv{x}=\vv{0}$ siempre es solución: todo sistema homogéneo es consistente.
+  \end{alertblock}
+  La pregunta relevante: ¿hay soluciones \textbf{no triviales}?
+\end{frame}
+
+\begin{frame}{¿Cuándo hay soluciones no triviales?}
+  \begin{alertblock}{Teorema}
+    Hay soluciones no triviales $\iff$ $r<n$ (variables libres). Si $m<n$, siempre las hay.
+  \end{alertblock}
+  \vfill
+  \textbf{Ejemplo:}
+  \[
+    x_1+2x_2-x_3=0, \qquad 2x_1+4x_2-2x_3=0
+  \]
+  (la segunda es el doble de la primera) $\Rightarrow$ $r=1<n=3$: infinitas soluciones,
+  parametrizadas por $x_2=s$, $x_3=t$: $(-2s+t,\,s,\,t)$.
+\end{frame}
+
+\section{Soluciones de ejercicios}
+
+\begin{frame}{Ej. 1 — ¿Inconsistente o consistente?}
+  $2x_1-x_2+x_3=4,\quad x_1+3x_3=-1,\quad -x_1+x_2+2x_3=0$
+  \[
+    \left(\begin{array}{ccc|c}1&0&3&-1\\2&-1&1&4\\-1&1&2&0\end{array}\right)
+    \xrightarrow{F_2-2F_1,\;F_3+F_1}
+    \left(\begin{array}{ccc|c}1&0&3&-1\\0&-1&-5&6\\0&1&5&-1\end{array}\right)
+    \xrightarrow{F_3+F_2}
+    \left(\begin{array}{ccc|c}1&0&3&-1\\0&-1&-5&6\\0&0&0&5\end{array}\right)
+  \]
+  \begin{alertblock}{Resultado}
+    Fila $[0\ 0\ 0\mid 5]$: ecuación $0=5$. \textbf{Sistema inconsistente — sin solución.}
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Ej. 2 — Solución única}
+  $x+y+z=2,\quad 2x-y+z=1,\quad x+2y-z=3$
+  \[
+    \cdots\longrightarrow
+    \left(\begin{array}{ccc|c}1&1&1&2\\0&1&-2&1\\0&0&1&0\end{array}\right)
+    \longrightarrow
+    \left(\begin{array}{ccc|c}1&0&0&1\\0&1&0&1\\0&0&1&0\end{array}\right)
+  \]
+  \begin{block}{Resultado}
+    \[ \boxed{x=1,\quad y=1,\quad z=0.} \]
+  \end{block}
+  \small(Ver \texttt{notas.tex} §\,Soluciones, Ej.\ 2 para el paso completo.)
+\end{frame}
+
+\begin{frame}{Ej. 3 — Tres casos según $k$}
+  $x+ky=1,\quad kx+y=1$
+  \[
+    \left(\begin{array}{cc|c}1&k&1\\k&1&1\end{array}\right)
+    \xrightarrow{F_2-kF_1}
+    \left(\begin{array}{cc|c}1&k&1\\0&1-k^2&1-k\end{array}\right)
+  \]
+  \begin{itemize}
+    \item $k=1$: fila 2 $\to [0\ 0\mid 0]$ \textbf{→ infinitas} ($x+y=1$).
+    \item $k=-1$: fila 2 $\to [0\ 0\mid 2]$ \textbf{→ inconsistente}.
+    \item $k\neq\pm 1$: \textbf{solución única} $x=y=\dfrac{1}{1+k}$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ej. 4 — Justificación sin resolver}
+  \textbf{Sistema homogéneo}: $m=3$ ecuaciones, $n=5$ incógnitas.
+  \vfill
+  \begin{block}{Argumento}
+    El rango máximo es $r\leq m=3 < 5=n$.\\
+    Por tanto $n-r\geq 2$ \textbf{variables libres} → infinitas soluciones no triviales.\\
+    \textbf{No hace falta reducir la matriz para saberlo.}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Ej. 5 — Infinitas soluciones (homogéneo)}
+  $x_1-x_2+2x_3=0,\quad 2x_1-2x_2+4x_3=0$
+  \[
+    \left(\begin{array}{ccc|c}1&-1&2&0\\2&-2&4&0\end{array}\right)
+    \xrightarrow{F_2-2F_1}
+    \left(\begin{array}{ccc|c}1&-1&2&0\\0&0&0&0\end{array}\right)
+  \]
+  \begin{block}{Resultado — variables libres: $x_2=s$, $x_3=t$}
+    \[ x_1 = s-2t \]
+    \[\boxed{\{(s-2t,\;s,\;t)\mid s,t\in\mathbb{R}\}}\]
+  \end{block}
+  \small Ej.: $(0,0,0)$ trivial;\quad $(1,1,0)$ no trivial;\quad $(-2,0,1)$ no trivial.
+\end{frame}
+
+\begin{frame}{Ej. 6 — ¿Cuántos pivotes?}
+  Sistema homogéneo $3\times 3$ con \textbf{única solución}: la trivial $\vv{x}=\vv{0}$.
+  \vfill
+  \begin{block}{Argumento}
+    Solución única $\Rightarrow$ ninguna variable libre $\Rightarrow$ ninguna columna sin
+    pivote.\\
+    $n=3$ incógnitas, 0 variables libres $\Rightarrow$ \textbf{$r=3$ pivotes}.\\
+    Equivalentemente: la matriz $A$ es cuadrada no singular ($\det A\neq 0$).
+  \end{block}
+\end{frame}
+
+\begin{frame}{Cierre de la Unidad 1}
+  \begin{itemize}
+    \item RA1.1--RA1.2 (Semana 1): forma general, sistemas $2\times 2$, tres casos geométricos.
+    \item RA1.2b (Semana 2): sistemas equivalentes, consistente/inconsistente.
+    \item RA1.3--RA1.4 (Semana 2): Gauss-Jordan, número de soluciones, sistemas homogéneos.
+    \item Quiz de la Unidad 1 la próxima sesión.
+  \end{itemize}
+  \vfill
+  \centering \Large Unidad 2: Vectores y matrices.
+\end{frame}
+
+\end{document}

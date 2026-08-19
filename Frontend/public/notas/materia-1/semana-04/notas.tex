@@ -1,0 +1,744 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}[definicion]{Ejemplo}
+\newtheorem{propiedad}[definicion]{Propiedad}
+\theoremstyle{plain}
+\newtheorem{teorema}[definicion]{Teorema}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\vv}[1]{\mathbf{#1}}
+
+\title{\textcolor{unicaucaverde}{\Large Notas de clase --- Semana 4}\\[4pt]
+  \large Matrices, matriz inversa y transpuesta}
+\author{Álgebra Lineal para Ingeniería --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Matrices y sistemas de ecuaciones lineales}
+
+Cualquier sistema de $m$ ecuaciones lineales con $n$ incógnitas
+\[
+\begin{array}{rcccl}
+a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n &=& b_1 \\
+a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n &=& b_2 \\
+&\vdots& \\
+a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n &=& b_m
+\end{array}
+\]
+puede expresarse de manera equivalente como una ecuación matricial única
+\[
+A\vv{x} = \vv{b},
+\]
+donde:
+\begin{itemize}
+  \item $A = (a_{ij}) \in \R^{m\times n}$ es la \textbf{matriz de coeficientes}.
+  \item $\vv{x} = \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{pmatrix} \in \R^n$ es el \textbf{vector de incógnitas}.
+  \item $\vv{b} = \begin{pmatrix} b_1 \\ b_2 \\ \vdots \\ b_m \end{pmatrix} \in \R^m$ es el \textbf{vector de términos independientes}.
+\end{itemize}
+
+\begin{definicion}[Forma matricial del sistema]
+La expresión $A\vv{x}=\vv{b}$ condensa las $m$ ecuaciones lineales en una sola igualdad matricial.
+Alternativamente, el producto $A\vv{x}$ representa una combinación lineal de las columnas de $A$:
+\[
+x_1 \vv{a}_1 + x_2 \vv{a}_2 + \cdots + x_n \vv{a}_n = \vv{b},
+\]
+donde $\vv{a}_j$ es la $j$-ésima columna de $A$. Por lo tanto, el sistema $A\vv{x}=\vv{b}$ es consistente
+si y solo si $\vv{b}$ puede expresarse como combinación lineal de las columnas de $A$.
+\end{definicion}
+
+\begin{ejemplo}
+El sistema de dos ecuaciones
+\[
+\begin{array}{rcccl}
+2x_1 + 3x_2 &=& 7 \\
+4x_1 - x_2 &=& 0
+\end{array}
+\]
+se escribe en forma matricial como
+\[
+\begin{pmatrix} 2 & 3 \\ 4 & -1 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix} 7 \\ 0 \end{pmatrix}.
+\]
+\end{ejemplo}
+
+\section{Inversa de una matriz cuadrada}
+
+\begin{definicion}[Matriz inversa]
+Sea $A$ una matriz cuadrada de orden $n\times n$. Se dice que $A$ es \emph{invertible} (o \emph{no singular})
+si existe una matriz $B$ de orden $n\times n$ tal que:
+\[
+A B = B A = I_n,
+\]
+donde $I_n$ es la matriz identidad de orden $n$. La matriz $B$ se denomina la \emph{inversa} de $A$ y se
+denota por $A^{-1}$. Si tal matriz no existe, se dice que $A$ es \emph{singular} o \emph{no invertible}.
+\end{definicion}
+
+\begin{teorema}[Unicidad de la matriz inversa]
+Si $A$ es una matriz invertible, entonces su inversa $A^{-1}$ es única.
+\end{teorema}
+
+\begin{proof}
+Supóngase que $B$ y $C$ son dos inversas de $A$. Entonces $AB=I$ y $CA=I$. Multiplicando $CA=I$ por $B$ a
+la derecha:
+\[
+C = C I = C (A B) = (C A) B = I B = B.
+\]
+Por consiguiente, $B=C$.
+\end{proof}
+
+\subsection{Inversa de una matriz $2\times 2$}
+
+\begin{teorema}[Inversa de matriz $2\times 2$]
+Sea $A = \begin{pmatrix} a & b \\ c & d \end{pmatrix}$. La matriz $A$ es invertible si y solo si
+su \emph{determinante} $\Delta = ad - bc \neq 0$. En ese caso, la inversa viene dada por:
+\[
+A^{-1} = \frac{1}{ad - bc} \begin{pmatrix} d & -b \\ -c & a \end{pmatrix}.
+\]
+\end{teorema}
+
+\begin{ejemplo}
+Para $A = \begin{pmatrix} 2 & 5 \\ 1 & 3 \end{pmatrix}$, el determinante es $\Delta = 2(3) - 5(1) = 6 - 5 = 1 \neq 0$.
+Por lo tanto, $A$ es invertible y:
+\[
+A^{-1} = \frac{1}{1} \begin{pmatrix} 3 & -5 \\ -1 & 2 \end{pmatrix} = \begin{pmatrix} 3 & -5 \\ -1 & 2 \end{pmatrix}.
+\]
+Verificación:
+\[
+A A^{-1} = \begin{pmatrix} 2 & 5 \\ 1 & 3 \end{pmatrix} \begin{pmatrix} 3 & -5 \\ -1 & 2 \end{pmatrix}
+= \begin{pmatrix} 6-5 & -10+10 \\ 3-3 & -5+6 \end{pmatrix} = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} = I_2.
+\]
+\end{ejemplo}
+
+\subsection{La Matriz Identidad $I_n$ y sus Propiedades}
+
+\begin{definicion}[Matriz Identidad]
+La \emph{matriz identidad} $I_n$ (o simplemente $I$) de orden $n\times n$ es la matriz cuadrada cuya diagonal principal consta únicamente de unos ($1$) y todas sus demás entradas fuera de la diagonal principal son ceros ($0$). Usando la notación de la \emph{delta de Kronecker} $\delta_{ij}$:
+\[
+I_n = (\delta_{ij})_{n\times n}, \qquad \text{donde } \delta_{ij} = \begin{cases} 1, & \text{si } i = j, \\ 0, & \text{si } i \neq j. \end{cases}
+\]
+Explicítamente para los órdenes $n=2, 3, 4$:
+\[
+I_2 = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}, \qquad
+I_3 = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}, \qquad
+I_4 = \begin{pmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix}.
+\]
+\end{definicion}
+
+\begin{propiedad}[Propiedades de la Matriz Identidad]
+Sea $A$ una matriz de tamaño $m\times n$ y $\vv{x} \in \R^n$:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Elemento neutro del producto matricial}: $A I_n = A$ e $I_m A = A$.
+  \item \textbf{Transformación Identidad}: $I_n \vv{x} = \vv{x}$ para todo vector $\vv{x} \in \R^n$. La matriz $I_n$ mapea cada vector a sí mismo sin alterar su magnitud ni su dirección.
+  \item \textbf{Involución e Invariancia}: $I_n^k = I_n$ para todo entero $k \geq 1$, e $I_n^{-1} = I_n$.
+\end{enumerate}
+\end{propiedad}
+
+\subsection{Cálculo de la Inversa por Gauss-Jordan y su Fundamentación Algebraica}
+
+El algoritmo de Gauss-Jordan para obtener $A^{-1}$ no es un mero truco empírico: se fundamenta rigurosamente en la teoría de las \textbf{operaciones elementales de fila} y sus matrices asociadas.
+
+\begin{definicion}[Matrices Elementales]
+Una \emph{matriz elemental} $E$ de orden $n\times n$ es la matriz que resulta al aplicar una \textbf{única operación elemental de fila} sobre la matriz identidad $I_n$. Existen tres tipos de matrices elementales:
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Intercambio de filas} ($R_i \leftrightarrow R_j$).
+  \item \textbf{Multiplicación de una fila por un escalar no nulo} ($R_i \leftarrow c R_i$, $c \neq 0$).
+  \item \textbf{Adición de un múltiplo de una fila a otra} ($R_i \leftarrow R_i + c R_j$, $i \neq j$).
+\end{enumerate}
+Toda matriz elemental $E$ es invertible, y su inversa $E^{-1}$ es la matriz elemental que deshace la operación elemental correspondiente.
+\end{definicion}
+
+\begin{teorema}[{Fundamentación del Método $[A \mid I_n] \xrightarrow{\text{Gauss-Jordan}} [I_n \mid A^{-1}]$}]
+Sea $A$ una matriz no singular de orden $n\times n$. Existe una secuencia finita de operaciones elementales por filas, representadas por las matrices elementales $E_1, E_2, \ldots, E_k$, que transforman $A$ en la matriz identidad $I_n$:
+\[
+(E_k \cdots E_2 E_1) A = I_n.
+\]
+Multiplicando por $A^{-1}$ a la derecha en ambos lados de la ecuación:
+\[
+(E_k \cdots E_2 E_1) A A^{-1} = I_n A^{-1} \implies E_k \cdots E_2 E_1 = A^{-1}.
+\]
+Esto demuestra que el producto de las matrices elementales $E_k \cdots E_2 E_1$ es exactamente la matriz inversa $A^{-1}$.
+
+Consecuentemente, al aplicar esa misma secuencia de operaciones elementales sobre la matriz identidad $I_n$:
+\[
+(E_k \cdots E_2 E_1) I_n = A^{-1} I_n = A^{-1}.
+\]
+Por lo tanto, al construir la matriz aumentada $[A \mid I_n]$ y aplicar las operaciones de fila que transforman la mitad izquierda de $A$ a $I_n$, la mitad derecha se transforma simultánea e indefectiblemente en $A^{-1}$:
+\[
+[A \mid I_n] \xrightarrow{E_1} [E_1 A \mid E_1] \xrightarrow{E_2} [E_2 E_1 A \mid E_2 E_1] \xrightarrow{\cdots} [E_k \cdots E_1 A \mid E_k \cdots E_1] = [I_n \mid A^{-1}].
+\]
+\end{teorema}
+
+\begin{definicion}[{Procedimiento Algorítmico Paso a Paso para $[A \mid I_n]$}]
+Para calcular $A^{-1}$ en la práctica:
+\begin{enumerate}[label=\textbf{Paso \arabic*:}]
+  \item \textbf{Construcción}: Formar la matriz aumentada $[A \mid I_n]$ de dimensión $n \times 2n$.
+  \item \textbf{Pivoteo Columna a Columna} (para $j = 1, 2, \ldots, n$):
+    \begin{itemize}
+      \item Seleccionar la entrada $(j,j)$ como pivote. Si $a_{jj} = 0$, hacer un intercambio de fila $R_j \leftrightarrow R_k$ ($k > j$) con $a_{kj} \neq 0$. Si toda la columna debajo del pivote es cero, detenerse: $A$ es singular y no tiene inversa.
+      \item Normalizar la fila del pivote: $R_j \leftarrow \frac{1}{a_{jj}} R_j$, de modo que la entrada $(j,j)$ se convierta en $1$.
+      \item Hacer ceros todas las demás entradas de la columna $j$ (tanto por arriba como por abajo del pivote): para cada fila $r \neq j$, aplicar $R_r \leftarrow R_r - a_{rj} R_j$.
+    \end{itemize}
+  \item \textbf{Conclusión}: Al finalizar la columna $n$, si la parte izquierda es $I_n$, la parte derecha contiene $A^{-1}$. Si en algún momento una fila completa de la parte izquierda se vuelve nula ($0 \cdots 0$), el rango de $A$ es menor que $n$ y la matriz es singular (no invertible).
+\end{enumerate}
+\end{definicion}
+
+\subsection{Propiedades de la matriz inversa}
+
+\begin{teorema}[Propiedades algebraicas de $A^{-1}$]
+Sean $A$ y $B$ matrices invertibles de orden $n\times n$, y $k \in \R$ un escalar no nulo ($k \neq 0$). Se cumplen:
+\begin{enumerate}[label=(\roman*)]
+  \item $(A^{-1})^{-1} = A$.
+  \item $(AB)^{-1} = B^{-1} A^{-1}$ \quad (\textbf{¡atención al orden inverso!}).
+  \item $(k A)^{-1} = \frac{1}{k} A^{-1}$.
+  \item $I_n^{-1} = I_n$.
+\end{enumerate}
+\end{teorema}
+
+\subsection{Solución de sistemas lineales mediante la matriz inversa}
+
+\begin{teorema}[Solución única mediante $A^{-1}$]
+Si $A$ es una matriz cuadrada $n\times n$ invertible, entonces para cualquier vector $\vv{b} \in \R^n$,
+el sistema $A\vv{x}=\vv{b}$ tiene una **única solución** dada por:
+\[
+\vv{x} = A^{-1}\vv{b}.
+\]
+\end{teorema}
+
+\begin{proof}
+Multiplicando $A\vv{x}=\vv{b}$ a la izquierda por $A^{-1}$:
+\[
+A^{-1}(A\vv{x}) = A^{-1}\vv{b} \implies (A^{-1}A)\vv{x} = A^{-1}\vv{b} \implies I_n \vv{x} = A^{-1}\vv{b} \implies \vv{x} = A^{-1}\vv{b}.
+\]
+\end{proof}
+
+\section{Transpuesta de una matriz}
+
+\begin{definicion}[Matriz transpuesta]
+Dada una matriz $A = (a_{ij})$ de tamaño $m\times n$, la \emph{transpuesta} de $A$, denotada por $A^T$,
+es la matriz de tamaño $n\times m$ obtenida al intercambiar las filas por las columnas de $A$:
+\[
+(A^T)_{ij} = a_{ji}.
+\]
+Es decir, la primera fila de $A$ pasa a ser la primera columna de $A^T$, la segunda fila pasa a ser la
+segunda columna, y así sucesivamente.
+\end{definicion}
+
+\begin{ejemplo}
+Si $A = \begin{pmatrix} 1 & 4 & 7 \\ 2 & 5 & 8 \end{pmatrix}_{2\times 3}$, entonces
+$A^T = \begin{pmatrix} 1 & 2 \\ 4 & 5 \\ 7 & 8 \end{pmatrix}_{3\times 2}$.
+\end{ejemplo}
+
+\subsection{Propiedades de la transpuesta}
+
+\begin{propiedad}[Álgebra de transposiciones]
+Sean $A$ y $B$ matrices de tamaños adecuados para que las operaciones estén definidas, y $c \in \R$ un escalar:
+\begin{enumerate}[label=(\roman*)]
+  \item $(A^T)^T = A$.
+  \item $(A + B)^T = A^T + B^T$.
+  \item $(c A)^T = c A^T$.
+  \item $(AB)^T = B^T A^T$ \quad (\textbf{¡atención al cambio de orden!}).
+  \item Si $A$ es invertible, entonces $A^T$ también es invertible y $(A^T)^{-1} = (A^{-1})^T$.
+\end{enumerate}
+\end{propiedad}
+
+\subsection{Matrices simétricas y antisimétricas}
+
+\begin{definicion}[Simetría y antisimetría]
+Sea $A$ una matriz cuadrada de orden $n\times n$:
+\begin{itemize}
+  \item $A$ es \emph{simétrica} si $A^T = A$ (es decir, $a_{ij} = a_{ji}$ para todo $i,j$).
+  \item $A$ es \emph{antisimétrica} (o \emph{antisimétrica por transposición}) si $A^T = -A$
+        (lo que implica que los elementos de la diagonal principal son cero: $a_{ii} = 0$).
+\end{itemize}
+\end{definicion}
+
+\begin{teorema}[Descomposición simétrica-antisimétrica]
+Toda matriz cuadrada $A$ se puede expresar de forma única como la suma de una matriz simétrica $S$
+y una matriz antisimétrica $K$:
+\[
+A = S + K, \qquad \text{donde } S = \frac{1}{2}(A + A^T) \quad \text{y} \quad K = \frac{1}{2}(A - A^T).
+\]
+\end{teorema}
+
+\section{Aplicación en ingeniería: Análisis matricial de circuitos eléctricos}
+
+En ingeniería electrónica y eléctrica, la ley de corrientes de Kirchhoff (LCK) en las mallas o nudos de una red conduce a un sistema lineal $A\vv{v} = \vv{i}$, donde $A$ es la matriz de admitancia del circuito, $\vv{v}$ es el vector de voltajes de nudo desconocidos, e $\vv{i}$ es el vector de corrientes inyectadas por las fuentes.
+
+Supóngase un circuito resistivo de tres nudos con matriz de conductancias (admitancias) dada por:
+\[
+A = \begin{pmatrix} 2 & -1 & 0 \\ -1 & 3 & -1 \\ 0 & -1 & 2 \end{pmatrix} \quad (\Omega^{-1}).
+\]
+Si las fuentes inyectan corrientes $\vv{i} = \begin{pmatrix} 4 \\ 0 \\ 2 \end{pmatrix}$ amperes, el vector de voltajes $\vv{v}$ se obtiene resolviendo $A\vv{v} = \vv{i}$.
+
+Puesto que $A$ es simétrica ($A^T=A$) e invertible, calculando $A^{-1}$ por Gauss-Jordan se obtiene:
+\[
+A^{-1} = \frac{1}{8} \begin{pmatrix} 5 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 5 \end{pmatrix}.
+\]
+Así, los voltajes de los nudos ante la excitación $\vv{i}$ se calculan directamente como:
+\[
+\vv{v} = A^{-1}\vv{i} = \frac{1}{8} \begin{pmatrix} 5 & 2 & 1 \\ 2 & 4 & 2 \\ 1 & 2 & 5 \end{pmatrix} \begin{pmatrix} 4 \\ 0 \\ 2 \end{pmatrix} = \frac{1}{8} \begin{pmatrix} 20+0+2 \\ 8+0+4 \\ 4+0+10 \end{pmatrix} = \begin{pmatrix} 22/8 \\ 12/8 \\ 14/8 \end{pmatrix} = \begin{pmatrix} 2.75 \\ 1.50 \\ 1.75 \end{pmatrix} \text{ voltios}.
+\]
+Si se modifican las fuentes de corriente $\vv{i}$, los nuevos voltajes se obtienen simplemente multiplicando la matriz $A^{-1}$ ya calculada por la nueva entrada, sin tener que resolver el sistema desde cero.
+
+\section{Ejercicios resueltos paso a paso}
+
+\textbf{Ejercicio 1.} Expresar el siguiente sistema de ecuaciones en forma matricial $A\vv{x}=\vv{b}$ y verificar si la tupla $(x_1, x_2, x_3) = (2, 1, -1)$ es solución del sistema:
+\[
+\begin{array}{rcccl}
+x_1 + 2x_2 - x_3 &=& 5 \\
+3x_1 - x_2 + 2x_3 &=& 3 \\
+-x_1 + x_2 + x_3 &=& -2
+\end{array}
+\]
+
+\emph{Solución:}
+La forma matricial $A\vv{x}=\vv{b}$ es:
+\[
+\begin{pmatrix} 1 & 2 & -1 \\ 3 & -1 & 2 \\ -1 & 1 & 1 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \begin{pmatrix} 5 \\ 3 \\ -2 \end{pmatrix}.
+\]
+Sustituyendo $\vv{x} = \begin{pmatrix} 2 \\ 1 \\ -1 \end{pmatrix}$:
+\[
+A\vv{x} = \begin{pmatrix} 1(2) + 2(1) - 1(-1) \\ 3(2) - 1(1) + 2(-1) \\ -1(2) + 1(1) + 1(-1) \end{pmatrix} = \begin{pmatrix} 2 + 2 + 1 \\ 6 - 1 - 2 \\ -2 + 1 - 1 \end{pmatrix} = \begin{pmatrix} 5 \\ 3 \\ -2 \end{pmatrix}.
+\]
+Como $A\vv{x}$ es exactamente igual a $\vv{b}$, la tupla $(2, 1, -1)$ es en efecto solución del sistema.
+
+\vspace{0.3cm}
+\textbf{Ejercicio 2.} Dada la matriz $A = \begin{pmatrix} 4 & 2 \\ 3 & 2 \end{pmatrix}$, calcular su matriz inversa $A^{-1}$ y resolver el sistema $A\vv{x} = \begin{pmatrix} 10 \\ 8 \end{pmatrix}$.
+
+\emph{Solución:}
+1. Calculamos el determinante de $A$:
+\[
+\Delta = ad - bc = (4)(2) - (2)(3) = 8 - 6 = 2 \neq 0.
+\]
+Como $\Delta \neq 0$, $A$ es invertible.
+
+2. Aplicamos la fórmula para la inversa $2\times 2$:
+\[
+A^{-1} = \frac{1}{2} \begin{pmatrix} 2 & -2 \\ -3 & 4 \end{pmatrix} = \begin{pmatrix} 1 & -1 \\ -3/2 & 2 \end{pmatrix}.
+\]
+
+3. Resolvemos $\vv{x} = A^{-1}\vv{b}$:
+\[
+\vv{x} = \begin{pmatrix} 1 & -1 \\ -3/2 & 2 \end{pmatrix} \begin{pmatrix} 10 \\ 8 \end{pmatrix} = \begin{pmatrix} 1(10) - 1(8) \\ -\frac{3}{2}(10) + 2(8) \end{pmatrix} = \begin{pmatrix} 2 \\ -15 + 16 \end{pmatrix} = \begin{pmatrix} 2 \\ 1 \end{pmatrix}.
+\]
+Por lo tanto, la solución única es $x_1 = 2, x_2 = 1$.
+
+\vspace{0.3cm}
+\textbf{Ejercicio 3.} Hallar la inversa de la matriz $A = \begin{pmatrix} 1 & 0 & 2 \\ 2 & -1 & 3 \\ 4 & 1 & 8 \end{pmatrix}$ usando el método de reducción de Gauss-Jordan.
+
+\emph{Solución:}
+Planteamos la matriz aumentada $[A \mid I_3]$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 2 & 1 & 0 & 0 \\
+2 & -1 & 3 & 0 & 1 & 0 \\
+4 & 1 & 8 & 0 & 0 & 1
+\end{array}\right)
+\]
+Paso 1: Eliminar bajo el primer pivote: $F_2 \leftarrow F_2 - 2F_1$, $F_3 \leftarrow F_3 - 4F_1$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 2 & 1 & 0 & 0 \\
+0 & -1 & -1 & -2 & 1 & 0 \\
+0 & 1 & 0 & -4 & 0 & 1
+\end{array}\right)
+\]
+Paso 2: Intercambiar $F_2$ y $F_3$ para facilitar pivote 1:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 2 & 1 & 0 & 0 \\
+0 & 1 & 0 & -4 & 0 & 1 \\
+0 & -1 & -1 & -2 & 1 & 0
+\end{array}\right)
+\]
+Paso 3: Eliminar $-1$ en la posición $(3,2)$: $F_3 \leftarrow F_3 + F_2$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 2 & 1 & 0 & 0 \\
+0 & 1 & 0 & -4 & 0 & 1 \\
+0 & 0 & -1 & -6 & 1 & 1
+\end{array}\right)
+\]
+Paso 4: Multiplicar $F_3$ por $-1$ para hacer el tercer pivote $+1$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 2 & 1 & 0 & 0 \\
+0 & 1 & 0 & -4 & 0 & 1 \\
+0 & 0 & 1 & 6 & -1 & -1
+\end{array}\right)
+\]
+Paso 5: Eliminar el 2 en la posición $(1,3)$: $F_1 \leftarrow F_1 - 2F_3$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 0 & 1 - 2(6) & 0 - 2(-1) & 0 - 2(-1) \\
+0 & 1 & 0 & -4 & 0 & 1 \\
+0 & 0 & 1 & 6 & -1 & -1
+\end{array}\right) = 
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 0 & -11 & 2 & 2 \\
+0 & 1 & 0 & -4 & 0 & 1 \\
+0 & 0 & 1 & 6 & -1 & -1
+\end{array}\right).
+\]
+Por lo tanto:
+\[
+A^{-1} = \begin{pmatrix} -11 & 2 & 2 \\ -4 & 0 & 1 \\ 6 & -1 & -1 \end{pmatrix}.
+\]
+
+\vspace{0.3cm}
+\textbf{Ejercicio 4.} Dadas $A = \begin{pmatrix} 1 & 2 \\ 0 & 1 \end{pmatrix}$ y $B = \begin{pmatrix} 3 & 1 \\ 2 & 1 \end{pmatrix}$, calcular $AB$, $(AB)^{-1}$, $A^{-1}$, $B^{-1}$ y verificar que $(AB)^{-1} = B^{-1} A^{-1}$.
+
+\emph{Solución:}
+1. Producto $AB$:
+\[
+AB = \begin{pmatrix} 1 & 2 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} 3 & 1 \\ 2 & 1 \end{pmatrix} = \begin{pmatrix} 3+4 & 1+2 \\ 0+2 & 0+1 \end{pmatrix} = \begin{pmatrix} 7 & 3 \\ 2 & 1 \end{pmatrix}.
+\]
+2. Determinante de $AB$: $\Delta = 7(1) - 3(2) = 1$. Inversa de $AB$:
+\[
+(AB)^{-1} = \begin{pmatrix} 1 & -3 \\ -2 & 7 \end{pmatrix}.
+\]
+3. Calculamos $A^{-1}$ y $B^{-1}$ individualmente:
+\[
+\text{det}(A) = 1 \implies A^{-1} = \begin{pmatrix} 1 & -2 \\ 0 & 1 \end{pmatrix}.
+\]
+\[
+\text{det}(B) = 3(1) - 1(2) = 1 \implies B^{-1} = \begin{pmatrix} 1 & -1 \\ -2 & 3 \end{pmatrix}.
+\]
+4. Calculamos $B^{-1} A^{-1}$:
+\[
+B^{-1} A^{-1} = \begin{pmatrix} 1 & -1 \\ -2 & 3 \end{pmatrix} \begin{pmatrix} 1 & -2 \\ 0 & 1 \end{pmatrix} = \begin{pmatrix} 1(1)+0 & 1(-2)-1(1) \\ -2(1)+0 & -2(-2)+3(1) \end{pmatrix} = \begin{pmatrix} 1 & -3 \\ -2 & 7 \end{pmatrix}.
+\]
+Coincide exactamente con $(AB)^{-1}$. Se verifica la propiedad.
+
+\vspace{0.3cm}
+\textbf{Ejercicio 5.} Dada la matriz $A = \begin{pmatrix} 1 & -1 & 3 \\ 2 & 0 & 4 \end{pmatrix}$, hallar $A^T$, $(A^T)^T$, $A A^T$ y comprobar que $A A^T$ es una matriz simétrica.
+
+\emph{Solución:}
+1. Transpuesta $A^T$:
+\[
+A^T = \begin{pmatrix} 1 & 2 \\ -1 & 0 \\ 3 & 4 \end{pmatrix}.
+\]
+2. Transpuesta de la transpuesta:
+\[
+(A^T)^T = \begin{pmatrix} 1 & -1 & 3 \\ 2 & 0 & 4 \end{pmatrix} = A.
+\]
+3. Producto $M = A A^T$:
+\[
+M = \begin{pmatrix} 1 & -1 & 3 \\ 2 & 0 & 4 \end{pmatrix} \begin{pmatrix} 1 & 2 \\ -1 & 0 \\ 3 & 4 \end{pmatrix} = \begin{pmatrix} 1+1+9 & 2+0+12 \\ 2+0+12 & 4+0+16 \end{pmatrix} = \begin{pmatrix} 11 & 14 \\ 14 & 20 \end{pmatrix}.
+\]
+4. Verificación de simetría: $M^T = \begin{pmatrix} 11 & 14 \\ 14 & 20 \end{pmatrix} = M$. En efecto, $M = A A^T$ es simétrica.
+
+\vspace{0.3cm}
+\textbf{Ejercicio 6.} Descomponer la matriz $A = \begin{pmatrix} 2 & 5 \\ 1 & 4 \end{pmatrix}$ en la suma de una matriz simétrica $S$ y una matriz antisimétrica $K$.
+
+\emph{Solución:}
+1. Transpuesta de $A$: $A^T = \begin{pmatrix} 2 & 1 \\ 5 & 4 \end{pmatrix}$.
+2. Matriz simétrica $S = \frac{1}{2}(A + A^T)$:
+\[
+S = \frac{1}{2} \left[ \begin{pmatrix} 2 & 5 \\ 1 & 4 \end{pmatrix} + \begin{pmatrix} 2 & 1 \\ 5 & 4 \end{pmatrix} \right] = \frac{1}{2} \begin{pmatrix} 4 & 6 \\ 6 & 8 \end{pmatrix} = \begin{pmatrix} 2 & 3 \\ 3 & 4 \end{pmatrix}.
+\]
+Notar que $S^T = \begin{pmatrix} 2 & 3 \\ 3 & 4 \end{pmatrix} = S$ (simétrica).
+
+3. Matriz antisimétrica $K = \frac{1}{2}(A - A^T)$:
+\[
+K = \frac{1}{2} \left[ \begin{pmatrix} 2 & 5 \\ 1 & 4 \end{pmatrix} - \begin{pmatrix} 2 & 1 \\ 5 & 4 \end{pmatrix} \right] = \frac{1}{2} \begin{pmatrix} 0 & 4 \\ -4 & 0 \end{pmatrix} = \begin{pmatrix} 0 & 2 \\ -2 & 0 \end{pmatrix}.
+\]
+Notar que $K^T = \begin{pmatrix} 0 & -2 \\ 2 & 0 \end{pmatrix} = -K$ (antisimétrica, diagonal en ceros).
+
+4. Verificación de la suma $S + K$:
+\[
+S + K = \begin{pmatrix} 2 & 3 \\ 3 & 4 \end{pmatrix} + \begin{pmatrix} 0 & 2 \\ -2 & 0 \end{pmatrix} = \begin{pmatrix} 2+0 & 3+2 \\ 3-2 & 4+0 \end{pmatrix} = \begin{pmatrix} 2 & 5 \\ 1 & 4 \end{pmatrix} = A.
+\]
+La descomposición queda demostrada y verificada.
+
+\vspace{0.3cm}
+\textbf{Ejercicio 7.} Dada la matriz $A = \begin{pmatrix} 1 & 2 & 1 \\ 2 & 5 & 4 \\ 1 & 1 & 0 \end{pmatrix}$, calcular la matriz inversa $A^{-1}$ aplicando minuciosamente el método de la matriz identidad $[A \mid I_3] \to [I_3 \mid A^{-1}]$ y verificar explícitamente el producto $A A^{-1} = I_3$.
+
+\emph{Solución:}
+1. Planteamos la matriz aumentada $[A \mid I_3]$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 2 & 1 & 1 & 0 & 0 \\
+2 & 5 & 4 & 0 & 1 & 0 \\
+1 & 1 & 0 & 0 & 0 & 1
+\end{array}\right)
+\]
+
+2. Eliminación bajo el primer pivote: $F_2 \leftarrow F_2 - 2F_1$, $F_3 \leftarrow F_3 - F_1$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 2 & 1 & 1 & 0 & 0 \\
+0 & 1 & 2 & -2 & 1 & 0 \\
+0 & -1 & -1 & -1 & 0 & 1
+\end{array}\right)
+\]
+
+3. Eliminación en la segunda columna: $F_3 \leftarrow F_3 + F_2$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 2 & 1 & 1 & 0 & 0 \\
+0 & 1 & 2 & -2 & 1 & 0 \\
+0 & 0 & 1 & -3 & 1 & 1
+\end{array}\right)
+\]
+
+4. Eliminación hacia arriba usando el pivote de la tercera fila: $F_2 \leftarrow F_2 - 2F_3$, $F_1 \leftarrow F_1 - F_3$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 2 & 0 & 1 - (-3) & 0 - 1 & 0 - 1 \\
+0 & 1 & 0 & -2 - 2(-3) & 1 - 2(1) & 0 - 2(1) \\
+0 & 0 & 1 & -3 & 1 & 1
+\end{array}\right) = 
+\left(\begin{array}{ccc|ccc}
+1 & 2 & 0 & 4 & -1 & -1 \\
+0 & 1 & 0 & 4 & -1 & -2 \\
+0 & 0 & 1 & -3 & 1 & 1
+\end{array}\right)
+\]
+
+5. Eliminación final en la primera fila: $F_1 \leftarrow F_1 - 2F_2$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 0 & 4 - 2(4) & -1 - 2(-1) & -1 - 2(-2) \\
+0 & 1 & 0 & 4 & -1 & -2 \\
+0 & 0 & 1 & -3 & 1 & 1
+\end{array}\right) = 
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 0 & -4 & 1 & 3 \\
+0 & 1 & 0 & 4 & -1 & -2 \\
+0 & 0 & 1 & -3 & 1 & 1
+\end{array}\right)
+\]
+
+Por consiguiente, la matriz inversa obtenida al transformar el lado derecho es:
+\[
+A^{-1} = \begin{pmatrix} -4 & 1 & 3 \\ 4 & -1 & -2 \\ -3 & 1 & 1 \end{pmatrix}.
+\]
+
+6. Verificación explícita $A A^{-1}$:
+\[
+A A^{-1} = \begin{pmatrix} 1 & 2 & 1 \\ 2 & 5 & 4 \\ 1 & 1 & 0 \end{pmatrix} \begin{pmatrix} -4 & 1 & 3 \\ 4 & -1 & -2 \\ -3 & 1 & 1 \end{pmatrix} = \begin{pmatrix} -4+8-3 & 1-2+1 & 3-4+1 \\ -8+20-12 & 2-5+4 & 6-10+4 \\ -4+4+0 & 1-1+0 & 3-2+0 \end{pmatrix} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix} = I_3.
+\]
+
+\vspace{0.3cm}
+\textbf{Ejercicio 8.} Dada la matriz con parámetro $k \in \R$: $A = \begin{pmatrix} 1 & 1 & 1 \\ 1 & k & 2 \\ 2 & 3 & k \end{pmatrix}$:
+a) Determinar para qué valores de $k$ la matriz $A$ es invertible reduciendo $[A \mid I_3]$.
+b) Para $k=0$, hallar la inversa $A^{-1}$ usando la matriz identidad y resolver el sistema $A\vv{x} = \begin{pmatrix} 1 \\ 0 \\ 4 \end{pmatrix}$.
+
+\emph{Solución:}
+a) Aplicamos operaciones elementales a $[A \mid I_3]$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 1 & 1 & 0 & 0 \\
+1 & k & 2 & 0 & 1 & 0 \\
+2 & 3 & k & 0 & 0 & 1
+\end{array}\right) \xrightarrow{F_2-F_1, F_3-2F_1}
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 1 & 1 & 0 & 0 \\
+0 & k-1 & 1 & -1 & 1 & 0 \\
+0 & 1 & k-2 & -2 & 0 & 1
+\end{array}\right)
+\]
+Intercambiando $F_2 \leftrightarrow F_3$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 1 & 1 & 0 & 0 \\
+0 & 1 & k-2 & -2 & 0 & 1 \\
+0 & k-1 & 1 & -1 & 1 & 0
+\end{array}\right) \xrightarrow{F_3 - (k-1)F_2}
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 1 & 1 & 0 & 0 \\
+0 & 1 & k-2 & -2 & 0 & 1 \\
+0 & 0 & 1 - (k-1)(k-2) & \ast & \ast & \ast
+\end{array}\right)
+\]
+El elemento de la diagonal en la tercera fila es $1 - (k^2 - 3k + 2) = -k^2 + 3k - 1$.
+Para que la matriz se pueda reducir a la identidad $I_3$, este elemento no debe ser cero, es decir:
+\[
+-k^2 + 3k - 1 \neq 0 \iff k^2 - 3k + 1 \neq 0 \implies k \neq \frac{3 \pm \sqrt{5}}{2}.
+\]
+Por tanto, $A$ es invertible para todo $k \in \R \setminus \left\{ \frac{3 + \sqrt{5}}{2}, \frac{3 - \sqrt{5}}{2} \right\}$.
+
+b) Para $k=0$, la matriz es $A = \begin{pmatrix} 1 & 1 & 1 \\ 1 & 0 & 2 \\ 2 & 3 & 0 \end{pmatrix}$.
+Planteamos $[A \mid I_3]$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 1 & 1 & 0 & 0 \\
+1 & 0 & 2 & 0 & 1 & 0 \\
+2 & 3 & 0 & 0 & 0 & 1
+\end{array}\right) \xrightarrow{F_2-F_1, F_3-2F_1}
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 1 & 1 & 0 & 0 \\
+0 & -1 & 1 & -1 & 1 & 0 \\
+0 & 1 & -2 & -2 & 0 & 1
+\end{array}\right)
+\]
+Multiplicando $F_2 \leftarrow -F_2$ y luego $F_3 \leftarrow F_3 - F_2$:
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 1 & 1 & 0 & 0 \\
+0 & 1 & -1 & 1 & -1 & 0 \\
+0 & 0 & -1 & -3 & 1 & 1
+\end{array}\right) \xrightarrow{-F_3}
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 1 & 1 & 0 & 0 \\
+0 & 1 & -1 & 1 & -1 & 0 \\
+0 & 0 & 1 & 3 & -1 & -1
+\end{array}\right)
+\]
+Eliminando ceros hacia arriba ($F_2 \leftarrow F_2 + F_3$, $F_1 \leftarrow F_1 - F_3$):
+\[
+\left(\begin{array}{ccc|ccc}
+1 & 1 & 0 & -2 & 1 & 1 \\
+0 & 1 & 0 & 4 & -2 & -1 \\
+0 & 0 & 1 & 3 & -1 & -1
+\end{array}\right) \xrightarrow{F_1 - F_2}
+\left(\begin{array}{ccc|ccc}
+1 & 0 & 0 & -6 & 3 & 2 \\
+0 & 1 & 0 & 4 & -2 & -1 \\
+0 & 0 & 1 & 3 & -1 & -1
+\end{array}\right)
+\]
+Por lo tanto: $A^{-1} = \begin{pmatrix} -6 & 3 & 2 \\ 4 & -2 & -1 \\ 3 & -1 & -1 \end{pmatrix}$.
+
+Solución del sistema $A\vv{x} = \begin{pmatrix} 1 \\ 0 \\ 4 \end{pmatrix}$:
+\[
+\vv{x} = A^{-1} \vv{b} = \begin{pmatrix} -6 & 3 & 2 \\ 4 & -2 & -1 \\ 3 & -1 & -1 \end{pmatrix} \begin{pmatrix} 1 \\ 0 \\ 4 \end{pmatrix} = \begin{pmatrix} -6(1) + 0 + 2(4) \\ 4(1) + 0 - 1(4) \\ 3(1) + 0 - 1(4) \end{pmatrix} = \begin{pmatrix} 2 \\ 0 \\ -1 \end{pmatrix}.
+\]
+
+\vspace{0.3cm}
+\textbf{Ejercicio 9.} Resolver la ecuación matricial $A X B = C$ para la matriz incógnita $X$, dadas:
+\[
+A = \begin{pmatrix} 2 & 1 \\ 1 & 1 \end{pmatrix}, \qquad B = \begin{pmatrix} 1 & 3 \\ 0 & 1 \end{pmatrix}, \qquad C = \begin{pmatrix} 3 & 5 \\ 2 & 4 \end{pmatrix}.
+\]
+
+\emph{Solución:}
+Puesto que $A$ y $B$ son matrices cuadradas invertibles, despejamos la incógnita $X$ multiplicando por $A^{-1}$ a la izquierda y por $B^{-1}$ a la derecha:
+\[
+A^{-1} (A X B) B^{-1} = A^{-1} C B^{-1} \implies (A^{-1} A) X (B B^{-1}) = A^{-1} C B^{-1} \implies I_2 X I_2 = A^{-1} C B^{-1} \implies X = A^{-1} C B^{-1}.
+\]
+
+1. Calculamos $A^{-1}$ y $B^{-1}$ usando la fórmula $2\times 2$:
+\[
+\det(A) = 2(1) - 1(1) = 1 \implies A^{-1} = \begin{pmatrix} 1 & -1 \\ -1 & 2 \end{pmatrix}.
+\]
+\[
+\det(B) = 1(1) - 3(0) = 1 \implies B^{-1} = \begin{pmatrix} 1 & -3 \\ 0 & 1 \end{pmatrix}.
+\]
+
+2. Calculamos el producto intermedio $Y = A^{-1} C$:
+\[
+Y = \begin{pmatrix} 1 & -1 \\ -1 & 2 \end{pmatrix} \begin{pmatrix} 3 & 5 \\ 2 & 4 \end{pmatrix} = \begin{pmatrix} 3-2 & 5-4 \\ -3+4 & -5+8 \end{pmatrix} = \begin{pmatrix} 1 & 1 \\ 1 & 3 \end{pmatrix}.
+\]
+
+3. Calculamos $X = Y B^{-1}$:
+\[
+X = \begin{pmatrix} 1 & 1 \\ 1 & 3 \end{pmatrix} \begin{pmatrix} 1 & -3 \\ 0 & 1 \end{pmatrix} = \begin{pmatrix} 1 & -3+1 \\ 1 & -3+3 \end{pmatrix} = \begin{pmatrix} 1 & -2 \\ 1 & 0 \end{pmatrix}.
+\]
+
+4. Verificación $A X B$:
+\[
+A X B = \begin{pmatrix} 2 & 1 \\ 1 & 1 \end{pmatrix} \begin{pmatrix} 1 & -2 \\ 1 & 0 \end{pmatrix} \begin{pmatrix} 1 & 3 \\ 0 & 1 \end{pmatrix} = \begin{pmatrix} 3 & -4 \\ 2 & -2 \end{pmatrix} \begin{pmatrix} 1 & 3 \\ 0 & 1 \end{pmatrix} = \begin{pmatrix} 3 & 9-4 \\ 2 & 6-2 \end{pmatrix} = \begin{pmatrix} 3 & 5 \\ 2 & 4 \end{pmatrix} = C.
+\]
+
+\vspace{0.3cm}
+\textbf{Ejercicio 10.} En un proceso de ingeniería química, 3 tanques interactúan transfiriendo solución salina. El balance de masa en estado estacionario se rige por el sistema $M \vv{c} = \vv{s}$, donde la matriz de acoplamiento $M$ y el vector de concentraciones $\vv{c}$ (en g/L) cumplen:
+\[
+M = \begin{pmatrix} 3 & -1 & 0 \\ -1 & 4 & -2 \\ 0 & -2 & 3 \end{pmatrix}.
+\]
+a) Hallar la matriz de respuesta $M^{-1}$ mediante la reducción $[M \mid I_3] \to [I_3 \mid M^{-1}]$.
+b) Calcular las concentraciones $\vv{c}$ para una tasa de alimentación $\vv{s}_1 = \begin{pmatrix} 10 \\ 0 \\ 5 \end{pmatrix}$ g/(L$\cdot$min).
+c) Si la alimentación cambia a $\vv{s}_2 = \begin{pmatrix} 0 \\ 15 \\ 10 \end{pmatrix}$ g/(L$\cdot$min), reutilizar la matriz inversa $M^{-1}$ para determinar la nueva respuesta sin resolver el sistema de nuevo.
+
+\emph{Solución:}
+a) Planteamos la matriz aumentada $[M \mid I_3]$:
+\[
+\left(\begin{array}{ccc|ccc}
+3 & -1 & 0 & 1 & 0 & 0 \\
+-1 & 4 & -2 & 0 & 1 & 0 \\
+0 & -2 & 3 & 0 & 0 & 1
+\end{array}\right)
+\]
+Multiplicamos la primera fila por 3 antes de sumar $F_2 \leftarrow 3F_2 + F_1$:
+\[
+\left(\begin{array}{ccc|ccc}
+3 & -1 & 0 & 1 & 0 & 0 \\
+0 & 11 & -6 & 1 & 3 & 0 \\
+0 & -2 & 3 & 0 & 0 & 1
+\end{array}\right)
+\]
+Hacemos $F_3 \leftarrow 11F_3 + 2F_2$:
+\[
+\left(\begin{array}{ccc|ccc}
+3 & -1 & 0 & 1 & 0 & 0 \\
+0 & 11 & -6 & 1 & 3 & 0 \\
+0 & 0 & 21 & 2 & 6 & 11
+\end{array}\right)
+\]
+Eliminamos ceros hacia arriba: $F_2 \leftarrow 7F_2 + 2F_3$:
+\[
+7(11) = 77 \implies \left(\begin{array}{ccc|ccc}
+3 & -1 & 0 & 1 & 0 & 0 \\
+0 & 77 & 0 & 7(1)+2(2) & 7(3)+2(6) & 7(0)+2(11) \\
+0 & 0 & 21 & 2 & 6 & 11
+\end{array}\right) = \left(\begin{array}{ccc|ccc}
+3 & -1 & 0 & 1 & 0 & 0 \\
+0 & 77 & 0 & 11 & 33 & 22 \\
+0 & 0 & 21 & 2 & 6 & 11
+\end{array}\right)
+\]
+Dividiendo $F_2 \leftarrow F_2 / 11$:
+\[
+\left(\begin{array}{ccc|ccc}
+3 & -1 & 0 & 1 & 0 & 0 \\
+0 & 7 & 0 & 1 & 3 & 2 \\
+0 & 0 & 21 & 2 & 6 & 11
+\end{array}\right)
+\]
+Hacemos $F_1 \leftarrow 7F_1 + F_2$:
+\[
+\left(\begin{array}{ccc|ccc}
+21 & 0 & 0 & 7(1)+1 & 7(0)+3 & 7(0)+2 \\
+0 & 7 & 0 & 1 & 3 & 2 \\
+0 & 0 & 21 & 2 & 6 & 11
+\end{array}\right) = \left(\begin{array}{ccc|ccc}
+21 & 0 & 0 & 8 & 3 & 2 \\
+0 & 7 & 0 & 1 & 3 & 2 \\
+0 & 0 & 21 & 2 & 6 & 11
+\end{array}\right)
+\]
+Normalizando las filas para obtener la identidad $I_3$ a la izquierda:
+\[
+M^{-1} = \frac{1}{21} \begin{pmatrix} 8 & 3 & 2 \\ 3 & 9 & 6 \\ 2 & 6 & 11 \end{pmatrix}.
+\]
+
+b) Para $\vv{s}_1 = \begin{pmatrix} 10 \\ 0 \\ 5 \end{pmatrix}$:
+\[
+\vv{c}_1 = M^{-1}\vv{s}_1 = \frac{1}{21} \begin{pmatrix} 8(10)+3(0)+2(5) \\ 3(10)+9(0)+6(5) \\ 2(10)+6(0)+11(5) \end{pmatrix} = \frac{1}{21} \begin{pmatrix} 90 \\ 60 \\ 75 \end{pmatrix} = \begin{pmatrix} 30/7 \\ 20/7 \\ 25/7 \end{pmatrix} \approx \begin{pmatrix} 4.29 \\ 2.86 \\ 3.57 \end{pmatrix} \text{ g/L}.
+\]
+
+c) Para $\vv{s}_2 = \begin{pmatrix} 0 \\ 15 \\ 10 \end{pmatrix}$, multiplicando directamente por $M^{-1}$:
+\[
+\vv{c}_2 = M^{-1}\vv{s}_2 = \frac{1}{21} \begin{pmatrix} 8(0)+3(15)+2(10) \\ 3(0)+9(15)+6(10) \\ 2(0)+6(15)+11(10) \end{pmatrix} = \frac{1}{21} \begin{pmatrix} 65 \\ 195 \\ 200 \end{pmatrix} \approx \begin{pmatrix} 3.10 \\ 9.29 \\ 9.52 \end{pmatrix} \text{ g/L}.
+\]
+
+\end{document}

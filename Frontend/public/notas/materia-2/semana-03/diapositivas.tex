@@ -1,0 +1,154 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\setbeamercolor{structure}{fg=unicaucaverde}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=cstyle}
+
+\title[Semana 3: Funciones]{Funciones y modularidad}
+\subtitle{Programación --- Semana 3 de 16}
+\author{Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Semana 3: dónde estamos}
+  \begin{itemize}
+    \item Continuación de Fundamentos de programación en C.
+    \item Subtemas 3.1--3.2 --- RA3.1, RA3.2.
+    \item 4 horas: funciones y diseño descendente, luego paso por valor y ámbito.
+  \end{itemize}
+  \tableofcontents
+\end{frame}
+
+\section{Funciones}
+
+\begin{frame}{¿Qué es una función?}
+  \begin{itemize}
+    \item Bloque de código con nombre, reutilizable.
+    \item Puede recibir \textbf{parámetros} y devolver un \textbf{valor de retorno}.
+    \item \textbf{Diseño descendente}: dividir un problema grande en subproblemas, cada uno
+          resuelto por su propia función.
+  \end{itemize}
+  \begin{block}{Ventajas}
+    Reutilización, legibilidad, mantenibilidad, prueba independiente.
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Prototipo y definición}
+\begin{lstlisting}
+double areaCirculo(double radio);   // prototipo
+
+int main(void) {
+    double area = areaCirculo(3.0);
+    printf("Area = %.2f\n", area);
+    return 0;
+}
+
+double areaCirculo(double radio) {  // definicion
+    return 3.14159 * radio * radio;
+}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Funciones \texttt{void}}
+\begin{lstlisting}
+void imprimirTabla(int n) {
+    for (int i = 1; i <= 10; i++) {
+        printf("%d x %d = %d\n", n, i, n * i);
+    }
+}
+\end{lstlisting}
+  \begin{itemize}
+    \item No devuelve ningún valor: se usa para \emph{hacer algo}, no para \emph{calcular algo}.
+    \item Sin \texttt{return valor;} (a lo sumo \texttt{return;} vacío).
+  \end{itemize}
+  \vfill
+  \textbf{Taller (hora 2):} \texttt{areaCirculo}, \texttt{esPar}, \texttt{maximo},
+  \texttt{imprimirTabla}.
+\end{frame}
+
+\section{Paso por valor y ámbito}
+
+\begin{frame}[fragile]{Paso de parámetros por valor}
+\begin{lstlisting}
+void incrementar(int x) {
+    x = x + 1;   // modifica solo la copia local
+}
+
+int main(void) {
+    int numero = 5;
+    incrementar(numero);
+    printf("%d\n", numero);   // imprime 5, NO 6
+    return 0;
+}
+\end{lstlisting}
+  \begin{alertblock}{Clave}
+    El parámetro recibe una \textbf{copia} del argumento. Modificarlo no afecta la variable
+    original del llamador.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{Ámbito: variables locales}
+  \begin{itemize}
+    \item Declaradas \emph{dentro} de una función (incluidos sus parámetros).
+    \item Solo existen mientras la función se ejecuta.
+    \item Dos funciones pueden tener variables locales con el mismo nombre sin interferir.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ámbito: variables globales}
+\begin{lstlisting}
+int contadorEventos = 0;   // global
+
+void registrarEvento(void) {
+    contadorEventos++;     // misma variable para todas las funciones
+}
+
+int main(void) {
+    registrarEvento();
+    registrarEvento();
+    printf("%d\n", contadorEventos);   // imprime 2
+    return 0;
+}
+\end{lstlisting}
+  \begin{alertblock}{Cuidado}
+    Útiles cuando de verdad hay que compartir estado, pero abusar de ellas dificulta depurar:
+    preferir parámetros y valores de retorno.
+  \end{alertblock}
+  \vfill
+  \textbf{Taller (hora 4):} programa modular con variable global compartida.
+\end{frame}
+
+\begin{frame}{Cierre de la semana}
+  \begin{itemize}
+    \item RA3.1: funciones, prototipo/definición, \texttt{void}, diseño descendente.
+    \item RA3.2: paso por valor, ámbito local vs. global.
+    \item Taller calificado al cierre de la Hora 4.
+  \end{itemize}
+\end{frame}
+
+\end{document}

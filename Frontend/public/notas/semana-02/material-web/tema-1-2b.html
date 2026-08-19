@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.2b Sistemas equivalentes y clasificación</title>
+<link rel="stylesheet" href="css/estilo.css">
+<script>
+  window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>1.2b Sistemas equivalentes y clasificación</h1>
+    <p class="subtitulo">Semana 2 · Unidad 1 · Álgebra Lineal para Ingeniería — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-2b.html">1.2b Sistemas equivalentes</a></li>
+    <li><a href="tema-1-3.html">1.3 Gauss-Jordan</a></li>
+    <li><a href="tema-1-4.html">1.4 Sistemas homogéneos</a></li>
+    <li><a href="ejercicios-resueltos.html">Ejercicios resueltos</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Sistemas equivalentes</span>
+  Dos sistemas de ecuaciones lineales son <em>equivalentes</em> si tienen exactamente el mismo
+  conjunto de soluciones. Que dos sistemas sean equivalentes <strong>no</strong> significa que
+  sean iguales: pueden tener ecuaciones distintas y, sin embargo, toda solución de uno ser
+  solución del otro.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Teorema — Las operaciones elementales de fila producen sistemas equivalentes</span>
+  Cada una de las tres operaciones elementales de fila aplicada a la matriz aumentada
+  \([A\mid\mathbf{b}]\) produce la matriz aumentada de un sistema equivalente al original:
+  <ol>
+    <li>Intercambiar dos filas (equivale a reordenar ecuaciones).</li>
+    <li>Multiplicar una fila por un escalar \(c\neq 0\) (equivale a multiplicar ambos lados de
+        una ecuación por \(c\)).</li>
+    <li>Sumar a una fila un múltiplo escalar de otra (equivale a reemplazar una ecuación por su
+        suma con un múltiplo de otra).</li>
+  </ol>
+  Por tanto, el sistema obtenido al final del algoritmo de Gauss-Jordan tiene el mismo conjunto
+  solución que el sistema original.
+  <p><strong>Justificación.</strong> Cada operación es <em>reversible</em>: se puede deshacer con
+  otra operación del mismo tipo. Como cada paso preserva el conjunto solución y se puede volver
+  al sistema anterior, los dos sistemas tienen exactamente las mismas soluciones, es decir, son
+  equivalentes.</p>
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Sistema consistente e inconsistente</span>
+  <ul>
+    <li>Un sistema es <em>consistente</em> si tiene <strong>al menos una solución</strong> (puede
+        ser única o infinitas).</li>
+    <li>Un sistema es <em>inconsistente</em> si <strong>no tiene ninguna solución</strong>.</li>
+  </ul>
+  La inconsistencia se detecta en la forma escalonada: existe una fila del tipo
+  \([\,0\;\cdots\;0\mid c\,]\) con \(c\neq 0\), que representa la ecuación \(0=c\), una
+  contradicción.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Detectar una inconsistencia</span>
+  El sistema
+  \[
+    x_1 + x_2 = 3, \qquad 2x_1 + 2x_2 = 7
+  \]
+  es inconsistente. Al reducir la matriz aumentada:
+  \[
+    \left(\begin{array}{cc|c}1&1&3\\2&2&7\end{array}\right)
+    \xrightarrow{F_2-2F_1}
+    \left(\begin{array}{cc|c}1&1&3\\0&0&1\end{array}\right)
+  \]
+  La segunda fila dice \(0=1\): contradicción. El sistema no tiene solución.
+</div>
+
+<h2>Los tres casos posibles</h2>
+<p>
+  Para cualquier número de ecuaciones e incógnitas, un sistema lineal siempre cae en exactamente
+  uno de estos tres casos. Los siguientes tres ejemplos muestran cada caso de forma completa,
+  reduciendo la matriz aumentada hasta su forma escalonada (o escalonada reducida).
+</p>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Caso 1 — Sistema inconsistente</span>
+  \[
+    x_1 + x_2 = 3, \qquad 2x_1 + 2x_2 = 7.
+  \]
+  Reducción de la matriz aumentada:
+  \[
+    \left(\begin{array}{cc|c}1&1&3\\2&2&7\end{array}\right)
+    \xrightarrow{F_2 - 2F_1}
+    \left(\begin{array}{cc|c}1&1&3\\0&0&1\end{array}\right).
+  \]
+  La fila \([0\ 0\mid 1]\) representa la ecuación \(0=1\): <strong>contradicción</strong>. El
+  sistema es <strong>inconsistente</strong>; no tiene solución. (Geométricamente, las dos rectas
+  son paralelas.)
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Caso 2 — Solución única</span>
+  \[
+    x_1 + x_2 + x_3 = 6,\quad 2x_1 - x_2 + x_3 = 3,\quad x_1 + 2x_2 - x_3 = 2.
+  \]
+  Reducción completa (RREF):
+  \[
+    \left(\begin{array}{ccc|c}1&1&1&6\\2&-1&1&3\\1&2&-1&2\end{array}\right)
+    \xrightarrow{F_2-2F_1,\;F_3-F_1}
+    \left(\begin{array}{ccc|c}1&1&1&6\\0&-3&-1&-9\\0&1&-2&-4\end{array}\right)
+  \]
+  \[
+    \xrightarrow{F_2\leftrightarrow F_3}
+    \left(\begin{array}{ccc|c}1&1&1&6\\0&1&-2&-4\\0&-3&-1&-9\end{array}\right)
+    \xrightarrow{F_3+3F_2}
+    \left(\begin{array}{ccc|c}1&1&1&6\\0&1&-2&-4\\0&0&-7&-21\end{array}\right)
+  \]
+  \[
+    \xrightarrow{-\tfrac{1}{7}F_3}
+    \left(\begin{array}{ccc|c}1&1&1&6\\0&1&-2&-4\\0&0&1&3\end{array}\right)
+    \xrightarrow{\substack{F_2+2F_3\\F_1-F_3}}
+    \left(\begin{array}{ccc|c}1&1&0&3\\0&1&0&2\\0&0&1&3\end{array}\right)
+    \xrightarrow{F_1-F_2}
+    \left(\begin{array}{ccc|c}1&0&0&1\\0&1&0&2\\0&0&1&3\end{array}\right).
+  \]
+  Rango \(r=3=n\): el sistema es <strong>consistente con solución única</strong>
+  \[
+    x_1=1,\quad x_2=2,\quad x_3=3.
+  \]
+  <div class="resultado">Solución única: \((x_1,x_2,x_3)=(1,2,3)\).</div>
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Caso 3 — Infinitas soluciones</span>
+  \[
+    x_1 + 2x_2 - x_3 = 0, \qquad 2x_1 + 4x_2 - 2x_3 = 0.
+  \]
+  (La segunda ecuación es el doble de la primera.) Reducción:
+  \[
+    \left(\begin{array}{ccc|c}1&2&-1&0\\2&4&-2&0\end{array}\right)
+    \xrightarrow{F_2-2F_1}
+    \left(\begin{array}{ccc|c}1&2&-1&0\\0&0&0&0\end{array}\right).
+  \]
+  Rango \(r=1 < n=3\): hay \(n-r=2\) variables libres. Tomando \(x_2=s\) y \(x_3=t\) libres:
+  \[
+    x_1 = -2s + t.
+  \]
+  El conjunto solución (familia de infinitas soluciones) es
+  \[
+    \{(-2s+t,\;s,\;t)\mid s,t\in\mathbb{R}\}.
+  \]
+  El vector \((0,0,0)\) corresponde a \(s=t=0\); p. ej., \((1,0,1)\) se obtiene con \(s=0,\,t=1\).
+  <div class="resultado">Conjunto solución infinito, parametrizado por \(s\) y \(t\).</div>
+</div>
+
+<div class="paginacion">
+  <a href="index.html">&larr; Inicio</a>
+  <a href="tema-1-3.html">1.3 <em>m</em> ecuaciones con <em>n</em> incógnitas &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-02/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

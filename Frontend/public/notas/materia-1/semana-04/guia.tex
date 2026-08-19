@@ -1,0 +1,134 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\newcommand{\vv}[1]{\mathbf{#1}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{\textcolor{unicaucaverde}{\Large Guía de Aprendizaje — Semana 4}\\[4pt]
+  \large Matrices, matriz inversa y transpuesta}
+\author{Álgebra Lineal para Ingeniería --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{tabular}{|>{\bfseries}p{4cm}|p{10cm}|}
+\hline
+Semana & 4 de 16 \\ \hline
+Unidad & 2 --- Vectores y matrices (Grossman, cap. 2) \\ \hline
+Subtemas & 2.3 (matrices y sistemas), 2.4 (inversa), 2.5 (transpuesta) \\
+\hline
+Horas de clase & 4 \\ \hline
+Resultado de aprendizaje & RA2 (parte 2 de 3; ver \texttt{guia1/guia.tex}) \\ \hline
+\end{tabular}
+\end{center}
+
+\section*{Relevancia para ingeniería}
+
+En ingeniería, la matriz de coeficientes $A$ representa la estructura de un sistema dinámico, red
+o circuito, mientras que el vector de entrada o excitación $\vv{b}$ produce la respuesta $\vv{x}$.
+Resolver el sistema mediante la matriz inversa $\vv{x}=A^{-1}\vv{b}$ permite calcular de forma directa
+la respuesta frente a múltiples estados de entrada sin necesidad de rehacer la eliminación gaussiana
+cada vez, lo cual es vital en control automático, análisis estructural y procesamiento de señales.
+Por su parte, la operación transpuesta $A^T$ aparece de forma natural al analizar la energía de un
+sistema, en mínimos cuadrados, en la transformación de marcos de referencia (gráfica por computador y
+robótica) y en el estudio de matrices simétricas (que caracterizan tensores de esfuerzo y matrices de
+covarianza).
+
+\section{Objetivo de la semana}
+
+Expresar sistemas de ecuaciones lineales en forma matricial $A\vv{x}=\vv{b}$, calcular la inversa de
+matrices cuadradas mediante el método de Gauss-Jordan y fórmulas explícitas, resolver sistemas usando
+la matriz inversa, y aplicar las propiedades algebraicas de la transpuesta y las matrices simétricas.
+
+\section{Resultados de aprendizaje de la semana}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item[\textbf{RA2.3.}] Representar un sistema de $m$ ecuaciones con $n$ incógnitas en forma
+        matricial $A\vv{x}=\vv{b}$ e interpretar el papel del rango y la consistencia en términos
+        de operaciones matriciales.
+  \item[\textbf{RA2.4.}] Determinar si una matriz cuadrada es invertible (no singular), calcular su
+        inversa $A^{-1}$ mediante Gauss-Jordan $[A|I]\to [I|A^{-1}]$ o la fórmula $2\times 2$, y
+        resolver sistemas de ecuaciones mediante $\vv{x}=A^{-1}\vv{b}$.
+  \item[\textbf{RA2.5.}] Calcular la transpuesta $A^T$ de cualquier matriz, identificar matrices
+        simétricas ($A^T=A$) y antisimétricas ($A^T=-A$), y aplicar las propiedades algebraicas
+        de la transpuesta, incluyendo $(AB)^T = B^T A^T$ y $(A^T)^{-1} = (A^{-1})^T$.
+\end{itemize}
+
+\section{Contenidos}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{2.3.} Matrices y sistemas de ecuaciones lineales: notación matricial $A\vv{x}=\vv{b}$,
+        matriz de coeficientes y matriz aumentada.
+  \item \textbf{2.4.} Inversa de una matriz cuadrada: definición, condición de invertibilidad,
+        algoritmo de Gauss-Jordan $[A|I]\to [I|A^{-1}]$, inversa de matriz $2\times 2$, propiedades
+        y solución de sistemas $A\vv{x}=\vv{b}$.
+  \item \textbf{2.5.} Transpuesta de una matriz: definición, matrices simétricas y antisimétricas,
+        propiedades algebraicas $(AB)^T=B^T A^T$ y relación entre transposición e inversión.
+\end{itemize}
+
+\section{Plan de la sesión (4 horas)}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item[\textbf{Hora 1.}] Matrices y sistemas de ecuaciones lineales: forma matricial $A\vv{x}=\vv{b}$,
+        interpretación de ecuaciones como producto de vectores fila por vector incógnita.
+  \item[\textbf{Hora 2.}] Concepto de matriz inversa $A^{-1}$; matrices singulares y no singulares;
+        fórmula para inversa de matriz $2\times 2$; algoritmo $[A|I]\to [I|A^{-1}]$ mediante
+        operaciones elementales de fila.
+  \item[\textbf{Hora 3.}] Propiedades de la matriz inversa: $(AB)^{-1}=B^{-1}A^{-1}$, $(c A)^{-1}=c^{-1}A^{-1}$;
+        solución directa de sistemas de ecuaciones $\vv{x}=A^{-1}\vv{b}$ cuando $A$ es invertible.
+  \item[\textbf{Hora 4.}] Transpuesta de una matriz $A^T$; propiedades del producto $(AB)^T=B^TA^T$;
+        matrices simétricas y antisimétricas; taller práctico con los 10 ejercicios resueltos de \texttt{notas.tex}.
+\end{enumerate}
+
+\section{Actividades}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{En clase}: taller en grupo durante la Hora 4 resolviendo ejercicios de inversión y
+        transposición de matrices.
+  \item \textbf{Trabajo autónomo}: estudio del material de \texttt{notas.tex} y resolución de la lista
+        de ejercicios previa a la Semana 5.
+\end{itemize}
+
+\section{Material de apoyo}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \texttt{notas.tex} --- teoría detallada de 2.3, 2.4 y 2.5, con demostraciones, ejemplos y
+        10 ejercicios resueltos paso a paso.
+  \item \texttt{diapositivas.tex} --- presentación sintética para la clase magistral.
+  \item \texttt{material-web/} --- plataforma interactiva con calculadoras web de matriz inversa y
+        transpuesta.
+\end{itemize}
+
+\section{Evaluación de la semana}
+
+Control formativo corto al inicio de la Semana 5 (10 minutos): dada una matriz $2\times 2$ o $3\times 3$,
+calcular su inversa (si existe), resolver un sistema $A\vv{x}=\vv{b}$ usando $A^{-1}$, y hallar $A^T$.
+
+\section{Bibliografía de la semana}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Grossman, S. I., Flores Godoy, J. J. \emph{Álgebra lineal}. 7a/8a ed., McGraw-Hill,
+        cap. 2, §2.3--2.5.
+  \item Lay, D. C., Lay, S. R., McDonald, J. J. \emph{Álgebra lineal y sus aplicaciones}. Pearson, cap. 2.
+\end{enumerate}
+
+\end{document}

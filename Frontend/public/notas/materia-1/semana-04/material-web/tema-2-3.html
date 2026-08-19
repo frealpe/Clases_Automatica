@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2.3. Matrices y Sistemas de Ecuaciones Lineales | Álgebra Lineal</title>
+  <link rel="stylesheet" href="css/estilo.css">
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+  <header class="top">
+    <div class="marca">
+      <h1>Álgebra Lineal para Ingeniería</h1>
+      <p class="subtitulo">Semana 4 — Tema 2.3: Matrices y Sistemas de Ecuaciones Lineales</p>
+    </div>
+  </header>
+
+  <nav class="principal">
+    <ul>
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tema-2-3.html">2.3 Matrices y Sistemas</a></li>
+      <li><a href="tema-2-4.html">2.4 Matriz Inversa</a></li>
+      <li><a href="tema-2-5.html">2.5 Transpuesta y Simetría</a></li>
+      <li><a href="ejercicios-resueltos.html">Ejercicios Resueltos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h2>2.3. Matrices y Sistemas de Ecuaciones Lineales</h2>
+
+    <p>Todo sistema de $m$ ecuaciones lineales con $n$ incógnitas de la forma:</p>
+    $$\begin{array}{rcccl}
+    a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n &=& b_1 \\
+    a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n &=& b_2 \\
+    &\vdots& \\
+    a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n &=& b_m
+    \end{array}$$
+
+    <p>se puede escribir en forma matricial compacta como:</p>
+    $$A\mathbf{x} = \mathbf{b}$$
+
+    <div class="caja-destacada">
+      <h4>Componentes del Sistema Matricial</h4>
+      <ul>
+        <li>$A = (a_{ij}) \in \mathbb{R}^{m\times n}$: <strong>Matriz de Coeficientes</strong>.</li>
+        <li>$\mathbf{x} = (x_1, x_2, \dots, x_n)^T \in \mathbb{R}^n$: <strong>Vector de Incógnitas</strong>.</li>
+        <li>$\mathbf{b} = (b_1, b_2, \dots, b_m)^T \in \mathbb{R}^m$: <strong>Vector de Términos Independientes</strong>.</li>
+      </ul>
+    </div>
+
+    <h3>Interpretación como Combinación Lineal de Columnas</h3>
+    <p>El producto $A\mathbf{x}$ equivale a sumar las columnas de $A$ ponderadas por las componentes de $\mathbf{x}$:</p>
+    $$x_1 \mathbf{a}_1 + x_2 \mathbf{a}_2 + \dots + x_n \mathbf{a}_n = \mathbf{b}$$
+
+    <div class="caja-ejemplo">
+      <h4>Ejemplo Ilustrativo</h4>
+      <p>Dado el sistema:</p>
+      $$\begin{cases} 2x_1 + 3x_2 = 7 \\ 4x_1 - x_2 = 0 \end{cases}$$
+      <p>Su representación matricial es:</p>
+      $$\begin{pmatrix} 2 & 3 \\ 4 & -1 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix} 7 \\ 0 \end{pmatrix}$$
+      <p>Y su interpretación en columnas es:</p>
+      $$x_1 \begin{pmatrix} 2 \\ 4 \end{pmatrix} + x_2 \begin{pmatrix} 3 \\ -1 \end{pmatrix} = \begin{pmatrix} 7 \\ 0 \end{pmatrix}$$
+    </div>
+
+    <div style="margin-top: 2rem;">
+      <a href="tema-2-4.html" class="btn-accion" style="text-decoration: none; display: inline-block;">Siguiente: 2.4 Matriz Inversa &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>Álgebra Lineal para Ingeniería — Universidad del Cauca (2026)</p>
+  </footer>
+
+  <script src="js/nav.js"></script>
+</body>
+</html>

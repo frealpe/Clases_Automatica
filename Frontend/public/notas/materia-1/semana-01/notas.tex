@@ -1,0 +1,227 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}[definicion]{Ejemplo}
+\newtheorem{propiedad}[definicion]{Propiedad}
+
+\newcommand{\R}{\mathbb{R}}
+
+\title{\textcolor{unicaucaverde}{\Large Notas de clase --- Semana 1}\\[4pt]
+  \large Sistemas de ecuaciones lineales: introducción y el caso de dos incógnitas}
+\author{Álgebra Lineal para Ingeniería --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Introducción a los sistemas de ecuaciones lineales}
+
+\begin{definicion}[Ecuación lineal]
+Una ecuación lineal en las variables $x_1,\dots,x_n$ es una expresión de la forma
+\[
+  a_1 x_1 + a_2 x_2 + \cdots + a_n x_n = b,
+\]
+donde $a_1,\dots,a_n$ (los \emph{coeficientes}) y $b$ (el \emph{término independiente}) son
+números reales (o complejos) dados. Ninguna variable aparece elevada a una potencia distinta de
+1, ni multiplicada por otra variable, ni dentro de una función no lineal.
+\end{definicion}
+
+\begin{definicion}[Sistema de $m$ ecuaciones lineales con $n$ incógnitas]
+Un sistema de $m$ ecuaciones lineales con $n$ incógnitas $x_1,\dots,x_n$ es un conjunto de $m$
+ecuaciones lineales que deben satisfacerse simultáneamente:
+\[
+\begin{aligned}
+  a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n &= b_1 \\
+  a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n &= b_2 \\
+  &\;\vdots \\
+  a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n &= b_m
+\end{aligned}
+\]
+Los números $a_{ij}$ son los \emph{coeficientes} (fila $i$, columna $j$), y $b_i$ los términos
+independientes. Una \emph{solución} del sistema es una $n$-tupla $(x_1,\dots,x_n)$ que satisface
+las $m$ ecuaciones a la vez. El \emph{conjunto solución} es el conjunto de todas las soluciones.
+\end{definicion}
+
+\begin{definicion}[Sistemas consistentes e inconsistentes]
+Un sistema es \emph{consistente} si tiene al menos una solución, e \emph{inconsistente} si no
+tiene ninguna. Un sistema consistente tiene exactamente una solución (\emph{determinado}) o
+infinitas soluciones (\emph{indeterminado}) --- nunca un número finito mayor que uno; esto se
+demuestra formalmente en la Semana 2, pero ya se observa en el caso $2\times 2$ de la Sección 2.
+\end{definicion}
+
+En ingeniería, cada ecuación del sistema suele representar una ley física o una restricción: una
+ley de Kirchhoff de corrientes en un nodo, una ecuación de equilibrio de fuerzas en un punto de
+una armadura, un balance de materia en una etapa de un proceso. El sistema completo describe el
+estado del sistema físico bajo todas las restricciones simultáneamente.
+
+\begin{ejemplo}
+El sistema
+\[
+\begin{aligned}
+  2x_1 - x_2 + 3x_3 &= 5 \\
+  x_1 + x_2 - x_3 &= 0
+\end{aligned}
+\]
+tiene $m=2$ ecuaciones y $n=3$ incógnitas. La tupla $(1,-1,-2)$ \emph{no} es solución: al
+sustituir en la primera ecuación, $2(1)-(-1)+3(-2) = 2+1-6=-3 \neq 5$. En cambio, $(1,-1,0)$
+tampoco lo es (verificarlo es un ejercicio); encontrar una solución real requiere el método
+sistemático de la Semana 2 (Gauss-Jordan), porque aquí $n>m$ y hay más de una incógnita libre.
+\end{ejemplo}
+
+\section{Dos ecuaciones lineales con dos incógnitas}
+
+\begin{definicion}[Sistema $2\times 2$]
+Un sistema de dos ecuaciones lineales con dos incógnitas $x,y$ tiene la forma
+\[
+\begin{aligned}
+  a_1 x + b_1 y &= c_1 \\
+  a_2 x + b_2 y &= c_2
+\end{aligned}
+\]
+Cada ecuación, si $(a_i,b_i)\neq(0,0)$, es la ecuación cartesiana de una recta en $\R^2$. Resolver
+el sistema es hallar los puntos $(x,y)$ que están en \emph{ambas} rectas a la vez: la intersección.
+\end{definicion}
+
+\begin{propiedad}[Los tres casos]
+Geométricamente, dos rectas en el plano solo pueden relacionarse de tres formas, que corresponden
+exactamente a los tres tipos de sistema:
+\begin{enumerate}[label=(\alph*)]
+  \item \textbf{Rectas secantes} (se cortan en un punto) $\Rightarrow$ \textbf{solución única}.
+  \item \textbf{Rectas paralelas distintas} (misma pendiente, no coinciden) $\Rightarrow$
+        \textbf{sin solución} (sistema inconsistente).
+  \item \textbf{Rectas coincidentes} (la misma recta escrita dos veces, salvo múltiplo escalar)
+        $\Rightarrow$ \textbf{infinitas soluciones} (todos los puntos de la recta).
+\end{enumerate}
+\end{propiedad}
+
+\begin{definicion}[Método de sustitución]
+Se despeja una variable de una ecuación y se sustituye en la otra, reduciendo el sistema a una
+sola ecuación con una incógnita.
+\end{definicion}
+
+\begin{definicion}[Método de eliminación]
+Se multiplican las ecuaciones por constantes adecuadas y se suman (o restan) para cancelar una de
+las variables, reduciendo también a una ecuación con una incógnita. Este método generaliza
+directamente a la eliminación de Gauss-Jordan de la Semana 2.
+\end{definicion}
+
+\begin{ejemplo}[Solución única]
+\[
+\begin{aligned}
+  x + y &= 5 \\
+  x - y &= 1
+\end{aligned}
+\]
+Sumando ambas ecuaciones: $2x = 6 \Rightarrow x=3$; sustituyendo, $y=2$. Solución única: $(3,2)$.
+Las rectas $x+y=5$ y $x-y=1$ tienen pendientes distintas ($-1$ y $1$), así que se cortan en un
+único punto.
+\end{ejemplo}
+
+\begin{ejemplo}[Sin solución]
+\[
+\begin{aligned}
+  2x + y &= 4 \\
+  4x + 2y &= 3
+\end{aligned}
+\]
+La segunda ecuación es el doble de $2x+y$ igualado a $3$ en vez de $8$: mismas pendientes, mismo
+"lado" pero distinto término independiente $\Rightarrow$ rectas paralelas distintas. El sistema
+es inconsistente: no hay $(x,y)$ que satisfaga ambas.
+\end{ejemplo}
+
+\begin{ejemplo}[Infinitas soluciones]
+\[
+\begin{aligned}
+  x - 2y &= 3 \\
+  -2x + 4y &= -6
+\end{aligned}
+\]
+La segunda ecuación es $-2$ veces la primera: es la misma recta. Todo punto de $x-2y=3$ es
+solución; el conjunto solución es $\{(x,y) : x = 3+2y,\; y\in\R\}$, infinito.
+\end{ejemplo}
+
+
+\section{Soluciones de los ejercicios propuestos}
+
+\begin{description}
+
+\item[\textbf{Ejercicio 1.}]
+Forma general de un sistema de 3 ecuaciones ($m=3$) con 4 incógnitas ($n=4$, $x_1, x_2, x_3, x_4$):
+\[
+\begin{aligned}
+  a_{11}x_1 + a_{12}x_2 + a_{13}x_3 + a_{14}x_4 &= b_1 \\
+  a_{21}x_1 + a_{22}x_2 + a_{23}x_3 + a_{24}x_4 &= b_2 \\
+  a_{31}x_1 + a_{32}x_2 + a_{33}x_3 + a_{34}x_4 &= b_3
+\end{aligned}
+\]
+donde $a_{ij} \in \R$ ($i=1,2,3;\; j=1,2,3,4$) son los coeficientes y $b_1, b_2, b_3 \in \R$ los términos independientes.
+
+\item[\textbf{Ejercicio 2.}]
+Para probar si $(x_1,x_2,x_3) = (2,-1,1)$ es solución del sistema:
+\begin{enumerate}[label=(\roman*)]
+  \item Ecuación 1: $x_1+x_2+x_3 = 2 + (-1) + 1 = 2$. Satisface la primera ecuación ($2=2$).
+  \item Ecuación 2: $2x_1-x_2+x_3 = 2(2) - (-1) + 1 = 4 + 1 + 1 = 6$. Satisface la segunda ecuación ($6=6$).
+\end{enumerate}
+\[\boxed{\text{Sí es solución del sistema.}}\]
+
+\item[\textbf{Ejercicio 3.}]
+Simplificando las ecuaciones del circuito:
+\begin{align*}
+  10 = 4I_1 + 2(I_1-I_2) &\implies 6I_1 - 2I_2 = 10 \implies 3I_1 - I_2 = 5 \\
+  0 = 2(I_2-I_1) + 3I_2 &\implies -2I_1 + 5I_2 = 0
+\end{align*}
+Forma estándar:
+\[
+\begin{aligned}
+  3I_1 - I_2 &= 5 \\
+  -2I_1 + 5I_2 &= 0
+\end{aligned}
+\]
+Resolviendo por eliminación: multiplicamos la Ecuación 1 por 5 y sumamos con la Ecuación 2:
+\[
+(15I_1 - 5I_2) + (-2I_1 + 5I_2) = 25 + 0 \implies 13I_1 = 25 \implies I_1 = \frac{25}{13} \text{ A.}
+\]
+Sustituyendo $I_1$ en la Ecuación 2: $5I_2 = 2I_1 \implies 5I_2 = \frac{50}{13} \implies I_2 = \frac{10}{13} \text{ A.}$
+\[\boxed{I_1 = \frac{25}{13}\text{ A},\quad I_2 = \frac{10}{13}\text{ A.}}\]
+
+\item[\textbf{Ejercicio 4.}]
+Sistema $\{3x-y=7,\; x+2y=0\}$.
+De la segunda ecuación: $x = -2y$. Sustituyendo en la primera:
+\[
+3(-2y) - y = 7 \implies -7y = 7 \implies y = -1.
+\]
+Entonces $x = -2(-1) = 2$.
+\[\boxed{\text{Solución única: }(2,-1).\quad \text{Sistema consistente determinado.}}\]
+
+\item[\textbf{Ejercicio 5.}]
+Sistema $\{x+3y=6,\; 2x+6y=10\}$.
+Las pendientes son iguales: $m_1 = -1/3$, $m_2 = -2/6 = -1/3$.
+Comparando razones de coeficientes: $\frac{1}{2} = \frac{3}{6} \neq \frac{6}{10}$.
+Las rectas son paralelas distintas.
+\[\boxed{\text{El sistema \textbf{no tiene solución} (inconsistente).}}\]
+
+\item[\textbf{Ejercicio 6.}]
+Dada la primera ecuación $3x+y=9$, una segunda ecuación que genera infinitas soluciones debe ser un múltiplo no nulo de la primera, por ejemplo multiplicando por $2$:
+\[\boxed{6x + 2y = 18.}\]
+El sistema $\{3x+y=9,\; 6x+2y=18\}$ representa rectas coincidentes y tiene infinitas soluciones.
+
+\end{description}
+
+\end{document}

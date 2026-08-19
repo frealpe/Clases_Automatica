@@ -1,0 +1,219 @@
+:root {
+  --verde: #4338ca;
+  --verde-osc: #362d9e;
+  --verde-claro: #e0f2fe;
+  --gris: #0f172a;
+  --gris-suave: #475569;
+  --borde: #cbd5e1;
+  --ok: #0284c7;
+  --warn: #b34700;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--gris);
+  background: #f8fafc;
+  line-height: 1.55;
+}
+
+header.top {
+  background: linear-gradient(135deg, var(--verde) 0%, var(--ok) 100%);
+  color: white;
+  padding: 1.4rem 1.5rem;
+}
+
+header.top .marca {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+header.top h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+header.top p.subtitulo {
+  margin: 0.3rem 0 0;
+  font-size: 0.95rem;
+  opacity: 0.92;
+}
+
+nav.principal {
+  background: white;
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+nav.principal ul {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+nav.principal a {
+  display: inline-block;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  color: var(--verde);
+  text-decoration: none;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+}
+
+nav.principal a:hover {
+  background: var(--verde-claro);
+}
+
+nav.principal a.activo {
+  background: var(--verde);
+  color: white;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.8rem 1.5rem 4rem;
+}
+
+h2 {
+  color: var(--verde);
+  border-bottom: 2px solid var(--verde-claro);
+  padding-bottom: 0.35rem;
+  margin-top: 2.2rem;
+}
+
+h2:first-of-type { margin-top: 0.5rem; }
+
+h3 {
+  color: var(--verde-osc);
+  margin-top: 1.6rem;
+}
+
+.caja-destacada {
+  background: white;
+  border-left: 4px solid var(--verde);
+  border-radius: 0 8px 8px 0;
+  padding: 1.2rem;
+  margin: 1.2rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.caja-ejemplo {
+  background: #f1f5f9;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 1.2rem;
+  margin: 1.2rem 0;
+}
+
+.caja-ejemplo h4 {
+  margin-top: 0;
+  color: var(--verde-osc);
+}
+
+.fichas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+  margin: 1.5rem 0;
+}
+
+.ficha-card {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 1.2rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ficha-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.ficha-card h3 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.ficha-card a.btn {
+  display: inline-block;
+  margin-top: 0.8rem;
+  padding: 0.45rem 0.9rem;
+  background: var(--verde);
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.ficha-card a.btn:hover {
+  background: var(--verde-osc);
+}
+
+.widget-container {
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+
+.matrix-input-grid {
+  display: inline-grid;
+  gap: 6px;
+  margin: 0.8rem 0;
+}
+
+.matrix-cell {
+  width: 55px;
+  height: 36px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 0.95rem;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+}
+
+.btn-accion {
+  background: var(--verde);
+  color: white;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.btn-accion:hover {
+  background: var(--verde-osc);
+}
+
+.paso-detalle {
+  background: #f8fafc;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.92rem;
+}
+
+footer {
+  text-align: center;
+  color: var(--gris-suave);
+  font-size: 0.85rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--borde);
+}

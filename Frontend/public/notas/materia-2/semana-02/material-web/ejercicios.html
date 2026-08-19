@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicios de refuerzo — Semana 2 (Programación)</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Ejercicios de refuerzo — Semana 2</h1>
+    <p class="subtitulo">Condicionales y ciclos en C · Programación · Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="notas.html">Notas</a></li>
+    <li><a href="ejercicios.html" class="activo">Ejercicios</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<p>
+  Práctica adicional para consolidar RA2.1 y RA2.2, para trabajo autónomo antes de la Semana 3.
+  Cada ejercicio incluye el enunciado y una solución completa en C.
+</p>
+
+<div class="ejercicio">
+  <span class="num">1</span><strong>Serie de Fibonacci.</strong> Escribe un programa que lea un
+  entero n e imprima los primeros n términos de la serie de Fibonacci (0, 1, 1, 2, 3, 5, 8, ...,
+  cada término es la suma de los dos anteriores).
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n, actual = 0, siguiente = 1, temp;
+
+    printf("Cuantos terminos: ");
+    scanf("%d", &amp;n);
+
+    for (int i = 0; i &lt; n; i++) {
+        printf("%d ", actual);
+        temp = actual + siguiente;
+        actual = siguiente;
+        siguiente = temp;
+    }
+    printf("\n");
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">2</span><strong>Suma de dígitos.</strong> Escribe un programa que lea un
+  entero positivo y calcule la suma de sus dígitos, usando <code>%</code> y <code>/</code> dentro
+  de un ciclo <code>while</code>.
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n, suma = 0;
+
+    printf("Ingrese un numero entero positivo: ");
+    scanf("%d", &amp;n);
+
+    while (n &gt; 0) {
+        suma += n % 10;   // ultimo digito
+        n /= 10;          // se elimina el ultimo digito
+    }
+    printf("Suma de digitos = %d\n", suma);
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">3</span><strong>Invertir un número.</strong> Escribe un programa que lea un
+  entero positivo y muestre sus dígitos en orden inverso (por ejemplo, 1234 → 4321).
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n, invertido = 0, digito;
+
+    printf("Ingrese un numero entero positivo: ");
+    scanf("%d", &amp;n);
+
+    while (n &gt; 0) {
+        digito = n % 10;
+        invertido = invertido * 10 + digito;
+        n /= 10;
+    }
+    printf("Numero invertido = %d\n", invertido);
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">4</span><strong>Menú con validación.</strong> Escribe un programa con un menú
+  (1. Sumar, 2. Restar, 3. Salir) usando <code>do-while</code> y <code>switch</code>, que repita
+  el menú hasta que el usuario elija la opción 3.
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int opcion;
+    float a, b;
+
+    do {
+        printf("\n1. Sumar\n2. Restar\n3. Salir\n");
+        printf("Elija una opcion: ");
+        scanf("%d", &amp;opcion);
+
+        switch (opcion) {
+            case 1:
+                printf("Ingrese dos numeros: ");
+                scanf("%f %f", &amp;a, &amp;b);
+                printf("Suma = %.2f\n", a + b);
+                break;
+            case 2:
+                printf("Ingrese dos numeros: ");
+                scanf("%f %f", &amp;a, &amp;b);
+                printf("Resta = %.2f\n", a - b);
+                break;
+            case 3:
+                printf("Saliendo...\n");
+                break;
+            default:
+                printf("Opcion invalida\n");
+        }
+    } while (opcion != 3);
+
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">5</span><strong>Patrón de asteriscos.</strong> Escribe un programa que,
+  usando ciclos anidados, imprima un triángulo de asteriscos de n filas (fila 1 con 1 asterisco,
+  fila 2 con 2, ..., fila n con n).
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n;
+    printf("Numero de filas: ");
+    scanf("%d", &amp;n);
+
+    for (int fila = 1; fila &lt;= n; fila++) {
+        for (int col = 1; col &lt;= fila; col++) {
+            printf("*");
+        }
+        printf("\n");
+    }
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Salida con n=4</span><pre class="codigo"><code>*
+**
+***
+****</code></pre></div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">6</span><strong>Clasificación de un dispositivo IoT.</strong> Un dispositivo
+  de instrumentación reporta si tiene sensor, si tiene actuador, su nivel de batería (0.0 a
+  100.0) y si está conectado a la red. Escribe un programa que lea estos cuatro datos y clasifique
+  el dispositivo combinando condiciones con <code>&amp;&amp;</code>, <code>||</code> y
+  <code>!</code>, según estas reglas (evaluadas en este orden):
+  <ul>
+    <li>Sensor <strong>y</strong> actuador <strong>y</strong> batería &gt;50
+      <strong>y</strong> conectado → <em>IoT avanzado</em>.</li>
+    <li>Sensor <strong>y</strong> batería ≥20 <strong>y</strong> conectado → <em>IoT
+      básico</em>.</li>
+    <li>(Sensor <strong>o</strong> actuador) <strong>y no</strong> conectado → <em>sin
+      conexión</em>.</li>
+    <li>Batería &lt;10 → <em>batería crítica</em>.</li>
+    <li>En cualquier otro caso → <em>no clasificado</em>.</li>
+  </ul>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int tieneSensor, tieneActuador, conectado;
+    float bateria;
+
+    printf("Tiene sensor? (1=si, 0=no): ");
+    scanf("%d", &amp;tieneSensor);
+    printf("Tiene actuador? (1=si, 0=no): ");
+    scanf("%d", &amp;tieneActuador);
+    printf("Nivel de bateria (0.0 a 100.0): ");
+    scanf("%f", &amp;bateria);
+    printf("Conectado a la red? (1=si, 0=no): ");
+    scanf("%d", &amp;conectado);
+
+    if (tieneSensor &amp;&amp; tieneActuador &amp;&amp; bateria &gt; 50 &amp;&amp; conectado) {
+        printf("Clasificacion: IoT avanzado\n");
+    } else if (tieneSensor &amp;&amp; bateria &gt;= 20 &amp;&amp; conectado) {
+        printf("Clasificacion: IoT basico\n");
+    } else if ((tieneSensor || tieneActuador) &amp;&amp; !conectado) {
+        printf("Clasificacion: sin conexion (revisar red)\n");
+    } else if (bateria &lt; 10) {
+        printf("Clasificacion: bateria critica, cargar urgente\n");
+    } else {
+        printf("Clasificacion: no clasificado\n");
+    }
+    return 0;
+}</code></pre>
+</div>
+
+<div class="paginacion">
+  <a href="notas.html">&larr; Notas de clase</a>
+  <a href="cuestionario.html">Cuestionario &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>Programacion/semana-02/</code> — Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

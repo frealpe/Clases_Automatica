@@ -1,0 +1,355 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}[definicion]{Ejemplo}
+\newtheorem{propiedad}[definicion]{Propiedad}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b
+}
+\lstset{style=cstyle}
+
+\title{\textcolor{unicaucaverde}{\Large Notas de clase --- Semana 3}\\[4pt]
+  \large Funciones y modularidad}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Funciones: qué son y por qué modularizar}
+
+\begin{definicion}[Función]
+Una función es un bloque de código con nombre propio que realiza una tarea específica, puede
+recibir datos de entrada (\emph{parámetros}) y puede devolver un resultado (\emph{valor de
+retorno}). Una vez definida, se puede \emph{llamar} (invocar) tantas veces como se necesite desde
+cualquier parte del programa.
+\end{definicion}
+
+\begin{definicion}[Diseño descendente / modularización]
+El \emph{diseño descendente} (\emph{top-down}) consiste en dividir un problema grande en
+subproblemas más pequeños y manejables, y resolver cada uno con su propia función. El programa
+principal (\texttt{main}) queda como una secuencia corta de llamadas a funciones, cada una
+responsable de una sola tarea bien definida.
+\end{definicion}
+
+\begin{propiedad}[Ventajas de modularizar]
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{Reutilización}: una función escrita una vez se puede llamar muchas veces, en el
+        mismo programa o en otros.
+  \item \textbf{Legibilidad}: un \texttt{main} de 5 llamadas a funciones bien nombradas se entiende
+        más rápido que 200 líneas seguidas.
+  \item \textbf{Mantenibilidad}: si hay que corregir cómo se calcula algo, se corrige en un solo
+        lugar (dentro de la función), no en cada copia del cálculo.
+  \item \textbf{Prueba independiente}: cada función se puede probar por separado antes de integrar
+        el programa completo.
+\end{itemize}
+\end{propiedad}
+
+\section{Declaración, definición y prototipo de una función}
+
+\begin{definicion}[Prototipo de función]
+El \emph{prototipo} anuncia al compilador que una función existe, cuál es su nombre, qué tipo de
+dato retorna y qué parámetros recibe (con sus tipos), sin incluir el cuerpo:
+\begin{lstlisting}
+tipo_retorno nombre_funcion(tipo1 param1, tipo2 param2, ...);
+\end{lstlisting}
+Se coloca antes de \texttt{main} (o en un archivo de cabecera) cuando la función se \emph{define}
+después de donde se \emph{llama}.
+\end{definicion}
+
+\begin{definicion}[Definición de función]
+La \emph{definición} incluye el cuerpo completo: las instrucciones que la función ejecuta, y la
+instrucción \texttt{return} que devuelve el resultado (si la función no es \texttt{void}).
+\end{definicion}
+
+\begin{ejemplo}[Función con retorno]
+\begin{lstlisting}
+#include <stdio.h>
+
+double areaCirculo(double radio);   // prototipo
+
+int main(void) {
+    double r = 3.0;
+    double area = areaCirculo(r);   // llamada
+    printf("Area = %.2f\n", area);
+    return 0;
+}
+
+double areaCirculo(double radio) {  // definicion
+    return 3.14159 * radio * radio;
+}
+\end{lstlisting}
+\texttt{main} llama a \texttt{areaCirculo(r)}: el valor de \texttt{r} se copia en el parámetro
+\texttt{radio}, la función calcula y devuelve el área con \texttt{return}, y ese valor queda
+disponible en \texttt{main} dentro de la variable \texttt{area}.
+\end{ejemplo}
+
+\begin{definicion}[Función \texttt{void}]
+Una función declarada con tipo de retorno \texttt{void} no devuelve ningún valor: se usa cuando la
+tarea de la función es \emph{hacer algo} (por ejemplo, imprimir) en vez de \emph{calcular algo}. No
+lleva \texttt{return valor;} (a lo sumo un \texttt{return;} vacío para salir antes de tiempo).
+\end{definicion}
+
+\begin{ejemplo}[Función \texttt{void}]
+\begin{lstlisting}
+#include <stdio.h>
+
+void imprimirTabla(int n);
+
+int main(void) {
+    imprimirTabla(5);
+    return 0;
+}
+
+void imprimirTabla(int n) {
+    for (int i = 1; i <= 10; i++) {
+        printf("%d x %d = %d\n", n, i, n * i);
+    }
+}
+\end{lstlisting}
+\end{ejemplo}
+
+\section{Paso de parámetros por valor}
+
+\begin{propiedad}[Paso por valor]
+En C, cuando se llama a una función, cada parámetro recibe una \emph{copia} del valor del
+argumento pasado. La función trabaja sobre esa copia: cualquier cambio que haga al parámetro
+dentro de su cuerpo \textbf{no se refleja} en la variable original del código que hizo la llamada.
+\end{propiedad}
+
+\begin{ejemplo}[El paso por valor no modifica el original]
+\begin{lstlisting}
+#include <stdio.h>
+
+void incrementar(int x) {
+    x = x + 1;              // modifica solo la copia local x
+    printf("Dentro de incrementar: x = %d\n", x);
+}
+
+int main(void) {
+    int numero = 5;
+    incrementar(numero);
+    printf("Despues de incrementar: numero = %d\n", numero);
+    return 0;
+}
+\end{lstlisting}
+Salida: \texttt{Dentro de incrementar: x = 6}, seguido de \texttt{Despues de incrementar: numero
+= 5}. \texttt{numero} no cambió, porque \texttt{x} es una copia independiente que vive solo
+mientras se ejecuta \texttt{incrementar}. Para que una función SÍ pueda modificar una variable del
+llamador hace falta pasarle su \emph{dirección de memoria} (un puntero) --- tema de la Semana 14.
+\end{ejemplo}
+
+\section{Ámbito de las variables: locales y globales}
+
+\begin{definicion}[Variable local]
+Una variable declarada \emph{dentro} de una función (incluidos sus parámetros) es \emph{local} a
+esa función: solo existe y es visible mientras la función se está ejecutando, y desaparece al
+terminar. Dos funciones distintas pueden tener variables locales con el mismo nombre sin
+interferir entre sí.
+\end{definicion}
+
+\begin{definicion}[Variable global]
+Una variable declarada \emph{fuera} de todas las funciones (normalmente al inicio del archivo) es
+\emph{global}: existe durante toda la ejecución del programa y es visible desde cualquier función
+definida después de ella.
+\end{definicion}
+
+\begin{ejemplo}[Variable global compartida entre funciones]
+\begin{lstlisting}
+#include <stdio.h>
+
+int contadorEventos = 0;   // variable global
+
+void registrarEvento(void) {
+    contadorEventos++;     // modifica la variable global directamente
+}
+
+int main(void) {
+    registrarEvento();
+    registrarEvento();
+    registrarEvento();
+    printf("Eventos registrados: %d\n", contadorEventos);   // imprime 3
+    return 0;
+}
+\end{lstlisting}
+A diferencia de un parámetro, una variable global no se copia: todas las funciones que la usan
+leen y escriben la \emph{misma} variable.
+\end{ejemplo}
+
+\begin{propiedad}[Usar variables globales con cuidado]
+Abusar de variables globales dificulta entender y depurar un programa, porque cualquier función
+puede cambiarlas en cualquier momento (efectos ocultos). La práctica recomendada es preferir
+variables locales y comunicar datos entre funciones explícitamente, por parámetros y valores de
+retorno; reservar las variables globales para casos claramente justificados (como un contador de
+eventos que de verdad debe compartirse entre muchas funciones).
+\end{propiedad}
+
+\section{Ejercicios propuestos}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Escribe una función \texttt{double areaCirculo(double radio)} que calcule y retorne el
+        área de un círculo, y un \texttt{main} que la use para un radio leído por teclado.
+  \item Escribe una función \texttt{int esPar(int n)} que retorne \texttt{1} si \texttt{n} es par y
+        \texttt{0} si es impar, y úsala en un ciclo para clasificar los números del 1 al 10.
+  \item Escribe una función \texttt{void imprimirTabla(int n)} (sin retorno) que imprima la tabla
+        de multiplicar de \texttt{n} del 1 al 10.
+  \item Escribe una función \texttt{int maximo(int a, int b, int c)} que retorne el mayor de tres
+        números enteros.
+  \item Escribe un programa con una variable global \texttt{contadorEventos} y una función
+        \texttt{void registrarEvento(void)} que la incremente; llama a la función 5 veces desde
+        \texttt{main} e imprime el total al final.
+  \item Dado el código
+        \texttt{void incrementar(int x) \{ x = x + 1; \}}, llamado como
+        \texttt{int numero = 10; incrementar(numero);}, explica por qué \texttt{numero} sigue
+        valiendo 10 después de la llamada.
+\end{enumerate}
+
+\section{Soluciones de los ejercicios propuestos}
+
+\begin{description}
+
+\item[\textbf{Ejercicio 1.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+double areaCirculo(double radio);
+
+int main(void) {
+    double r;
+    printf("Ingrese el radio: ");
+    scanf("%lf", &r);
+    printf("Area = %.2f\n", areaCirculo(r));
+    return 0;
+}
+
+double areaCirculo(double radio) {
+    return 3.14159 * radio * radio;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 2.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int esPar(int n);
+
+int main(void) {
+    for (int i = 1; i <= 10; i++) {
+        if (esPar(i)) {
+            printf("%d es par\n", i);
+        } else {
+            printf("%d es impar\n", i);
+        }
+    }
+    return 0;
+}
+
+int esPar(int n) {
+    return (n % 2 == 0) ? 1 : 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 3.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+void imprimirTabla(int n);
+
+int main(void) {
+    int n;
+    printf("Ingrese un numero: ");
+    scanf("%d", &n);
+    imprimirTabla(n);
+    return 0;
+}
+
+void imprimirTabla(int n) {
+    for (int i = 1; i <= 10; i++) {
+        printf("%d x %d = %d\n", n, i, n * i);
+    }
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 4.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int maximo(int a, int b, int c);
+
+int main(void) {
+    printf("El mayor es %d\n", maximo(7, 15, 3));
+    return 0;
+}
+
+int maximo(int a, int b, int c) {
+    int m = a;
+    if (b > m) m = b;
+    if (c > m) m = c;
+    return m;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 5.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int contadorEventos = 0;
+
+void registrarEvento(void);
+
+int main(void) {
+    for (int i = 0; i < 5; i++) {
+        registrarEvento();
+    }
+    printf("Eventos registrados: %d\n", contadorEventos);
+    return 0;
+}
+
+void registrarEvento(void) {
+    contadorEventos++;
+}
+\end{lstlisting}
+Imprime \texttt{Eventos registrados: 5}.
+
+\item[\textbf{Ejercicio 6.}]
+En C, los parámetros se pasan \textbf{por valor}: al llamar a \texttt{incrementar(numero)}, el
+parámetro \texttt{x} recibe una \emph{copia} del valor de \texttt{numero} (10). Dentro de la
+función, \texttt{x = x + 1} modifica esa copia local (\texttt{x} pasa a valer 11), pero
+\texttt{numero}, la variable original en \texttt{main}, es una variable distinta en otra región de
+memoria y no se ve afectada. Al terminar la función, la copia \texttt{x} desaparece y
+\texttt{numero} sigue valiendo 10.
+\[\boxed{\text{\texttt{numero} sigue valiendo 10: la función solo modificó su copia local \texttt{x}.}}\]
+
+\end{description}
+
+\end{document}

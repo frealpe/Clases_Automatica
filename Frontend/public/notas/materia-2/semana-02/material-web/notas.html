@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notas de clase — Semana 2 (Programación)</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Notas de clase — Semana 2</h1>
+    <p class="subtitulo">Estructuras de control: condicionales y ciclos · Programación · Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="notas.html" class="activo">Notas</a></li>
+    <li><a href="ejercicios.html">Ejercicios</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="indice-secciones">
+  <h2>Contenido</h2>
+  <ol>
+    <li><a href="#sec1">Estructuras condicionales: if, if-else, else if, operador ternario</a></li>
+    <li><a href="#sec2">La instrucción switch-case</a></li>
+    <li><a href="#sec3">Ciclos: while, do-while, for</a></li>
+    <li><a href="#sec4">break, continue y anidamiento</a></li>
+    <li><a href="#sec5">Ejercicios propuestos y soluciones</a></li>
+  </ol>
+</div>
+
+<h2 id="sec1">1. Estructuras condicionales: if, if-else, else if, operador ternario</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Sentencia condicional</span>
+  Una sentencia condicional ejecuta un bloque de código solo si una expresión —la
+  <em>condición</em>— es verdadera. En C, cualquier valor distinto de <code>0</code> se considera
+  verdadero, y <code>0</code> se considera falso.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — if simple y if-else</span>
+<pre class="codigo"><code>int numero = -5;
+
+if (numero &gt;= 0) {
+    printf("El numero es positivo o cero\n");
+} else {
+    printf("El numero es negativo\n");
+}</code></pre>
+  Si la condición <code>numero &gt;= 0</code> es falsa, se ejecuta el bloque <code>else</code>.
+  El bloque <code>else</code> es opcional.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — else if encadenado</span>
+<pre class="codigo"><code>float nota = 3.2f;
+
+if (nota &gt;= 4.5f) {
+    printf("Excelente\n");
+} else if (nota &gt;= 3.0f) {
+    printf("Aprobado\n");
+} else {
+    printf("Reprobado\n");
+}</code></pre>
+  Las condiciones se evalúan en orden; se ejecuta el primer bloque cuya condición sea verdadera,
+  y se ignoran las siguientes.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Operador ternario</span>
+  La expresión <code>condicion ? valor_si_verdadero : valor_si_falso</code> es una forma compacta
+  de un <code>if-else</code> que <em>produce un valor</em>, útil para asignaciones simples.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Operador ternario</span>
+<pre class="codigo"><code>int a = 8, b = 3, mayor;
+mayor = (a &gt; b) ? a : b;
+printf("El mayor es %d\n", mayor);   // imprime 8</code></pre>
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Condiciones compuestas</span>
+  Los operadores lógicos <code>&amp;&amp;</code> (y), <code>||</code> (o) y <code>!</code> (no)
+  combinan varias condiciones relacionales en una sola expresión. C evalúa <code>&amp;&amp;</code>
+  y <code>||</code> de izquierda a derecha y se detiene apenas el resultado queda determinado
+  (<em>cortocircuito</em>): en <code>a &amp;&amp; b</code>, si <code>a</code> es falso,
+  <code>b</code> ni siquiera se evalúa.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Condición compuesta</span>
+<pre class="codigo"><code>int edad = 20;
+int tiene_carnet = 1;   // 1 = verdadero, 0 = falso
+
+if (edad &gt;= 18 &amp;&amp; tiene_carnet) {
+    printf("Puede ingresar\n");
+} else {
+    printf("No puede ingresar\n");
+}</code></pre>
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Clasificador con varias condiciones compuestas</span>
+  Cuando hay más de dos posibles resultados, se encadenan varios <code>if</code>/<code>else
+  if</code>, cada uno con su propia condición compuesta, evaluados en orden de más a menos
+  restrictivo:
+<pre class="codigo"><code>int tiene_sensor, tiene_actuador, conectado;
+float bateria;   // porcentaje, 0.0 a 100.0
+
+printf("Tiene sensor (1/0): ");
+scanf("%d", &amp;tiene_sensor);
+printf("Tiene actuador (1/0): ");
+scanf("%d", &amp;tiene_actuador);
+printf("Nivel de bateria: ");
+scanf("%f", &amp;bateria);
+printf("Conectado a la red (1/0): ");
+scanf("%d", &amp;conectado);
+
+if (tiene_sensor &amp;&amp; tiene_actuador &amp;&amp; bateria &gt; 50 &amp;&amp; conectado) {
+    printf("Dispositivo IoT avanzado\n");
+} else if (tiene_sensor &amp;&amp; bateria &gt;= 20 &amp;&amp; conectado) {
+    printf("Dispositivo IoT basico\n");
+} else if ((tiene_sensor || tiene_actuador) &amp;&amp; !conectado) {
+    printf("Dispositivo sin conexion\n");
+} else if (bateria &lt; 10) {
+    printf("Bateria critica\n");
+} else {
+    printf("Dispositivo no clasificado\n");
+}</code></pre>
+  Cada rama se evalúa solo si todas las anteriores fueron falsas; por eso el orden importa: la
+  condición más específica (avanzado) va primero, y la más general (<code>else</code> final)
+  queda de respaldo para cualquier combinación no prevista.
+</div>
+
+<h2 id="sec2">2. La instrucción switch-case</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — switch-case</span>
+  <code>switch</code> compara el valor de una expresión entera (o <code>char</code>) contra una
+  lista de casos (<code>case</code>), y ejecuta el bloque del primer caso que coincide. Sin un
+  <code>break</code> al final de cada caso, la ejecución <em>cae</em> al siguiente caso
+  (<em>fall-through</em>). <code>default</code> es opcional y se ejecuta si ningún caso coincide.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Menú con switch</span>
+<pre class="codigo"><code>int opcion = 2;
+float a = 10, b = 4, resultado;
+
+switch (opcion) {
+    case 1:
+        resultado = a + b;
+        printf("Suma = %.2f\n", resultado);
+        break;
+    case 2:
+        resultado = a - b;
+        printf("Resta = %.2f\n", resultado);
+        break;
+    case 3:
+        resultado = a * b;
+        printf("Producto = %.2f\n", resultado);
+        break;
+    default:
+        printf("Opcion invalida\n");
+}</code></pre>
+  Con <code>opcion = 2</code>, se ejecuta el caso 2 e imprime <code>Resta = 6.00</code>; el
+  <code>break</code> evita que también se ejecute el caso 3.
+</div>
+
+<h2 id="sec3">3. Ciclos: while, do-while, for</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Ciclo o bucle</span>
+  Un ciclo repite un bloque de instrucciones mientras se cumpla una condición. C ofrece tres
+  formas, que son intercambiables pero cada una es más natural según el problema.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — while: condición al inicio</span>
+<pre class="codigo"><code>int contador = 1;
+while (contador &lt;= 5) {
+    printf("%d\n", contador);
+    contador++;
+}</code></pre>
+  La condición se evalúa <em>antes</em> de cada repetición; si es falsa desde el principio, el
+  cuerpo no se ejecuta ni una vez. Útil cuando no se sabe de antemano cuántas repeticiones habrá
+  (por ejemplo, leer datos hasta que el usuario ingrese un centinela).
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — do-while: condición al final</span>
+<pre class="codigo"><code>int opcion;
+do {
+    printf("Ingrese una opcion (1-3): ");
+    scanf("%d", &amp;opcion);
+} while (opcion &lt; 1 || opcion &gt; 3);</code></pre>
+  El cuerpo se ejecuta <em>al menos una vez</em>, porque la condición se evalúa <em>después</em>.
+  Es la estructura natural para validar una entrada: hay que pedirla al menos una vez antes de
+  poder validarla.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — for: conteo explícito</span>
+<pre class="codigo"><code>for (int i = 1; i &lt;= 5; i++) {
+    printf("%d\n", i);
+}</code></pre>
+  El <code>for</code> agrupa en un solo lugar la inicialización (<code>i = 1</code>), la
+  condición (<code>i &lt;= 5</code>) y el incremento (<code>i++</code>). Es la forma más natural
+  cuando se conoce de antemano el número de repeticiones (o un rango claro).
+</div>
+
+<h2 id="sec4">4. break, continue y anidamiento</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — break y continue</span>
+  <code>break</code> termina inmediatamente el ciclo (o el <code>switch</code>) que lo contiene.
+  <code>continue</code> salta el resto del cuerpo del ciclo actual y pasa directamente a evaluar
+  la siguiente repetición.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — break y continue</span>
+<pre class="codigo"><code>for (int i = 1; i &lt;= 10; i++) {
+    if (i == 7) {
+        break;              // termina el ciclo al llegar a 7
+    }
+    if (i % 2 == 0) {
+        continue;           // salta los pares, no los imprime
+    }
+    printf("%d\n", i);      // imprime 1, 3, 5
+}</code></pre>
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Ciclos anidados</span>
+  Un ciclo anidado es un ciclo dentro de otro. Por cada repetición del ciclo externo, el ciclo
+  interno se ejecuta completo. Se usan, por ejemplo, para recorrer una tabla de dos dimensiones
+  (fila por fila, y dentro de cada fila, columna por columna).
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Tabla de multiplicar con ciclos anidados</span>
+<pre class="codigo"><code>for (int fila = 1; fila &lt;= 5; fila++) {
+    for (int col = 1; col &lt;= 5; col++) {
+        printf("%3d", fila * col);
+    }
+    printf("\n");
+}</code></pre>
+  Por cada valor de <code>fila</code> (ciclo externo), el ciclo interno recorre <code>col</code>
+  de 1 a 5 e imprime el producto; al terminar el ciclo interno, se imprime un salto de línea para
+  pasar a la siguiente fila.
+</div>
+
+<h2 id="sec5">5. Ejercicios propuestos y soluciones</h2>
+
+<div class="ejercicio">
+  <span class="num">1</span><strong>Escribe un programa que lea un número entero e imprima si es
+  positivo, negativo o cero.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n;
+    printf("Ingrese un numero: ");
+    scanf("%d", &amp;n);
+
+    if (n &gt; 0) {
+        printf("Es positivo\n");
+    } else if (n &lt; 0) {
+        printf("Es negativo\n");
+    } else {
+        printf("Es cero\n");
+    }
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">2</span><strong>Escribe un programa que lea una edad e imprima, con
+  if-else if, si la persona es menor de edad (&lt;18), adulto (18–59) o adulto mayor
+  (≥60).</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int edad;
+    printf("Ingrese la edad: ");
+    scanf("%d", &amp;edad);
+
+    if (edad &lt; 18) {
+        printf("Menor de edad\n");
+    } else if (edad &lt; 60) {
+        printf("Adulto\n");
+    } else {
+        printf("Adulto mayor\n");
+    }
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">3</span><strong>Escribe una calculadora básica: lee dos números y un operador
+  ('+', '-', '*' o '/') como char, y con switch imprime el resultado.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float a, b, resultado;
+    char operador;
+
+    printf("Ingrese numero, operador, numero (ej: 4 + 2): ");
+    scanf("%f %c %f", &amp;a, &amp;operador, &amp;b);
+
+    switch (operador) {
+        case '+':
+            resultado = a + b;
+            break;
+        case '-':
+            resultado = a - b;
+            break;
+        case '*':
+            resultado = a * b;
+            break;
+        case '/':
+            if (b == 0) {
+                printf("Error: division por cero\n");
+                return 1;
+            }
+            resultado = a / b;
+            break;
+        default:
+            printf("Operador invalido\n");
+            return 1;
+    }
+    printf("Resultado = %.2f\n", resultado);
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">4</span><strong>Escribe un programa que imprima los números del 1 al 20:
+  primero usando for, y luego usando while.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("Con for:\n");
+    for (int i = 1; i &lt;= 20; i++) {
+        printf("%d ", i);
+    }
+    printf("\n");
+
+    printf("Con while:\n");
+    int i = 1;
+    while (i &lt;= 20) {
+        printf("%d ", i);
+        i++;
+    }
+    printf("\n");
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">5</span><strong>Escribe un programa que lea un entero n y calcule su
+  factorial (n!) usando un ciclo.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n;
+    long factorial = 1;
+
+    printf("Ingrese n: ");
+    scanf("%d", &amp;n);
+
+    for (int i = 1; i &lt;= n; i++) {
+        factorial *= i;
+    }
+    printf("%d! = %ld\n", n, factorial);
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Nota</span>Con n=5: factorial =
+  1·2·3·4·5 = 120.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">6</span><strong>Escribe un programa que lea un entero mayor que 1 y
+  determine, usando un ciclo, si es primo.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n, es_primo = 1;
+
+    printf("Ingrese un numero mayor que 1: ");
+    scanf("%d", &amp;n);
+
+    for (int i = 2; i &lt; n; i++) {
+        if (n % i == 0) {
+            es_primo = 0;
+            break;          // ya encontramos un divisor, no hace falta seguir
+        }
+    }
+
+    if (es_primo) {
+        printf("%d es primo\n", n);
+    } else {
+        printf("%d no es primo\n", n);
+    }
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Nota</span>En cuanto se encuentra un divisor
+  de <code>n</code> distinto de 1 y de sí mismo, <code>break</code> corta el ciclo: no hace falta
+  seguir probando.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">7</span><strong>Escribe un programa que imprima la tabla de multiplicar del 1
+  al 10 usando dos ciclos for anidados.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    for (int fila = 1; fila &lt;= 10; fila++) {
+        for (int col = 1; col &lt;= 10; col++) {
+            printf("%4d", fila * col);
+        }
+        printf("\n");
+    }
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">8</span><strong>Usando do-while, lee números enteros y súmalos hasta que el
+  usuario ingrese un 0 (el 0 no se suma), e imprime el total al final.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int numero, suma = 0;
+
+    do {
+        printf("Ingrese un numero (0 para terminar): ");
+        scanf("%d", &amp;numero);
+        if (numero != 0) {
+            suma += numero;
+        }
+    } while (numero != 0);
+
+    printf("Suma total = %d\n", suma);
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Nota</span>Se usa <code>do-while</code>
+  porque hay que pedir el primer número antes de poder evaluar si es el centinela (<code>0</code>)
+  que termina el ciclo.</div>
+</div>
+
+<div class="paginacion">
+  <a href="index.html">&larr; Inicio</a>
+  <a href="ejercicios.html">Ejercicios de refuerzo &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>Programacion/semana-02/</code> — Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

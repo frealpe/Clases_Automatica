@@ -1,0 +1,425 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}[definicion]{Ejemplo}
+\newtheorem{propiedad}[definicion]{Propiedad}
+\theoremstyle{plain}
+\newtheorem{teorema}[definicion]{Teorema}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\vv}[1]{\mathbf{#1}}
+
+\title{\textcolor{unicaucaverde}{\Large Notas de clase --- Semana 2}\\[4pt]
+  \large Eliminación de Gauss-Jordan y sistemas homogéneos}
+\author{Álgebra Lineal para Ingeniería --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Sistemas equivalentes y clasificación}
+
+\begin{definicion}[Sistemas equivalentes]
+Dos sistemas de ecuaciones lineales son \emph{equivalentes} si tienen exactamente el mismo
+conjunto de soluciones. Que dos sistemas sean equivalentes \emph{no} significa que sean iguales:
+pueden tener ecuaciones distintas y, sin embargo, toda solución de uno ser solución del otro.
+\end{definicion}
+
+\begin{teorema}[Las operaciones elementales de fila producen sistemas equivalentes]\label{teo:equiv}
+Cada una de las tres operaciones elementales de fila aplicada a la matriz aumentada
+$[A\mid\vv{b}]$ produce la matriz aumentada de un sistema equivalente al original:
+\begin{enumerate}[label=(\roman*)]
+  \item Intercambiar dos filas (equivale a reordenar ecuaciones).
+  \item Multiplicar una fila por un escalar $c\neq 0$ (equivale a multiplicar ambos lados de una
+        ecuación por $c$).
+  \item Sumar a una fila un múltiplo escalar de otra (equivale a reemplazar una ecuación por su
+        suma con un múltiplo de otra).
+\end{enumerate}
+Por tanto, el sistema obtenido al final del algoritmo de Gauss-Jordan tiene el mismo conjunto
+solución que el sistema original.
+\end{teorema}
+
+\begin{proof}[Justificación]
+Cada operación es \emph{reversible}: se puede deshacer con otra operación del mismo tipo. Como
+cada paso preserva el conjunto solución y se puede volver al sistema anterior, los dos sistemas
+tienen exactamente las mismas soluciones, es decir, son equivalentes.
+\end{proof}
+
+\begin{definicion}[Sistema consistente e inconsistente]
+\begin{itemize}
+  \item Un sistema es \emph{consistente} si tiene \textbf{al menos una solución} (puede ser única
+        o infinitas).
+  \item Un sistema es \emph{inconsistente} si \textbf{no tiene ninguna solución}.
+\end{itemize}
+La inconsistencia se detecta en la forma escalonada: existe una fila del tipo
+$[\,0\;\cdots\;0\mid c\,]$ con $c\neq 0$, que representa la ecuación $0=c$, una contradicción.
+\end{definicion}
+
+\begin{ejemplo}
+El sistema
+\[
+  x_1 + x_2 = 3, \qquad 2x_1 + 2x_2 = 7
+\]
+es inconsistente. Al reducir la matriz aumentada:
+\[
+  \left(\begin{array}{cc|c}1&1&3\\2&2&7\end{array}\right)
+  \xrightarrow{F_2-2F_1}
+  \left(\begin{array}{cc|c}1&1&3\\0&0&1\end{array}\right)
+\]
+La segunda fila dice $0=1$: contradicción. El sistema no tiene solución.
+\end{ejemplo}
+
+\begin{ejemplo}[Caso 1: sistema inconsistente]
+\[
+  x_1 + x_2 = 3, \qquad 2x_1 + 2x_2 = 7.
+\]
+Reducción de la matriz aumentada:
+\[
+  \left(\begin{array}{cc|c}1&1&3\\2&2&7\end{array}\right)
+  \xrightarrow{F_2 - 2F_1}
+  \left(\begin{array}{cc|c}1&1&3\\0&0&1\end{array}\right).
+\]
+La fila $[0\ 0\mid 1]$ representa la ecuación $0=1$: \textbf{contradicción}. El sistema es
+\textbf{inconsistente}; no tiene solución. (Geométricamente, las dos rectas son paralelas.)
+\end{ejemplo}
+
+\begin{ejemplo}[Caso 2: solución única]
+\[
+  x_1 + x_2 + x_3 = 6,\quad 2x_1 - x_2 + x_3 = 3,\quad x_1 + 2x_2 - x_3 = 2.
+\]
+Reducción completa (RREF):
+\[
+  \left(\begin{array}{ccc|c}1&1&1&6\\2&-1&1&3\\1&2&-1&2\end{array}\right)
+  \xrightarrow{F_2-2F_1,\;F_3-F_1}
+  \left(\begin{array}{ccc|c}1&1&1&6\\0&-3&-1&-9\\0&1&-2&-4\end{array}\right)
+\]
+\[
+  \xrightarrow{F_2\leftrightarrow F_3}
+  \left(\begin{array}{ccc|c}1&1&1&6\\0&1&-2&-4\\0&-3&-1&-9\end{array}\right)
+  \xrightarrow{F_3+3F_2}
+  \left(\begin{array}{ccc|c}1&1&1&6\\0&1&-2&-4\\0&0&-7&-21\end{array}\right)
+\]
+\[
+  \xrightarrow{-\tfrac{1}{7}F_3}
+  \left(\begin{array}{ccc|c}1&1&1&6\\0&1&-2&-4\\0&0&1&3\end{array}\right)
+  \xrightarrow{\substack{F_2+2F_3\\F_1-F_3}}
+  \left(\begin{array}{ccc|c}1&1&0&3\\0&1&0&2\\0&0&1&3\end{array}\right)
+  \xrightarrow{F_1-F_2}
+  \left(\begin{array}{ccc|c}1&0&0&1\\0&1&0&2\\0&0&1&3\end{array}\right).
+\]
+Rango $r=3=n$: el sistema es \textbf{consistente con solución única}
+\[
+  \boxed{x_1=1,\quad x_2=2,\quad x_3=3.}
+\]
+\end{ejemplo}
+
+\begin{ejemplo}[Caso 3: infinitas soluciones]
+\[
+  x_1 + 2x_2 - x_3 = 0, \qquad 2x_1 + 4x_2 - 2x_3 = 0.
+\]
+(La segunda ecuación es el doble de la primera.) Reducción:
+\[
+  \left(\begin{array}{ccc|c}1&2&-1&0\\2&4&-2&0\end{array}\right)
+  \xrightarrow{F_2-2F_1}
+  \left(\begin{array}{ccc|c}1&2&-1&0\\0&0&0&0\end{array}\right).
+\]
+Rango $r=1 < n=3$: hay $n-r=2$ variables libres. Tomando $x_2=s$ y $x_3=t$ libres:
+\[
+  x_1 = -2s + t.
+\]
+El conjunto solución (familia de infinitas soluciones) es
+\[
+  \boxed{\{(-2s+t,\;s,\;t)\mid s,t\in\mathbb{R}\}.}
+\]
+El vector $(0,0,0)$ corresponde a $s=t=0$; p. ej., $(1,0,1)$ se obtiene con $s=0,\,t=1$.
+\end{ejemplo}
+
+
+\section{\texorpdfstring{$m$}{m} ecuaciones con \texorpdfstring{$n$}{n} incógnitas}
+
+\begin{definicion}[Matriz aumentada]
+Al sistema de $m$ ecuaciones con $n$ incógnitas
+\[
+\begin{aligned}
+  a_{11}x_1 + \cdots + a_{1n}x_n &= b_1 \\
+  &\;\vdots \\
+  a_{m1}x_1 + \cdots + a_{mn}x_n &= b_m
+\end{aligned}
+\]
+se le asocia la matriz aumentada
+\[
+  [A \mid \vv{b}] =
+  \left(\begin{array}{ccc|c}
+    a_{11} & \cdots & a_{1n} & b_1 \\
+    \vdots & \ddots & \vdots & \vdots \\
+    a_{m1} & \cdots & a_{mn} & b_m
+  \end{array}\right),
+\]
+que contiene toda la información del sistema sin escribir las incógnitas.
+\end{definicion}
+
+\begin{definicion}[Operaciones elementales de fila]
+Sobre la matriz aumentada se permiten tres operaciones, cada una equivalente a una manipulación
+algebraica válida del sistema (no cambian el conjunto solución):
+\begin{enumerate}[label=(\roman*)]
+  \item Intercambiar dos filas.
+  \item Multiplicar una fila por un escalar distinto de cero.
+  \item Sumar a una fila un múltiplo escalar de otra fila.
+\end{enumerate}
+\end{definicion}
+
+\begin{definicion}[Forma escalonada reducida por filas]
+Una matriz está en \emph{forma escalonada reducida} (RREF, por sus siglas en inglés) si:
+\begin{enumerate}[label=(\roman*)]
+  \item Toda fila no nula tiene como primer elemento no nulo (el \emph{pivote}) un 1.
+  \item Cada pivote está a la derecha del pivote de la fila anterior.
+  \item Las filas nulas (si las hay) están al final.
+  \item En la columna de cada pivote, todos los demás elementos son 0.
+\end{enumerate}
+\end{definicion}
+
+\begin{definicion}[Eliminación de Gauss-Jordan]
+Es el algoritmo que, mediante una secuencia de operaciones elementales de fila, lleva la matriz
+aumentada $[A\mid\vv{b}]$ a su forma escalonada reducida. Las incógnitas que corresponden a una
+columna con pivote quedan determinadas directamente; las que no tienen pivote son
+\emph{variables libres}, y el sistema tiene infinitas soluciones parametrizadas por ellas. La
+\emph{eliminación gaussiana} es la variante que solo lleva la matriz a forma escalonada (no
+reducida) y luego resuelve por sustitución hacia atrás --- mismo resultado, menos operaciones
+pero un paso final adicional.
+\end{definicion}
+
+\begin{teorema}[Número de soluciones]
+Sea $r$ el número de pivotes (filas no nulas) de la forma escalonada de $[A\mid\vv{b}]$, y sea
+$r'$ el número de pivotes de $A$ sola. El sistema:
+\begin{itemize}
+  \item es \textbf{inconsistente} si $r' < r$ (hay un pivote en la columna de $\vv{b}$, es decir
+        una fila del tipo $[0\;\cdots\;0\mid c]$ con $c\neq 0$);
+  \item tiene \textbf{solución única} si es consistente y $r=n$ (no hay variables libres);
+  \item tiene \textbf{infinitas soluciones} si es consistente y $r<n$ (hay $n-r$ variables
+        libres).
+\end{itemize}
+\end{teorema}
+
+\begin{ejemplo}
+Resolver por Gauss-Jordan:
+\[
+\begin{aligned}
+  x_1 + x_2 + x_3 &= 6 \\
+  2x_1 - x_2 + x_3 &= 3 \\
+  x_1 + 2x_2 - x_3 &= 2
+\end{aligned}
+\]
+Matriz aumentada y reducción:
+\[
+  \left(\begin{array}{ccc|c} 1&1&1&6\\ 2&-1&1&3\\ 1&2&-1&2 \end{array}\right)
+  \xrightarrow{F_2-2F_1,\; F_3-F_1}
+  \left(\begin{array}{ccc|c} 1&1&1&6\\ 0&-3&-1&-9\\ 0&1&-2&-4 \end{array}\right)
+\]
+\[
+  \xrightarrow{F_2\leftrightarrow F_3}
+  \left(\begin{array}{ccc|c} 1&1&1&6\\ 0&1&-2&-4\\ 0&-3&-1&-9 \end{array}\right)
+  \xrightarrow{F_3+3F_2}
+  \left(\begin{array}{ccc|c} 1&1&1&6\\ 0&1&-2&-4\\ 0&0&-7&-21 \end{array}\right)
+\]
+De la última fila, $x_3=3$; retrocediendo (o continuando a RREF), $x_2=-4+2(3)=2$, y
+$x_1=6-2-3=1$. Solución única: $(1,2,3)$.
+\end{ejemplo}
+
+\subsection{Ejemplo de aplicación: corrientes de malla en un circuito}\label{sec:circuito}
+
+Un circuito de tres mallas tiene, en la malla 1, una resistencia propia de $2\,\Omega$ y una
+fuente de $5\,\text{V}$; la malla 2 comparte $1\,\Omega$ con la malla 1 y $1\,\Omega$ con la
+malla 3, más $1\,\Omega$ propio (resistencia total $3\,\Omega$), sin fuente; la malla 3 tiene
+resistencia propia $2\,\Omega$ y una fuente de $1\,\text{V}$. Al aplicar la ley de voltajes de
+Kirchhoff (LVK) a cada malla se obtiene el sistema, en las corrientes de malla
+$I_1,I_2,I_3$ (amperios):
+\[
+\begin{aligned}
+  2I_1 - I_2 &= 5 \\
+  -I_1 + 3I_2 - I_3 &= 0 \\
+  -I_2 + 2I_3 &= 1
+\end{aligned}
+\]
+
+\paragraph{Solución sin un método sistemático (sustitución).}
+De la primera ecuación, $I_2 = 2I_1-5$. De la tercera, $I_3 = \dfrac{1+I_2}{2} =
+\dfrac{2I_1-4}{2} = I_1-2$. Sustituyendo ambas en la segunda ecuación:
+\[
+  -I_1 + 3(2I_1-5) - (I_1-2) = 0 \;\Longrightarrow\; 4I_1 - 13 = 0 \;\Longrightarrow\; I_1 = \tfrac{13}{4}.
+\]
+Con $I_1=\tfrac{13}{4}$: $I_2 = 2\cdot\tfrac{13}{4}-5 = \tfrac{3}{2}$, y
+$I_3 = \tfrac{13}{4}-2 = \tfrac{5}{4}$. Este método funcionó, pero requirió decidir en qué orden
+despejar cada variable; con más de tres incógnitas se vuelve difícil de organizar y propenso a
+errores. La eliminación de Gauss-Jordan resuelve el mismo problema con un procedimiento fijo,
+sin decisiones de por medio.
+
+\paragraph{Solución por Gauss-Jordan (con fracciones exactas).}
+\[
+  \left(\begin{array}{ccc|c} 2&-1&0&5\\ -1&3&-1&0\\ 0&-1&2&1 \end{array}\right)
+  \xrightarrow{\;\frac{1}{2}F_1\;}
+  \left(\begin{array}{ccc|c} 1&-\tfrac{1}{2}&0&\tfrac{5}{2}\\ -1&3&-1&0\\ 0&-1&2&1 \end{array}\right)
+  \xrightarrow{F_2+F_1}
+  \left(\begin{array}{ccc|c} 1&-\tfrac{1}{2}&0&\tfrac{5}{2}\\ 0&\tfrac{5}{2}&-1&\tfrac{5}{2}\\ 0&-1&2&1 \end{array}\right)
+\]
+\[
+  \xrightarrow{\frac{2}{5}F_2}
+  \left(\begin{array}{ccc|c} 1&-\tfrac{1}{2}&0&\tfrac{5}{2}\\ 0&1&-\tfrac{2}{5}&1\\ 0&-1&2&1 \end{array}\right)
+  \xrightarrow{\substack{F_1+\frac{1}{2}F_2 \\ F_3+F_2}}
+  \left(\begin{array}{ccc|c} 1&0&-\tfrac{1}{5}&3\\ 0&1&-\tfrac{2}{5}&1\\ 0&0&\tfrac{8}{5}&2 \end{array}\right)
+\]
+\[
+  \xrightarrow{\frac{5}{8}F_3}
+  \left(\begin{array}{ccc|c} 1&0&-\tfrac{1}{5}&3\\ 0&1&-\tfrac{2}{5}&1\\ 0&0&1&\tfrac{5}{4} \end{array}\right)
+  \xrightarrow{\substack{F_1+\frac{1}{5}F_3 \\ F_2+\frac{2}{5}F_3}}
+  \left(\begin{array}{ccc|c} 1&0&0&\tfrac{13}{4}\\ 0&1&0&\tfrac{3}{2}\\ 0&0&1&\tfrac{5}{4} \end{array}\right)
+\]
+Misma solución que por sustitución: $I_1=\tfrac{13}{4}$, $I_2=\tfrac{3}{2}$, $I_3=\tfrac{5}{4}$
+amperios. Nótese que ninguna fracción se aproximó a decimal en ningún paso: trabajar con
+fracciones exactas evita el error de redondeo que se acumularía si se truncaran los decimales en
+cada operación --- relevante en cualquier cálculo de ingeniería hecho a mano o verificado a mano.
+
+\section{Sistemas homogéneos de ecuaciones}
+
+\begin{definicion}[Sistema homogéneo]
+Un sistema de ecuaciones lineales es \emph{homogéneo} si todos los términos independientes son
+cero:
+\[
+\begin{aligned}
+  a_{11}x_1 + \cdots + a_{1n}x_n &= 0 \\
+  &\;\vdots \\
+  a_{m1}x_1 + \cdots + a_{mn}x_n &= 0
+\end{aligned}
+\]
+En notación matricial, $A\vv{x}=\vv{0}$.
+\end{definicion}
+
+\begin{propiedad}[Solución trivial]
+Todo sistema homogéneo es consistente, porque $\vv{x}=\vv{0}=(0,\dots,0)$ siempre lo satisface
+(cada ecuación queda $0=0$). Esta se llama la \emph{solución trivial}. La pregunta relevante no es
+si hay solución, sino si hay \textbf{alguna otra} (\emph{solución no trivial}).
+\end{propiedad}
+
+\begin{teorema}[Cuándo hay soluciones no triviales]
+Un sistema homogéneo de $m$ ecuaciones con $n$ incógnitas tiene soluciones no triviales si y solo
+si, al llevar $A$ a forma escalonada, el número de pivotes $r$ es menor que $n$ (hay al menos una
+variable libre). En particular, si $m<n$ (menos ecuaciones que incógnitas), el sistema homogéneo
+\textbf{siempre} tiene soluciones no triviales.
+\end{teorema}
+
+\begin{ejemplo}
+\[
+\begin{aligned}
+  x_1 + 2x_2 - x_3 &= 0 \\
+  2x_1 + 4x_2 - 2x_3 &= 0
+\end{aligned}
+\]
+La segunda ecuación es el doble de la primera (mismo hiperplano), así que $r=1 < n=3$: hay
+$n-r=2$ variables libres. Tomando $x_2=s$, $x_3=t$ libres: $x_1=-2s+t$. El conjunto solución es
+$\{(-2s+t,\,s,\,t) : s,t\in\R\}$, infinito, incluyendo la trivial ($s=t=0$).
+\end{ejemplo}
+
+\section{Soluciones de los ejercicios propuestos}
+
+\begin{description}
+
+\item[\textbf{Ejercicio 1.}]
+Sistema $\{2x_1-x_2+x_3=4,\; x_1+3x_3=-1,\; -x_1+x_2+2x_3=0\}$.
+\[
+  \left(\begin{array}{ccc|c}2&-1&1&4\\1&0&3&-1\\-1&1&2&0\end{array}\right)
+  \xrightarrow{F_1\leftrightarrow F_2}
+  \left(\begin{array}{ccc|c}1&0&3&-1\\2&-1&1&4\\-1&1&2&0\end{array}\right)
+\]
+\[
+  \xrightarrow{F_2-2F_1,\;F_3+F_1}
+  \left(\begin{array}{ccc|c}1&0&3&-1\\0&-1&-5&6\\0&1&5&-1\end{array}\right)
+  \xrightarrow{F_3+F_2}
+  \left(\begin{array}{ccc|c}1&0&3&-1\\0&-1&-5&6\\0&0&0&5\end{array}\right)
+\]
+La fila $[0\;0\;0\mid 5]$ es la ecuación $0=5$: contradicción.
+\[\boxed{\text{El sistema es \textbf{inconsistente}: no tiene solución.}}\]
+
+\item[\textbf{Ejercicio 2.}]
+Sistema $\{x+y+z=2,\;2x-y+z=1,\;x+2y-z=3\}$.
+\[
+  \left(\begin{array}{ccc|c}1&1&1&2\\2&-1&1&1\\1&2&-1&3\end{array}\right)
+  \xrightarrow{F_2-2F_1,\;F_3-F_1}
+  \left(\begin{array}{ccc|c}1&1&1&2\\0&-3&-1&-3\\0&1&-2&1\end{array}\right)
+\]
+\[
+  \xrightarrow{F_2\leftrightarrow F_3}
+  \left(\begin{array}{ccc|c}1&1&1&2\\0&1&-2&1\\0&-3&-1&-3\end{array}\right)
+  \xrightarrow{F_3+3F_2}
+  \left(\begin{array}{ccc|c}1&1&1&2\\0&1&-2&1\\0&0&-7&0\end{array}\right)
+\]
+\[
+  \xrightarrow{-\frac{1}{7}F_3}
+  \left(\begin{array}{ccc|c}1&1&1&2\\0&1&-2&1\\0&0&1&0\end{array}\right)
+  \xrightarrow{\substack{F_2+2F_3\\F_1-F_3}}
+  \left(\begin{array}{ccc|c}1&1&0&2\\0&1&0&1\\0&0&1&0\end{array}\right)
+  \xrightarrow{F_1-F_2}
+  \left(\begin{array}{ccc|c}1&0&0&1\\0&1&0&1\\0&0&1&0\end{array}\right)
+\]
+\[\boxed{x=1,\quad y=1,\quad z=0.}\]
+
+\item[\textbf{Ejercicio 3.}]
+Sistema $\{x+ky=1,\;kx+y=1\}$. La matriz aumentada reduce así:
+\[
+  \left(\begin{array}{cc|c}1&k&1\\k&1&1\end{array}\right)
+  \xrightarrow{F_2-kF_1}
+  \left(\begin{array}{cc|c}1&k&1\\0&1-k^2&1-k\end{array}\right)
+\]
+Nótese que $1-k^2=(1-k)(1+k)$ y $1-k=(1-k)\cdot 1$.
+\begin{itemize}
+  \item Si $k=1$: fila 2 queda $[0\;0\mid 0]$ →
+        \textbf{infinitas soluciones}: $x+y=1$ (una fila de ceros).
+  \item Si $k=-1$: fila 2 queda $[0\;0\mid 2]$ →
+        \textbf{inconsistente}: $0=2$, sin solución.
+  \item Si $k\neq\pm 1$: $1-k^2\neq 0$, se divide y se obtiene
+        \[\boxed{x=y=\frac{1}{1+k}\quad(k\neq\pm 1).}\]
+\end{itemize}
+
+\item[\textbf{Ejercicio 4.}]
+El sistema tiene $m=3$ ecuaciones y $n=5$ incógnitas ($m < n$). Por el teorema de soluciones no
+triviales, todo sistema homogéneo con más incógnitas que ecuaciones tiene al menos una variable
+libre, luego tiene soluciones no triviales. (El rango máximo posible es $r\leq m=3 < 5=n$, así que
+siempre habrá $n-r\geq 2$ variables libres.)
+
+\item[\textbf{Ejercicio 5.}]
+Sistema homogéneo $\{x_1-x_2+2x_3=0,\;2x_1-2x_2+4x_3=0\}$ (la segunda es el doble de la
+primera):
+\[
+  \left(\begin{array}{ccc|c}1&-1&2&0\\2&-2&4&0\end{array}\right)
+  \xrightarrow{F_2-2F_1}
+  \left(\begin{array}{ccc|c}1&-1&2&0\\0&0&0&0\end{array}\right)
+\]
+Rango $r=1$: \textbf{variables libres} $x_2=s$ y $x_3=t$.\\
+De la primera fila: $x_1 = x_2 - 2x_3 = s - 2t$.
+\[\boxed{\text{Conjunto solución: }\{(s-2t,\;s,\;t)\mid s,t\in\mathbb{R}\}.}\]
+Ejemplos: $(0,0,0)$ (trivial, $s=t=0$);\; $(1,1,0)$ ($s=1, t=0$);\; $(-2,0,1)$ ($s=0,t=1$).
+
+\item[\textbf{Ejercicio 6.}]
+Un sistema homogéneo $3\times 3$ con solución trivial única no tiene variables libres. Como
+$n=3$ incógnitas, el número de pivotes debe ser $r=3$ (ninguna columna sin pivote). La forma
+escalonada de la matriz de coeficientes $A$ (sin la columna de ceros, que siempre queda igual)
+tiene \textbf{3 pivotes}, uno por fila. (Equivalentemente: $A$ es no singular, $\det A\neq 0$.)
+
+\end{description}
+
+\end{document}

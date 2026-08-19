@@ -1,0 +1,145 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=cstyle}
+
+\title{\textcolor{unicaucaverde}{Ejercicios de refuerzo --- Semana 1}\\[4pt]
+  \large Fundamentos de C: variables, tipos, operadores y entrada/salida}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+Práctica adicional para consolidar RA1.1 y RA1.2, para trabajo autónomo antes de la Semana 2. Cada
+ejercicio incluye el enunciado y una solución completa en C.
+
+\section*{Ejercicio 1 --- Conversión de temperatura}
+Escribe un programa que lea una temperatura en grados Celsius y la convierta a Fahrenheit, usando
+la fórmula $F = C \times 9/5 + 32$.
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    float celsius, fahrenheit;
+
+    printf("Temperatura en Celsius: ");
+    scanf("%f", &celsius);
+
+    fahrenheit = celsius * 9.0f / 5.0f + 32.0f;
+    printf("%.1f C equivalen a %.1f F\n", celsius, fahrenheit);
+
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Ejercicio 2 --- Promedio de tres notas}
+Escribe un programa que lea tres notas (de 0.0 a 5.0) y calcule e imprima su promedio.
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    float n1, n2, n3, promedio;
+
+    printf("Ingrese 3 notas: ");
+    scanf("%f %f %f", &n1, &n2, &n3);
+
+    promedio = (n1 + n2 + n3) / 3.0f;
+    printf("Promedio = %.2f\n", promedio);
+
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Ejercicio 3 --- Interés simple}
+Escribe un programa que lea un capital, una tasa de interés anual (en \%) y un tiempo en años, y
+calcule el interés simple con $I = C \times r \times t / 100$.
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    float capital, tasa, tiempo, interes;
+
+    printf("Capital, tasa (%%) y tiempo (anios): ");
+    scanf("%f %f %f", &capital, &tasa, &tiempo);
+
+    interes = capital * tasa * tiempo / 100.0f;
+    printf("Interes generado = %.2f\n", interes);
+
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Ejercicio 4 --- Intercambiar dos variables}
+Escribe un programa que lea dos enteros \texttt{a} y \texttt{b}, e intercambie sus valores usando
+una variable temporal, mostrando los valores antes y después.
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int a, b, temp;
+
+    printf("Ingrese a y b: ");
+    scanf("%d %d", &a, &b);
+    printf("Antes:   a = %d, b = %d\n", a, b);
+
+    temp = a;
+    a = b;
+    b = temp;
+
+    printf("Despues: a = %d, b = %d\n", a, b);
+    return 0;
+}
+\end{lstlisting}
+
+\section*{Ejercicio 5 --- Perímetro y área de un rectángulo}
+Escribe un programa que lea la base y la altura de un rectángulo y calcule su perímetro
+($2(b+h)$) y su área ($b \times h$).
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    float base, altura, perimetro, area;
+
+    printf("Base y altura del rectangulo: ");
+    scanf("%f %f", &base, &altura);
+
+    perimetro = 2 * (base + altura);
+    area = base * altura;
+
+    printf("Perimetro = %.2f\n", perimetro);
+    printf("Area = %.2f\n", area);
+
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

@@ -1,0 +1,133 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{\textcolor{unicaucaverde}{\Large Guía de Aprendizaje --- Semana 1}\\[4pt]
+  \large Introducción a la programación y fundamentos de C}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{tabular}{|>{\bfseries}p{4cm}|p{10cm}|}
+\hline
+Semana & 1 de 16 \\ \hline
+Unidad & Fundamentos de programación en C \\ \hline
+Subtemas & Proceso de compilación, estructura de un programa, tipos de datos, variables,
+  constantes, operadores, entrada/salida \\ \hline
+Horas de clase & 4 \\ \hline
+Resultado de aprendizaje & RA1 (parte 1 de 2; continúa en Semana 2 con estructuras de control) \\ \hline
+\end{tabular}
+\end{center}
+
+\section*{Relevancia para ingeniería}
+
+Programar es traducir un procedimiento --- ya conocido en papel o en la cabeza --- a instrucciones
+que una máquina puede ejecutar sin ambigüedad. C es el lenguaje que está debajo de la mayoría del
+software de ingeniería: sistemas embebidos, controladores de microcontroladores, sistemas
+operativos, drivers, y el núcleo de muchos lenguajes y librerías científicas (Python y MATLAB, por
+ejemplo, tienen partes escritas en C). Dominar C obliga a entender qué hace realmente el computador
+--- memoria, tipos de datos, tamaño en bytes --- conocimiento que se transfiere a cualquier otro
+lenguaje.
+
+\section{Objetivo de la semana}
+
+Escribir, compilar y ejecutar programas simples en C que declaren variables de los tipos básicos,
+apliquen operadores aritméticos y lógicos, y realicen entrada y salida de datos por consola.
+
+\section{Resultados de aprendizaje de la semana}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item[\textbf{RA1.1.}] Describir el proceso de compilación de un programa en C (preprocesador,
+        compilador, ensamblador, enlazador) y reproducir la estructura mínima de un programa
+        (directivas \texttt{\#include}, función \texttt{main}, bloque \texttt{\{\}}, sentencias
+        terminadas en \texttt{;}).
+  \item[\textbf{RA1.2.}] Declarar variables y constantes de los tipos básicos de C (\texttt{int},
+        \texttt{float}, \texttt{double}, \texttt{char}), aplicar operadores aritméticos,
+        relacionales, lógicos y de asignación, y escribir programas que lean y escriban datos por
+        consola con \texttt{scanf} y \texttt{printf}.
+\end{itemize}
+
+\section{Contenidos}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{1.1.} ¿Qué es programar? Algoritmos y lenguajes de programación.
+  \item \textbf{1.2.} El proceso de compilación en C; estructura de un programa.
+  \item \textbf{1.3.} Tipos de datos, variables y constantes.
+  \item \textbf{1.4.} Operadores y entrada/salida estándar.
+\end{itemize}
+
+\section{Plan de la sesión (4 horas)}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item[\textbf{Hora 1.}] ¿Qué es un algoritmo? De la idea al código: algoritmo $\to$ código fuente
+        $\to$ ejecutable. Lenguajes compilados vs. interpretados. El proceso de compilación en C
+        (preprocesador, compilador, ensamblador, enlazador) con \texttt{gcc}. Primer programa:
+        \texttt{Hola mundo} (teoría + demostración en vivo).
+  \item[\textbf{Hora 2.}] Taller: instalar/verificar \texttt{gcc}, compilar y ejecutar
+        \texttt{Hola mundo}; modificarlo para imprimir varias líneas; provocar y corregir errores
+        de compilación comunes (falta \texttt{;}, falta \texttt{\#include}, \texttt{main} mal
+        escrito).
+  \item[\textbf{Hora 3.}] Tipos de datos básicos, variables, constantes (\texttt{\#define} y
+        \texttt{const}), operadores aritméticos, relacionales, lógicos, de asignación e
+        incremento/decremento; precedencia de operadores (teoría + ejemplos).
+  \item[\textbf{Hora 4.}] Taller: entrada/salida con \texttt{scanf}/\texttt{printf} y sus
+        especificadores de formato; programa integrador que lee datos del usuario y calcula un
+        resultado (por ejemplo, conversión de temperatura o área de un círculo).
+\end{enumerate}
+
+\section{Actividades}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{En clase}: talleres de las horas 2 y 4 (ver arriba).
+  \item \textbf{Trabajo autónomo}: ejercicios propuestos de \texttt{notas.tex} §5 y refuerzo de
+        \texttt{ejercicios.tex}, de entrega antes de la Semana 2.
+  \item \textbf{Software}: un compilador de C (\texttt{gcc} local, o un compilador en línea si no
+        hay entorno instalado) para escribir, compilar y ejecutar cada ejemplo y ejercicio.
+\end{itemize}
+
+\section{Material de apoyo}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \texttt{notas.tex} --- desarrollo teórico completo de 1.1 a 1.4, con ejemplos de código y
+        ejercicios resueltos.
+  \item \texttt{diapositivas.tex} --- síntesis visual de la sesión.
+  \item \texttt{ejercicios.tex} --- lista adicional de ejercicios de refuerzo con soluciones
+        completas en código C.
+\end{itemize}
+
+\section{Evaluación de la semana}
+
+Control formativo corto al inicio de la Semana 2 (10 minutos): escribir y trazar a mano la salida
+de un programa corto en C con variables, operadores y una instrucción de entrada/salida, para
+verificar RA1.1 y RA1.2 antes de avanzar a estructuras de control.
+
+\section{Bibliografía de la semana}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Deitel, P., Deitel, H. \emph{C: How to Program}. 8a ed., Pearson, cap. 1--2.
+  \item Kernighan, B. W., Ritchie, D. M. \emph{The C Programming Language}. 2a ed., Prentice Hall,
+        cap. 1--2.
+  \item Cairo, L. J. \emph{Fundamentos de programación}. 4a ed., McGraw-Hill.
+\end{enumerate}
+
+\end{document}

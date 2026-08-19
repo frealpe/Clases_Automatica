@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2.4. Inversa de una Matriz Cuadrada y Matriz Identidad | Álgebra Lineal</title>
+  <link rel="stylesheet" href="css/estilo.css">
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+  <header class="top">
+    <div class="marca">
+      <h1>Álgebra Lineal para Ingeniería</h1>
+      <p class="subtitulo">Semana 4 — Tema 2.4: Matriz Identidad, Matriz Inversa y Algoritmo de Gauss-Jordan</p>
+    </div>
+  </header>
+
+  <nav class="principal">
+    <ul>
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tema-2-3.html">2.3 Matrices y Sistemas</a></li>
+      <li><a href="tema-2-4.html" class="activo">2.4 Matriz Inversa</a></li>
+      <li><a href="tema-2-5.html">2.5 Transpuesta y Simetría</a></li>
+      <li><a href="ejercicios-resueltos.html">Ejercicios Resueltos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h2>2.4. Matriz Identidad, Matriz Inversa y Algoritmo de Gauss-Jordan</h2>
+
+    <!-- SECCIÓN 1: LA MATRIZ IDENTIDAD -->
+    <div class="caja-destacada">
+      <h3>1. La Matriz Identidad $I_n$</h3>
+      <p>La <strong>matriz identidad</strong> $I_n$ de orden $n\times n$ es una matriz diagonal cuyos elementos sobre la diagonal principal son todos iguales a $1$ y sus demás entradas son $0$:</p>
+      $$I_n = (\delta_{ij})_{n\times n}, \qquad \text{donde } \delta_{ij} = \begin{cases} 1, & \text{si } i=j, \\ 0, & \text{si } i \neq j. \end{cases}$$
+      <p>Ejemplos explícitos para órdenes $n=2$ y $n=3$:</p>
+      $$I_2 = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}, \qquad I_3 = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}$$
+      <h4>Propiedades Fundamentales de $I_n$:</h4>
+      <ul>
+        <li><strong>Elemento Neutro Multiplicativo:</strong> Para cualquier matriz $A_{m\times n}$, se cumple $A I_n = A$ y $I_m A = A$.</li>
+        <li><strong>Transformación Identidad:</strong> Para todo vector $\mathbf{x} \in \mathbb{R}^n$, $I_n \mathbf{x} = \mathbf{x}$. La matriz no altera la magnitud ni la dirección del vector.</li>
+        <li><strong>Auto-Inversa:</strong> $I_n^{-1} = I_n$ e $I_n^k = I_n$ para todo entero $k \ge 1$.</li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 2: DEFINICIÓN DE MATRIZ INVERSA -->
+    <h3>2. Definición de Matriz Inversa $A^{-1}$</h3>
+    <p>Una matriz cuadrada $A$ de orden $n\times n$ se llama <strong>invertible</strong> (o <strong>no singular</strong>) si existe una matriz $A^{-1}$ tal que:</p>
+    $$A A^{-1} = A^{-1} A = I_n$$
+    <p>Si no existe tal matriz, $A$ se denomina <strong>singular</strong> o no invertible.</p>
+
+    <div class="caja-ejemplo">
+      <h4>Fórmula Directa para Matrices $2\times 2$</h4>
+      <p>Dada $A = \begin{pmatrix} a & b \\ c & d \end{pmatrix}$, $A$ es invertible si y solo si su determinante $\Delta = ad - bc \neq 0$. En tal caso:</p>
+      $$A^{-1} = \frac{1}{ad - bc} \begin{pmatrix} d & -b \\ -c & a \end{pmatrix}$$
+    </div>
+
+    <!-- SECCIÓN 3: FUNDAMENTACIÓN DE GAUSS-JORDAN -->
+    <h3>3. Fundamentación Algebraica del Método de Gauss-Jordan $[A \mid I_n] \to [I_n \mid A^{-1}]$</h3>
+    <p>¿Por qué al yuxtaponer la matriz identidad al lado de $A$ y realizar eliminación por filas obtenemos $A^{-1}$? Cada operación elemental de fila equivale a multiplicar a la izquierda por una <strong>matriz elemental</strong> $E_k$.</p>
+    
+    <div class="caja-destacada" style="border-left-color: var(--ok);">
+      <p>Si $A$ es invertible, existe una secuencia finita de operaciones elementales por filas $E_1, E_2, \dots, E_k$ que transforman $A$ en la matriz identidad $I_n$:</p>
+      $$(E_k \dots E_2 E_1) A = I_n$$
+      <p>Multiplicando ambos lados por $A^{-1}$ a la derecha:</p>
+      $$(E_k \dots E_2 E_1) A A^{-1} = I_n A^{-1} \implies E_k \dots E_2 E_1 = A^{-1}$$
+      <p>Por lo tanto, la misma secuencia de operaciones aplicadas sobre $I_n$ produce exactamente la inversa $A^{-1}$:</p>
+      $$(E_k \dots E_2 E_1) I_n = A^{-1}$$
+    </div>
+
+    <h3>4. Procedimiento Algorítmico Paso a Paso</h3>
+    <ol>
+      <li><strong>Construcción:</strong> Formar la matriz aumentada $[A \mid I_n]$ de dimensión $n \times 2n$.</li>
+      <li><strong>Pivoteo y Normalización:</strong> Para cada columna $j=1\dots n$, ubicar la entrada diagonal $a_{jj}$ (intercambiando filas si es $0$). Multiplicar la fila $j$ por $\frac{1}{a_{jj}}$ para hacer el pivote igual a $1$.</li>
+      <li><strong>Eliminación Simultánea:</strong> Hacer ceros todas las demás entradas de la columna $j$ (tanto por encima como por debajo del pivote) mediante $R_r \leftarrow R_r - a_{rj} R_j$.</li>
+      <li><strong>Resultado:</strong> Si el lado izquierdo se reduce a $I_n$, el lado derecho es $A^{-1}$. Si alguna fila del lado izquierdo queda llena de ceros, la matriz es singular.</li>
+    </ol>
+
+    <div class="caja-ejemplo">
+      <h4>Propiedades Algebraicas de la Inversa</h4>
+      <ul>
+        <li>$(A^{-1})^{-1} = A$</li>
+        <li>$(AB)^{-1} = B^{-1} A^{-1}$ <em>(¡atención al orden invertido de los factores!)</em></li>
+        <li>$(cA)^{-1} = \frac{1}{c} A^{-1}$ para cualquier escalar $c \neq 0$.</li>
+        <li><strong>Resolución Única de Sistemas:</strong> Si $A$ es invertible, la única solución de $A\mathbf{x} = \mathbf{b}$ es $\mathbf{x} = A^{-1}\mathbf{b}$.</li>
+      </ul>
+    </div>
+
+    <h2>Calculadora Interactiva de Inversa (con matriz identidad e intermedios)</h2>
+    <div id="widget-matriz-inversa" class="widget-container"></div>
+
+    <div style="margin-top: 2rem; display: flex; justify-content: space-between;">
+      <a href="tema-2-3.html" class="btn-accion" style="text-decoration: none; background: var(--gris-suave);">&larr; Anterior: 2.3 Matrices y Sistemas</a>
+      <a href="tema-2-5.html" class="btn-accion" style="text-decoration: none;">Siguiente: 2.5 Transpuesta y Simetría &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>Álgebra Lineal para Ingeniería — Universidad del Cauca (2026)</p>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script src="js/matriz-inversa.js"></script>
+</body>
+</html>

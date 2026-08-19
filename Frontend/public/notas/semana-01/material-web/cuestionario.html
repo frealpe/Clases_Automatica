@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuestionario — Semana 1</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Cuestionario de práctica</h1>
+    <p class="subtitulo">Semana 1 · Unidad 1 · Álgebra Lineal para Ingeniería — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-1.html">1.1 Introducción</a></li>
+    <li><a href="tema-1-2.html">1.2 Dos incógnitas</a></li>
+    <li><a href="distancia.html">Distancia punto-recta</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<p>
+  Banco de 44 preguntas (teoría y ejercicios) sobre los temas 1.1 y 1.2, más distancia punto-recta.
+  Cada intento sortea una selección aleatoria — el mismo mecanismo que usa la plataforma para armar
+  exámenes — para que puedas practicar con combinaciones distintas cada vez. Al calificar verás la
+  explicación completa de cada pregunta, la hayas acertado o no.
+</p>
+
+<div class="controles-cuestionario">
+  <label>Número de preguntas:
+    <select id="sel-cantidad">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="15">15</option>
+      <option value="20">20</option>
+      <option value="todas" selected>Todas (44)</option>
+    </select>
+  </label>
+  <label>Tipo:
+    <select id="sel-tipo">
+      <option value="todas" selected>Todas</option>
+      <option value="teoria">Solo teoría</option>
+      <option value="ejercicio">Solo ejercicios</option>
+    </select>
+  </label>
+  <button id="btn-sortear" class="btn">Sortear nuevo cuestionario</button>
+</div>
+
+<div id="cuestionario-app">
+  <div id="zona-preguntas"></div>
+  <button id="btn-calificar" class="btn secundario">Calificar cuestionario</button>
+  <div id="zona-resumen"></div>
+</div>
+
+<div class="paginacion">
+  <a href="distancia.html">&larr; Distancia punto-recta</a>
+  <a href="index.html">Inicio &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-01/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+<script src="js/preguntas.js"></script>
+<script src="js/cuestionario.js"></script>
+</body>
+</html>

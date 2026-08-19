@@ -1,0 +1,345 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}[definicion]{Ejemplo}
+\newtheorem{propiedad}[definicion]{Propiedad}
+\theoremstyle{plain}
+\newtheorem{teorema}[definicion]{Teorema}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\vv}[1]{\mathbf{#1}}
+
+\title{\textcolor{unicaucaverde}{\Large Notas de clase --- Semana 3}\\[4pt]
+  \large Vectores y matrices: definiciones y operaciones básicas}
+\author{Álgebra Lineal para Ingeniería --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Vectores y matrices: definiciones básicas}
+
+\begin{definicion}[Vector]
+Un \emph{vector} de $n$ componentes es una $n$-tupla ordenada de números reales. Se escribe como
+\emph{vector columna}
+\[
+  \vv{x} = \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{pmatrix} \in \R^n,
+\]
+o, cuando el espacio lo requiere, como \emph{vector fila} $\vv{x} = (x_1, x_2, \ldots, x_n)$. Salvo
+que se indique lo contrario, un vector se entiende como columna.
+\end{definicion}
+
+\begin{definicion}[Matriz]
+Una \emph{matriz} $A$ de tamaño $m\times n$ es un arreglo rectangular de $m\cdot n$ números reales,
+ordenados en $m$ filas y $n$ columnas:
+\[
+  A = \begin{pmatrix}
+    a_{11} & a_{12} & \cdots & a_{1n} \\
+    a_{21} & a_{22} & \cdots & a_{2n} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    a_{m1} & a_{m2} & \cdots & a_{mn}
+  \end{pmatrix} = (a_{ij}), \qquad 1\leq i \leq m,\; 1\leq j \leq n.
+\]
+El primer subíndice de $a_{ij}$ indica la fila; el segundo, la columna. Un vector columna de
+$\R^n$ es, en particular, una matriz $n\times 1$; un vector fila es una matriz $1\times n$.
+\end{definicion}
+
+\begin{definicion}[Igualdad de matrices]
+Dos matrices $A=(a_{ij})$ y $B=(b_{ij})$ son \emph{iguales} si tienen el mismo tamaño ($m\times n$
+ambas) y $a_{ij}=b_{ij}$ para todo $i,j$.
+\end{definicion}
+
+\begin{definicion}[Matrices especiales]
+\begin{itemize}
+  \item \emph{Matriz fila}: tamaño $1\times n$. \emph{Matriz columna}: tamaño $m\times 1$.
+  \item \emph{Matriz cuadrada}: $m=n$ (mismo número de filas y columnas); se dice de orden $n$.
+  \item \emph{Matriz nula} $\vv{0}$: todas sus entradas son $0$.
+  \item \emph{Matriz diagonal}: cuadrada, con $a_{ij}=0$ para todo $i\neq j$ (fuera de la
+        diagonal principal).
+  \item \emph{Matriz identidad} $I_n$: diagonal de orden $n$ con $a_{ii}=1$ para todo $i$.
+\end{itemize}
+\end{definicion}
+
+\begin{ejemplo}
+\[
+  A = \begin{pmatrix} 1 & -2 & 0 \\ 3 & 4 & 5 \end{pmatrix}
+\]
+es una matriz $2\times 3$: $a_{12}=-2$ (fila 1, columna 2), $a_{23}=5$ (fila 2, columna 3). No es
+cuadrada. La matriz
+\[
+  I_3 = \begin{pmatrix} 1&0&0\\0&1&0\\0&0&1 \end{pmatrix}
+\]
+es la identidad de orden 3.
+\end{ejemplo}
+
+\begin{definicion}[Suma, resta y multiplicación por escalar]
+Sean $A=(a_{ij})$ y $B=(b_{ij})$ matrices del \textbf{mismo tamaño} $m\times n$, y $c\in\R$ un
+escalar. Se definen, entrada a entrada:
+\[
+  A+B = (a_{ij}+b_{ij}), \qquad A-B = (a_{ij}-b_{ij}), \qquad cA = (c\,a_{ij}).
+\]
+La suma (y por tanto la resta) \textbf{solo está definida} cuando ambas matrices tienen exactamente
+el mismo tamaño.
+\end{definicion}
+
+\begin{propiedad}[Propiedades algebraicas de la suma y el escalar]
+Para matrices $A,B,C$ del mismo tamaño $m\times n$ y escalares $c,d\in\R$:
+\begin{enumerate}[label=(\roman*)]
+  \item $A+B=B+A$ (conmutativa).
+  \item $(A+B)+C = A+(B+C)$ (asociativa).
+  \item $A+\vv{0}=A$ (elemento neutro, la matriz nula $m\times n$).
+  \item $A+(-1)A=\vv{0}$ (elemento opuesto).
+  \item $c(A+B)=cA+cB$ y $(c+d)A=cA+dA$ (distributivas).
+  \item $c(dA)=(cd)A$.
+\end{enumerate}
+\end{propiedad}
+
+\begin{ejemplo}
+Con $A=\begin{pmatrix}1&2\\-1&0\end{pmatrix}$ y $B=\begin{pmatrix}3&-1\\2&4\end{pmatrix}$:
+\[
+  A+B = \begin{pmatrix}4&1\\1&4\end{pmatrix}, \qquad
+  2A-B = \begin{pmatrix}2-3 & 4-(-1)\\-2-2 & 0-4\end{pmatrix} = \begin{pmatrix}-1&5\\-4&-4\end{pmatrix}.
+\]
+\end{ejemplo}
+
+\section{Productos vectorial y matricial}
+
+\begin{definicion}[Producto punto (producto escalar) de vectores]
+Sean $\vv{u}=(u_1,\ldots,u_n)$ y $\vv{v}=(v_1,\ldots,v_n)$ vectores de $\R^n$. Su \emph{producto
+punto} es el número
+\[
+  \vv{u}\cdot\vv{v} = u_1v_1 + u_2v_2 + \cdots + u_nv_n = \sum_{k=1}^n u_kv_k.
+\]
+Solo está definido entre vectores con el \textbf{mismo número de componentes}. Si
+$\vv{u}\cdot\vv{v}=0$ (con $\vv{u},\vv{v}\neq\vv{0}$), se dice que $\vv{u}$ y $\vv{v}$ son
+\emph{ortogonales}.
+\end{definicion}
+
+\begin{propiedad}[Propiedades del producto punto]
+Para $\vv{u},\vv{v},\vv{w}\in\R^n$ y $c\in\R$:
+\begin{enumerate}[label=(\roman*)]
+  \item $\vv{u}\cdot\vv{v} = \vv{v}\cdot\vv{u}$ (conmutativo).
+  \item $\vv{u}\cdot(\vv{v}+\vv{w}) = \vv{u}\cdot\vv{v}+\vv{u}\cdot\vv{w}$ (distributivo).
+  \item $(c\vv{u})\cdot\vv{v} = c(\vv{u}\cdot\vv{v})$.
+  \item $\vv{u}\cdot\vv{u}\geq 0$, y $\vv{u}\cdot\vv{u}=0$ si y solo si $\vv{u}=\vv{0}$.
+\end{enumerate}
+\end{propiedad}
+
+\begin{definicion}[Producto matriz-vector]
+Sea $A$ una matriz $m\times n$ y $\vv{x}=(x_1,\ldots,x_n)$ un vector columna de $\R^n$ (mismo
+número de componentes que columnas tiene $A$). El producto $A\vv{x}$ es el vector de $\R^m$ cuya
+$i$-ésima componente es el producto punto de la fila $i$ de $A$ con $\vv{x}$:
+\[
+  (A\vv{x})_i = \sum_{k=1}^n a_{ik}x_k.
+\]
+De forma equivalente, $A\vv{x}$ es la \textbf{combinación lineal de las columnas de $A$} con
+coeficientes $x_1,\ldots,x_n$:
+\[
+  A\vv{x} = x_1\vv{a}_1 + x_2\vv{a}_2 + \cdots + x_n\vv{a}_n,
+\]
+donde $\vv{a}_j$ es la $j$-ésima columna de $A$.
+\end{definicion}
+
+\begin{teorema}[Forma matricial de un sistema de ecuaciones lineales]
+El sistema de $m$ ecuaciones lineales con $n$ incógnitas
+\[
+\begin{aligned}
+  a_{11}x_1+\cdots+a_{1n}x_n &= b_1 \\
+  &\;\vdots \\
+  a_{m1}x_1+\cdots+a_{mn}x_n &= b_m
+\end{aligned}
+\]
+es exactamente la ecuación matricial $A\vv{x}=\vv{b}$, donde $A=(a_{ij})$ es la matriz de
+coeficientes $m\times n$, $\vv{x}\in\R^n$ es el vector de incógnitas y $\vv{b}\in\R^m$ el vector de
+términos independientes. Resolver el sistema es encontrar los $\vv{x}$ para los cuales $A\vv{x}$
+coincide con $\vv{b}$.
+\end{teorema}
+
+\begin{ejemplo}
+El sistema $2x_1-x_2=4,\; x_1+3x_2=5$ es la ecuación matricial
+\[
+  \underbrace{\begin{pmatrix}2&-1\\1&3\end{pmatrix}}_{A}
+  \underbrace{\begin{pmatrix}x_1\\x_2\end{pmatrix}}_{\vv{x}} =
+  \underbrace{\begin{pmatrix}4\\5\end{pmatrix}}_{\vv{b}}.
+\]
+\end{ejemplo}
+
+\begin{definicion}[Producto de matrices]
+Sean $A$ una matriz $m\times p$ y $B$ una matriz $p\times n$ (el número de \textbf{columnas de
+$A$} debe ser igual al número de \textbf{filas de $B$}). El producto $C=AB$ es la matriz
+$m\times n$ cuya entrada $(i,j)$ es el producto punto de la fila $i$ de $A$ con la columna $j$ de
+$B$:
+\[
+  c_{ij} = \sum_{k=1}^p a_{ik}b_{kj}.
+\]
+Si el número de columnas de $A$ no coincide con el número de filas de $B$, el producto $AB$
+\textbf{no está definido}.
+\end{definicion}
+
+\begin{ejemplo}[Regla fila por columna]
+Con $A=\begin{pmatrix}1&2\\0&-1\end{pmatrix}$ ($2\times 2$) y
+$B=\begin{pmatrix}3&1\\2&4\end{pmatrix}$ ($2\times 2$):
+\[
+  AB = \begin{pmatrix}
+    1(3)+2(2) & 1(1)+2(4) \\
+    0(3)+(-1)(2) & 0(1)+(-1)(4)
+  \end{pmatrix} = \begin{pmatrix}7&9\\-2&-4\end{pmatrix}.
+\]
+\end{ejemplo}
+
+\begin{teorema}[Propiedades del producto de matrices]
+Cuando los tamaños hacen posibles las operaciones, y $c\in\R$:
+\begin{enumerate}[label=(\roman*)]
+  \item $(AB)C = A(BC)$ (asociativa).
+  \item $A(B+C) = AB+AC$ y $(A+B)C = AC+BC$ (distributivas).
+  \item $(cA)B = A(cB) = c(AB)$.
+  \item $I_mA = A = AI_n$ para $A$ de tamaño $m\times n$ (la identidad es el neutro del producto).
+  \item En general, \textbf{$AB\neq BA$}: el producto de matrices \textbf{no es conmutativo}.
+        Incluso puede ocurrir que $AB$ esté definido y $BA$ no, o que ambos estén definidos pero
+        tengan tamaños distintos.
+\end{enumerate}
+\end{teorema}
+
+\begin{ejemplo}[No conmutatividad]
+Con $A=\begin{pmatrix}1&2\\0&1\end{pmatrix}$ y $B=\begin{pmatrix}1&0\\3&1\end{pmatrix}$:
+\[
+  AB = \begin{pmatrix}7&2\\3&1\end{pmatrix}, \qquad
+  BA = \begin{pmatrix}1&2\\3&7\end{pmatrix}.
+\]
+$AB\neq BA$: basta comparar la entrada $(1,1)$ ($7$ contra $1$).
+\end{ejemplo}
+
+\subsection{Ejemplo de aplicación: consumo de recursos en producción}\label{sec:produccion}
+
+Una planta fabrica dos productos usando tres recursos (acero en kg, horas de mano de obra, y
+energía en kWh). La matriz de \emph{consumo unitario} --- cuánto de cada recurso requiere una
+unidad de cada producto --- es
+\[
+  A = \begin{pmatrix} 2 & 3 \\ 1 & 4 \\ 5 & 2 \end{pmatrix} \quad
+  \begin{array}{l}\text{(acero, kg/unidad)} \\ \text{(mano de obra, h/unidad)} \\ \text{(energía, kWh/unidad)}\end{array}
+\]
+donde la columna 1 corresponde al producto 1 y la columna 2 al producto 2. Si la planta produce
+$\vv{x}=(40,25)$ unidades (40 del producto 1, 25 del producto 2), el vector de recursos totales
+consumidos es
+\[
+  A\vv{x} = \begin{pmatrix}2&3\\1&4\\5&2\end{pmatrix}\begin{pmatrix}40\\25\end{pmatrix}
+  = 40\begin{pmatrix}2\\1\\5\end{pmatrix} + 25\begin{pmatrix}3\\4\\2\end{pmatrix}
+  = \begin{pmatrix}80\\40\\200\end{pmatrix} + \begin{pmatrix}75\\100\\50\end{pmatrix}
+  = \begin{pmatrix}155\\140\\250\end{pmatrix}.
+\]
+Es decir, fabricar ese lote requiere \textbf{155 kg de acero, 140 horas de mano de obra y 250 kWh
+de energía}. Nótese que $A\vv{x}$ se calculó como combinación lineal de las columnas de $A$
+(consumo del producto 1 escalado por 40, más consumo del producto 2 escalado por 25) --- la misma
+idea que aparece en el teorema de la forma matricial de un sistema: multiplicar por $A$ siempre es
+combinar columnas.
+
+\section{Soluciones de los ejercicios propuestos}
+
+\begin{description}
+
+\item[\textbf{Ejercicio 1.}]
+Dadas $A=\begin{pmatrix}1&2&-1\\0&3&4\end{pmatrix}$ y $B=\begin{pmatrix}2&-1&0\\1&2&-3\end{pmatrix}$
+(ambas $2\times 3$), calcular $A+B$, $A-B$ y $3A-2B$.
+\[
+  A+B = \begin{pmatrix}3&1&-1\\1&5&1\end{pmatrix}, \qquad
+  A-B = \begin{pmatrix}-1&3&-1\\-1&1&7\end{pmatrix}.
+\]
+\[
+  3A = \begin{pmatrix}3&6&-3\\0&9&12\end{pmatrix}, \quad
+  2B = \begin{pmatrix}4&-2&0\\2&4&-6\end{pmatrix}, \quad
+  3A-2B = \boxed{\begin{pmatrix}-1&8&-3\\-2&5&18\end{pmatrix}.}
+\]
+
+\item[\textbf{Ejercicio 2.}]
+Dados $\vv{u}=(1,-2,3)$ y $\vv{v}=(0,4,-1)$, calcular $\vv{u}\cdot\vv{v}$ y determinar si son
+ortogonales.
+\[
+  \vv{u}\cdot\vv{v} = 1(0) + (-2)(4) + 3(-1) = 0 - 8 - 3 = \boxed{-11.}
+\]
+Como $\vv{u}\cdot\vv{v}=-11\neq 0$, \textbf{no son ortogonales}.
+
+\item[\textbf{Ejercicio 3.}]
+Dadas $A=\begin{pmatrix}1&0&2\\-1&3&1\end{pmatrix}$ ($2\times 3$) y
+$B=\begin{pmatrix}2&1\\0&-1\\4&2\end{pmatrix}$ ($3\times 2$), calcular $AB$; determinar si $BA$
+también está definido y, de ser así, calcularlo y compararlo con $AB$.
+
+$AB$: como $A$ es $2\times 3$ y $B$ es $3\times 2$ (columnas de $A$ = filas de $B$ = 3), el
+producto está definido y resulta $2\times 2$:
+\[
+  AB = \begin{pmatrix}
+    1(2)+0(0)+2(4) & 1(1)+0(-1)+2(2) \\
+    -1(2)+3(0)+1(4) & -1(1)+3(-1)+1(2)
+  \end{pmatrix} = \begin{pmatrix}10&5\\2&-2\end{pmatrix}.
+\]
+$BA$ también está definido ($B$ es $3\times 2$, $A$ es $2\times 3$, columnas de $B$ = filas de $A$
+= 2), pero resulta $3\times 3$:
+\[
+  BA = \begin{pmatrix}
+    2(1)+1(-1) & 2(0)+1(3) & 2(2)+1(1) \\
+    0(1)+(-1)(-1) & 0(0)+(-1)(3) & 0(2)+(-1)(1) \\
+    4(1)+2(-1) & 4(0)+2(3) & 4(2)+2(1)
+  \end{pmatrix} = \begin{pmatrix}1&3&5\\1&-3&-1\\2&6&10\end{pmatrix}.
+\]
+\[\boxed{AB\ (2\times 2) \neq BA\ (3\times 3): \text{ni siquiera tienen el mismo tamaño.}}\]
+
+\item[\textbf{Ejercicio 4.}]
+Escribir en forma matricial $A\vv{x}=\vv{b}$ el sistema
+\[
+  2x_1-x_2+3x_3=5,\qquad x_1+4x_2-x_3=-2,\qquad -3x_1+2x_2+x_3=0.
+\]
+\[
+  \boxed{
+  \underbrace{\begin{pmatrix}2&-1&3\\1&4&-1\\-3&2&1\end{pmatrix}}_{A}
+  \underbrace{\begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix}}_{\vv{x}} =
+  \underbrace{\begin{pmatrix}5\\-2\\0\end{pmatrix}}_{\vv{b}}.}
+\]
+
+\item[\textbf{Ejercicio 5.}]
+Una planta produce 3 tipos de piezas en 2 máquinas; la matriz de tiempos, en horas por pieza, es
+\[
+  M = \begin{pmatrix}0.5 & 1.2 & 0.8 \\ 1.0 & 0.3 & 1.5\end{pmatrix}
+  \quad \begin{array}{l}\text{(máquina 1)}\\\text{(máquina 2)}\end{array}
+\]
+Si la producción diaria es $\vv{x}=(100,50,30)$ piezas de cada tipo, calcular las horas-máquina
+requeridas mediante $M\vv{x}$.
+\[
+  M\vv{x} = \begin{pmatrix}0.5(100)+1.2(50)+0.8(30)\\1.0(100)+0.3(50)+1.5(30)\end{pmatrix}
+  = \begin{pmatrix}50+60+24\\100+15+45\end{pmatrix}
+  = \boxed{\begin{pmatrix}134\\160\end{pmatrix}\text{ horas.}}
+\]
+La máquina 1 requiere 134 horas y la máquina 2, 160 horas para completar el lote.
+
+\item[\textbf{Ejercicio 6.}]
+Dadas $A=\begin{pmatrix}1&2\\0&1\end{pmatrix}$ y $B=\begin{pmatrix}1&0\\3&1\end{pmatrix}$
+(ambas $2\times 2$, mismo tamaño en los dos órdenes), calcular $AB$ y $BA$ y comprobar que el
+producto de matrices no es conmutativo.
+\[
+  AB = \begin{pmatrix}1(1)+2(3) & 1(0)+2(1)\\0(1)+1(3) & 0(0)+1(1)\end{pmatrix} = \begin{pmatrix}7&2\\3&1\end{pmatrix},
+\]
+\[
+  BA = \begin{pmatrix}1(1)+0(0) & 1(2)+0(1)\\3(1)+1(0) & 3(2)+1(1)\end{pmatrix} = \begin{pmatrix}1&2\\3&7\end{pmatrix}.
+\]
+\[\boxed{AB=\begin{pmatrix}7&2\\3&1\end{pmatrix} \neq \begin{pmatrix}1&2\\3&7\end{pmatrix}=BA.}\]
+Aunque ambos productos están definidos y tienen el mismo tamaño ($2\times 2$), las entradas
+difieren: el producto de matrices no es conmutativo en general.
+
+\end{description}
+
+\end{document}

@@ -1,0 +1,124 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{\textcolor{unicaucaverde}{\Large Guía de Aprendizaje — Semana 1}\\[4pt]
+  \large Sistemas de ecuaciones lineales: introducción y el caso de dos incógnitas}
+\author{Álgebra Lineal para Ingeniería --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{tabular}{|>{\bfseries}p{4cm}|p{10cm}|}
+\hline
+Semana & 1 de 16 \\ \hline
+Unidad & 1 --- Sistemas de ecuaciones lineales (Grossman, cap. 1) \\ \hline
+Subtemas & 1.1 (introducción), 1.2 (dos ecuaciones con dos incógnitas) \\ \hline
+Horas de clase & 4 \\ \hline
+Resultado de aprendizaje & RA1 (parte 1 de 2; ver \texttt{guia1/guia.tex}) \\ \hline
+\end{tabular}
+\end{center}
+
+\section*{Relevancia para ingeniería}
+
+Un sistema de ecuaciones lineales aparece cada vez que varias cantidades desconocidas están
+ligadas por relaciones lineales simultáneas: corrientes y voltajes en un circuito (leyes de
+Kirchhoff), fuerzas en equilibrio en una armadura, balances de masa en un proceso, o precios de
+equilibrio oferta-demanda. Resolver el sistema es encontrar los valores que satisfacen todas las
+relaciones a la vez. El caso de dos ecuaciones con dos incógnitas ya muestra los tres
+comportamientos posibles (solución única, ninguna, o infinitas) que se generalizan al caso de
+$m$ ecuaciones con $n$ incógnitas (Semana 2).
+
+\section{Objetivo de la semana}
+
+Reconocer la forma general de un sistema de ecuaciones lineales, y resolver e interpretar
+geométricamente sistemas de dos ecuaciones con dos incógnitas.
+
+\section{Resultados de aprendizaje de la semana}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item[\textbf{RA1.1.}] Escribir la forma general de un sistema de $m$ ecuaciones lineales con
+        $n$ incógnitas, identificar sus coeficientes, y determinar si una tupla dada es solución.
+  \item[\textbf{RA1.2.}] Resolver un sistema de dos ecuaciones con dos incógnitas por sustitución
+        y por eliminación, clasificarlo (solución única, sin solución, infinitas soluciones), e
+        interpretar cada caso como la intersección de dos rectas.
+\end{itemize}
+
+\section{Contenidos}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{1.1.} Introducción a los sistemas de ecuaciones lineales.
+  \item \textbf{1.2.} Dos ecuaciones lineales con dos incógnitas.
+\end{itemize}
+
+\section{Plan de la sesión (4 horas)}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item[\textbf{Hora 1.}] Ecuación lineal y sistema de $m$ ecuaciones con $n$ incógnitas: forma
+        general, coeficientes, término independiente, solución, sistema consistente/inconsistente
+        (teoría + ejemplos).
+  \item[\textbf{Hora 2.}] Taller: verificar si una tupla dada es solución de un sistema;
+        traducir un problema de ingeniería sencillo (circuito, mezcla) a un sistema de
+        ecuaciones.
+  \item[\textbf{Hora 3.}] Dos ecuaciones con dos incógnitas: solución por sustitución y por
+        eliminación; interpretación geométrica como dos rectas (teoría + ejemplos de los tres
+        casos).
+  \item[\textbf{Hora 4.}] Taller: resolver y clasificar sistemas $2\times 2$; exploración
+        interactiva en \texttt{visualizacion/} (sección \emph{1.1--1.2 Dos ecuaciones con dos
+        incógnitas}) variando los coeficientes para ver los tres casos.
+\end{enumerate}
+
+\section{Actividades}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \textbf{En clase}: talleres de las horas 2 y 4 (ver arriba).
+  \item \textbf{Trabajo autónomo}: lista de ejercicios de \texttt{notas.tex} §1--2, de entrega
+        antes de la Semana 2.
+  \item \textbf{Software}: en \texttt{visualizacion/index.html}, sección \emph{1.1--1.2}, variar
+        los coeficientes $a,b,c$ de dos rectas $a_1x+b_1y=c_1$, $a_2x+b_2y=c_2$ y observar cuándo
+        el sistema tiene solución única, ninguna, o infinitas.
+\end{itemize}
+
+\section{Material de apoyo}
+
+\begin{itemize}[leftmargin=1.2cm]
+  \item \texttt{notas.tex} --- desarrollo teórico completo de 1.1 y 1.2, con ejemplos y ejercicios.
+  \item \texttt{diapositivas.tex} --- síntesis visual de la sesión.
+  \item \texttt{visualizacion/index.html} --- sección \emph{1.1--1.2 Dos ecuaciones con dos
+        incógnitas} (interactivo).
+\end{itemize}
+
+\section{Evaluación de la semana}
+
+Control formativo corto al inicio de la Semana 2 (10 minutos): 2--3 sistemas $2\times 2$ para
+resolver y clasificar, para verificar RA1.1 y RA1.2 antes de avanzar a 1.3--1.4. Contribuye al
+Quiz de la Unidad 1 (ver \texttt{guia1/guia.tex} § Evaluación).
+
+\section{Bibliografía de la semana}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Grossman, S. I., Flores Godoy, J. J. \emph{Álgebra lineal}. 7a/8a ed., McGraw-Hill,
+        cap. 1, §1.1--1.2.
+  \item Lay, D. C., Lay, S. R., McDonald, J. J. \emph{Álgebra lineal y sus aplicaciones}. Pearson.
+\end{enumerate}
+
+\end{document}

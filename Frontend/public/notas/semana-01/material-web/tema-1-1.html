@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.1 Introducción a los sistemas de ecuaciones lineales</title>
+<link rel="stylesheet" href="css/estilo.css">
+<script>
+  window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>1.1 Introducción a los sistemas de ecuaciones lineales</h1>
+    <p class="subtitulo">Semana 1 · Unidad 1 · Álgebra Lineal para Ingeniería — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-1.html">1.1 Introducción</a></li>
+    <li><a href="tema-1-2.html">1.2 Dos incógnitas</a></li>
+    <li><a href="distancia.html">Distancia punto-recta</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Ecuación lineal</span>
+  Una ecuación lineal en las variables \(x_1,\dots,x_n\) es una expresión de la forma
+  \[
+    a_1 x_1 + a_2 x_2 + \cdots + a_n x_n = b,
+  \]
+  donde \(a_1,\dots,a_n\) (los <em>coeficientes</em>) y \(b\) (el <em>término independiente</em>)
+  son números reales (o complejos) dados. Ninguna variable aparece elevada a una potencia distinta
+  de 1, ni multiplicada por otra variable, ni dentro de una función no lineal.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Sistema de m ecuaciones lineales con n incógnitas</span>
+  Un sistema de \(m\) ecuaciones lineales con \(n\) incógnitas \(x_1,\dots,x_n\) es un conjunto de
+  \(m\) ecuaciones lineales que deben satisfacerse simultáneamente:
+  \[
+  \begin{aligned}
+    a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n &= b_1 \\
+    a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n &= b_2 \\
+    &\;\vdots \\
+    a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n &= b_m
+  \end{aligned}
+  \]
+  Los números \(a_{ij}\) son los <em>coeficientes</em> (fila \(i\), columna \(j\)), y \(b_i\) los
+  términos independientes. Una <em>solución</em> del sistema es una \(n\)-tupla \((x_1,\dots,x_n)\)
+  que satisface las \(m\) ecuaciones a la vez. El <em>conjunto solución</em> es el conjunto de
+  todas las soluciones.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Sistemas consistentes e inconsistentes</span>
+  Un sistema es <em>consistente</em> si tiene al menos una solución, e <em>inconsistente</em> si no
+  tiene ninguna. Un sistema consistente tiene exactamente una solución (<em>determinado</em>) o
+  infinitas soluciones (<em>indeterminado</em>) — nunca un número finito mayor que uno; esto se
+  demuestra formalmente en la Semana 2, pero ya se observa en el caso 2×2 de la sección 1.2.
+</div>
+
+<div class="recuadro ingenieria">
+  <span class="titulo">Relevancia para ingeniería</span>
+  En ingeniería, cada ecuación del sistema suele representar una ley física o una restricción: una
+  ley de Kirchhoff de corrientes en un nodo, una ecuación de equilibrio de fuerzas en un punto de
+  una armadura, un balance de materia en una etapa de un proceso. El sistema completo describe el
+  estado del sistema físico bajo todas las restricciones simultáneamente.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo</span>
+  El sistema
+  \[
+  \begin{aligned}
+    2x_1 - x_2 + 3x_3 &= 5 \\
+    x_1 + x_2 - x_3 &= 0
+  \end{aligned}
+  \]
+  tiene \(m=2\) ecuaciones y \(n=3\) incógnitas. La tupla \((1,-1,-2)\) <strong>no</strong> es
+  solución: al sustituir en la primera ecuación, \(2(1)-(-1)+3(-2) = 2+1-6=-3 \neq 5\). Encontrar
+  una solución real requiere el método sistemático de la Semana 2 (Gauss-Jordan), porque aquí
+  \(n>m\) y hay más de una incógnita libre.
+</div>
+
+<div class="paginacion">
+  <a href="index.html">&larr; Inicio</a>
+  <a href="tema-1-2.html">1.2 Dos ecuaciones con dos incógnitas &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-01/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

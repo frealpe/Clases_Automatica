@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2.5. Transpuesta de una Matriz y Simetría | Álgebra Lineal</title>
+  <link rel="stylesheet" href="css/estilo.css">
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+  <header class="top">
+    <div class="marca">
+      <h1>Álgebra Lineal para Ingeniería</h1>
+      <p class="subtitulo">Semana 4 — Tema 2.5: Transpuesta de una Matriz y Simetría</p>
+    </div>
+  </header>
+
+  <nav class="principal">
+    <ul>
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tema-2-3.html">2.3 Matrices y Sistemas</a></li>
+      <li><a href="tema-2-4.html">2.4 Matriz Inversa</a></li>
+      <li><a href="tema-2-5.html">2.5 Transpuesta y Simetría</a></li>
+      <li><a href="ejercicios-resueltos.html">Ejercicios Resueltos</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h2>2.5. Transpuesta de una Matriz y Simetría</h2>
+
+    <div class="caja-destacada">
+      <h3>Definición de Matriz Transpuesta $A^T$</h3>
+      <p>Dada una matriz $A = (a_{ij})_{m\times n}$, su <strong>transpuesta</strong> $A^T = (a_{ji})_{n\times m}$ es la matriz obtenida al intercambiar sus filas por sus columnas:</p>
+      $$(A^T)_{ij} = a_{ji}$$
+    </div>
+
+    <h3>Propiedades del Álgebra de Transposiciones</h3>
+    <ul>
+      <li>$(A^T)^T = A$</li>
+      <li>$(A + B)^T = A^T + B^T$</li>
+      <li>$(cA)^T = c A^T$</li>
+      <li>$(AB)^T = B^T A^T$ <em>(¡el orden de los factores se invierte!)</em></li>
+      <li>$(A^T)^{-1} = (A^{-1})^T$ para cualquier matriz invertible $A$.</li>
+    </ul>
+
+    <h3>Matrices Simétricas y Antisimétricas</h3>
+    <p>Para una matriz cuadrada $A$ de orden $n\times n$:</p>
+    <div class="caja-ejemplo">
+      <ul>
+        <li><strong>Simétrica:</strong> $A^T = A \quad \implies \quad a_{ij} = a_{ji}$ para todo $i,j$.</li>
+        <li><strong>Antisimétrica:</strong> $A^T = -A \quad \implies \quad a_{ij} = -a_{ji}$ para todo $i,j$ (y los elementos diagonales son cero $a_{ii} = 0$).</li>
+      </ul>
+    </div>
+
+    <h3>Descomposición Única $A = S + K$</h3>
+    <p>Toda matriz cuadrada $A$ se puede descomponer de manera única en la suma de una matriz simétrica $S$ y una matriz antisimétrica $K$:</p>
+    $$A = \underbrace{\frac{A + A^T}{2}}_{\text{Simétrica } S} + \underbrace{\frac{A - A^T}{2}}_{\text{Antisimétrica } K}$$
+
+    <h2>Analizador Interactivo de Transpuesta y Simetría</h2>
+    <div id="widget-matriz-transpuesta" class="widget-container"></div>
+
+    <div style="margin-top: 2rem; display: flex; justify-content: space-between;">
+      <a href="tema-2-4.html" class="btn-accion" style="text-decoration: none; background: var(--gris-suave);">&larr; Anterior: 2.4 Matriz Inversa</a>
+      <a href="ejercicios-resueltos.html" class="btn-accion" style="text-decoration: none;">Siguiente: Ejercicios Resueltos &rarr;</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>Álgebra Lineal para Ingeniería — Universidad del Cauca (2026)</p>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script src="js/matriz-transpuesta.js"></script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notas de clase — Semana 1 (Programación)</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Notas de clase — Semana 1</h1>
+    <p class="subtitulo">Introducción a la programación y fundamentos de C · Programación · Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="notas.html" class="activo">Notas</a></li>
+    <li><a href="ejercicios.html">Ejercicios</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="indice-secciones">
+  <h2>Contenido</h2>
+  <ol>
+    <li><a href="#sec1">¿Qué es programar? Algoritmos y lenguajes</a></li>
+    <li><a href="#sec2">El proceso de compilación en C y estructura de un programa</a></li>
+    <li><a href="#sec3">Tipos de datos, variables y constantes</a></li>
+    <li><a href="#sec4">Operadores</a></li>
+    <li><a href="#sec5">Entrada y salida estándar</a></li>
+    <li><a href="#sec6">Ejercicios propuestos y soluciones</a></li>
+  </ol>
+</div>
+
+<h2 id="sec1">1. ¿Qué es programar? Algoritmos y lenguajes</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Algoritmo</span>
+  Un algoritmo es una secuencia finita, ordenada y no ambigua de pasos que resuelve un problema o
+  realiza una tarea. Antes de escribir código, todo programa es —o debería ser— un algoritmo
+  claro: qué datos entran, qué pasos se aplican, qué datos salen.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Programa y lenguaje de programación</span>
+  Un programa es la traducción de un algoritmo a un lenguaje que un computador puede ejecutar. Un
+  lenguaje de programación es el conjunto de reglas (sintaxis) y significados (semántica) que
+  permiten escribir esa traducción de forma no ambigua.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Compilados vs. interpretados</span>
+  En un lenguaje <em>compilado</em> (como C), un programa —el compilador— traduce todo el código
+  fuente a instrucciones de máquina <em>antes</em> de ejecutarlo, generando un archivo ejecutable.
+  En un lenguaje <em>interpretado</em> (como Python), otro programa —el intérprete— lee y ejecuta
+  el código fuente línea a línea, sin generar un ejecutable independiente. C, al compilarse a
+  código de máquina nativo, produce programas muy eficientes en tiempo y memoria: por eso es el
+  lenguaje base de sistemas embebidos y de control.
+</div>
+
+<h2 id="sec2">2. El proceso de compilación en C y estructura de un programa</h2>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Del código fuente al ejecutable</span>
+  Compilar un programa en C con <code>gcc</code> pasa por cuatro etapas:
+  <ol>
+    <li><strong>Preprocesador</strong>: procesa las directivas que empiezan por <code>#</code>
+      (como <code>#include</code>, <code>#define</code>), sustituyéndolas antes de compilar.</li>
+    <li><strong>Compilador</strong>: traduce el código fuente (ya preprocesado) a código
+      ensamblador.</li>
+    <li><strong>Ensamblador</strong>: traduce el código ensamblador a código objeto (binario, aún
+      no enlazado).</li>
+    <li><strong>Enlazador (linker)</strong>: combina el código objeto con las librerías necesarias
+      (como la librería estándar, que aporta <code>printf</code>) para producir el ejecutable
+      final.</li>
+  </ol>
+  En la práctica, <code>gcc programa.c -o programa</code> ejecuta las cuatro etapas de un solo paso.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Estructura mínima de un programa en C</span>
+  Todo programa en C ejecutable necesita, como mínimo, una función <code>main</code>, que es el
+  punto de entrada: la primera función que se ejecuta al correr el programa.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Hola mundo</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;   // preprocesador: incluye la libreria estandar de E/S
+
+int main(void) {
+    printf("Hola, mundo\n");   // sentencia: termina en punto y coma
+    return 0;                  // 0 indica que el programa termino sin errores
+}</code></pre>
+  <code>#include &lt;stdio.h&gt;</code> le pide al preprocesador que incluya las declaraciones
+  necesarias para usar <code>printf</code>. <code>int main(void)</code> declara la función
+  principal, que devuelve un entero (<code>int</code>) al sistema operativo. El cuerpo de la
+  función va entre llaves <code>{ }</code>, y cada sentencia termina en punto y coma
+  <code>;</code>. El texto tras <code>//</code> es un comentario: el compilador lo ignora.
+</div>
+
+<h2 id="sec3">3. Tipos de datos, variables y constantes</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Variable</span>
+  Una variable es un espacio de memoria con un nombre, un tipo de dato y un valor que puede
+  cambiar durante la ejecución del programa. Debe <em>declararse</em> (indicar su tipo y nombre)
+  antes de usarse, y puede <em>inicializarse</em> (darle un valor inicial) en la misma declaración.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Tipos de datos básicos de C</span>
+  <table class="datos">
+    <tr><th>Tipo</th><th>Representa</th><th>Ejemplo de literal</th></tr>
+    <tr><td><code>int</code></td><td>números enteros</td><td><code>-7</code>, <code>0</code>, <code>42</code></td></tr>
+    <tr><td><code>float</code></td><td>reales de precisión simple</td><td><code>3.14f</code></td></tr>
+    <tr><td><code>double</code></td><td>reales de precisión doble</td><td><code>3.14159265</code></td></tr>
+    <tr><td><code>char</code></td><td>un solo carácter (código ASCII)</td><td><code>'A'</code>, <code>'9'</code></td></tr>
+  </table>
+  El tamaño exacto en bytes de cada tipo depende del compilador y la arquitectura; se consulta en
+  tiempo de compilación con el operador <code>sizeof</code>.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Tabla extendida de tipos primitivos, tamaño y rango</span>
+  Además de los cuatro tipos básicos, C ofrece variantes de tamaño y signo distintos —útiles
+  cuando importa acotar el uso de memoria o garantizar que un valor nunca sea negativo (por
+  ejemplo, un conteo de muestras de un sensor). Los tamaños de la tabla corresponden a un
+  compilador típico de 64 bits (<code>gcc</code> en Linux/Windows); se deben verificar con
+  <code>sizeof</code> en cada entorno.
+  <table class="datos">
+    <tr><th>Tipo</th><th>Bytes</th><th>Rango</th><th>Ejemplo</th></tr>
+    <tr><td><code>char</code></td><td>1</td><td>-128 a 127</td><td><code>char c = 'A';</code></td></tr>
+    <tr><td><code>unsigned char</code></td><td>1</td><td>0 a 255</td><td><code>unsigned char c = 200;</code></td></tr>
+    <tr><td><code>short int</code></td><td>2</td><td>-32768 a 32767</td><td><code>short int e = 25;</code></td></tr>
+    <tr><td><code>unsigned short int</code></td><td>2</td><td>0 a 65535</td><td><code>unsigned short int e = 25;</code></td></tr>
+    <tr><td><code>int</code></td><td>4</td><td>-2.147.483.648 a 2.147.483.647</td><td><code>int n = 1000;</code></td></tr>
+    <tr><td><code>unsigned int</code></td><td>4</td><td>0 a 4.294.967.295</td><td><code>unsigned int n = 1000;</code></td></tr>
+    <tr><td><code>long int</code></td><td>4–8</td><td>(igual o mayor que <code>int</code>)</td><td><code>long int p = 100000;</code></td></tr>
+    <tr><td><code>unsigned long int</code></td><td>4–8</td><td>(igual o mayor que <code>unsigned int</code>)</td><td><code>unsigned long int p;</code></td></tr>
+    <tr><td><code>long long int</code></td><td>8</td><td>≈ ±9.2×10¹⁸</td><td><code>long long int x = 10000000000LL;</code></td></tr>
+    <tr><td><code>unsigned long long int</code></td><td>8</td><td>0 a ≈1.8×10¹⁹</td><td><code>...x = 10000000000ULL;</code></td></tr>
+    <tr><td><code>float</code></td><td>4</td><td>≈ ±3.4×10³⁸</td><td><code>float d = 3.14f;</code></td></tr>
+    <tr><td><code>double</code></td><td>8</td><td>≈ ±1.7×10³⁰⁸</td><td><code>double d = 3.1415926535;</code></td></tr>
+    <tr><td><code>long double</code></td><td>12–16</td><td>≈ ±1.1×10⁴⁹³²</td><td><code>long double d = 3.14L;</code></td></tr>
+  </table>
+  Los sufijos del literal indican al compilador el tipo exacto: <code>L</code> o <code>LL</code>
+  para enteros largos, <code>U</code> para sin signo (combinables: <code>ULL</code>), <code>f</code>
+  para <code>float</code> y <code>L</code> para <code>long double</code>.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Especificadores de formato en printf</span>
+  Cada tipo tiene su propio especificador; usar el incorrecto es un error común que produce
+  salidas basura sin que el compilador siempre avise.
+  <table class="datos">
+    <tr><th>Tipo</th><th>Especificador</th><th>Ejemplo de valor</th></tr>
+    <tr><td><code>int</code></td><td><code>%d</code></td><td><code>25</code></td></tr>
+    <tr><td><code>unsigned int</code></td><td><code>%u</code></td><td><code>300</code></td></tr>
+    <tr><td><code>short int</code></td><td><code>%hd</code></td><td><code>-5</code></td></tr>
+    <tr><td><code>long int</code></td><td><code>%ld</code></td><td><code>8000000</code></td></tr>
+    <tr><td><code>long long int</code></td><td><code>%lld</code></td><td><code>1234567890123</code></td></tr>
+    <tr><td><code>float</code></td><td><code>%f</code></td><td><code>1.75</code></td></tr>
+    <tr><td><code>double</code></td><td><code>%lf</code> (con <code>scanf</code>; <code>%f</code> basta en <code>printf</code>)</td><td><code>3.14159</code></td></tr>
+    <tr><td><code>long double</code></td><td><code>%Lf</code></td><td><code>9.80665</code></td></tr>
+    <tr><td><code>char</code></td><td><code>%c</code></td><td><code>'A'</code></td></tr>
+    <tr><td><code>_Bool</code>/<code>bool</code></td><td><code>%d</code> (no existe especificador propio)</td><td><code>1</code> / <code>0</code></td></tr>
+  </table>
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Rangos reales del compilador con limits.h, float.h y stdbool.h</span>
+  Los valores exactos de rango dependen del compilador; las cabeceras <code>limits.h</code> y
+  <code>float.h</code> definen constantes (<code>INT_MAX</code>, <code>DBL_MIN</code>, etc.) que
+  permiten consultarlos en tiempo de compilación, en vez de memorizarlos:
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+#include &lt;limits.h&gt;   // INT_MAX, LONG_MIN, etc.
+#include &lt;float.h&gt;    // FLT_MAX, DBL_MIN, etc.
+#include &lt;stdbool.h&gt;  // bool, true, false (desde C99)
+
+int main(void) {
+    printf("int:   %zu bytes, de %d a %d\n", sizeof(int), INT_MIN, INT_MAX);
+    printf("long:  %zu bytes, de %ld a %ld\n", sizeof(long), LONG_MIN, LONG_MAX);
+    printf("float: %zu bytes, maximo %.10e\n", sizeof(float), FLT_MAX);
+
+    bool activo = true;
+    printf("bool:  %zu bytes, valor actual %d\n", sizeof(bool), activo);
+    return 0;
+}</code></pre>
+  <code>stdbool.h</code> no crea un tipo nuevo en el lenguaje: <code>bool</code> es una macro para
+  <code>_Bool</code>, y <code>true</code>/<code>false</code> son macros para <code>1</code>/<code>0</code>.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Declaración, inicialización y sizeof</span>
+<pre class="codigo"><code>int edad = 20;
+float precio = 19.99f;
+double pi = 3.14159265358979;
+char inicial = 'F';
+
+printf("int ocupa %lu bytes\n", sizeof(int));
+printf("double ocupa %lu bytes\n", sizeof(double));</code></pre>
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Constantes</span>
+  Una constante es un valor que no cambia durante la ejecución. En C se define de dos formas: con
+  la directiva de preprocesador <code>#define NOMBRE valor</code> (sustitución de texto, sin
+  tipo), o con el calificador <code>const</code> sobre una variable (<code>const float PI =
+  3.1416;</code>, con tipo y verificado por el compilador).
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Macro</span>
+  Una <em>macro</em> es un <code>#define</code> más general: además de dar nombre a un valor,
+  puede recibir parámetros. El preprocesador sustituye cada llamada a la macro por su definición
+  <em>textual</em>, parámetro por parámetro, antes de que el compilador vea el código. A
+  diferencia de una función, la sustitución no implica una llamada real en tiempo de ejecución.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Macro con parámetros: empaquetar 8 bits en un entero</span>
+  La macro siguiente recibe 8 valores (cada uno <code>0</code> o <code>1</code>) y los combina en
+  un solo entero de 8 bits usando desplazamiento (<code>&lt;&lt;</code>) y <code>OR</code> bit a
+  bit (<code>|</code>):
+<pre class="codigo"><code>#define BIN8(b7,b6,b5,b4,b3,b2,b1,b0) \
+    (((b7)&lt;&lt;7) | ((b6)&lt;&lt;6) | ((b5)&lt;&lt;5) | ((b4)&lt;&lt;4) | \
+     ((b3)&lt;&lt;3) | ((b2)&lt;&lt;2) | ((b1)&lt;&lt;1) | ((b0)&lt;&lt;0))
+
+int main(void) {
+    int a = BIN8(1,1,0,0,1,0,1,0);  // 0b11001010 = 202
+    printf("%d\n", a);
+    return 0;
+}</code></pre>
+  Cada bit <code>bN</code> se desplaza <code>N</code> posiciones a la izquierda
+  (<code>b7&lt;&lt;7</code> lo deja en la posición más significativa) y luego se combinan todos
+  con <code>|</code>, que en cada posición da <code>1</code> si al menos uno de los operandos
+  tiene <code>1</code> ahí. Como cada bit ocupa una posición distinta, el <code>OR</code>
+  simplemente los reúne sin que se pisen entre sí: el resultado es el número de 8 bits
+  <code>b7 b6 b5 b4 b3 b2 b1 b0</code> leído de izquierda a derecha. La barra <code>\</code> al
+  final de línea le dice al preprocesador que la definición continúa en la línea siguiente.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Reglas para nombres de variables</span>
+  Un identificador en C empieza por una letra o guion bajo (<code>_</code>), seguido de letras,
+  dígitos o guiones bajos; distingue mayúsculas de minúsculas (<code>Edad</code> ≠
+  <code>edad</code>); y no puede coincidir con una palabra reservada del lenguaje (<code>int</code>,
+  <code>return</code>, <code>if</code>, etc.).
+</div>
+
+<h2 id="sec4">4. Operadores</h2>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Familias de operadores</span>
+  <ul>
+    <li><strong>Aritméticos</strong>: <code>+ - * / %</code> (<code>%</code> es el residuo de la
+      división entera; <code>/</code> entre dos <code>int</code> trunca el resultado).</li>
+    <li><strong>Relacionales</strong>: <code>== != &lt; &gt; &lt;= &gt;=</code>, resultan en
+      <code>0</code> (falso) o <code>1</code> (verdadero).</li>
+    <li><strong>Lógicos</strong>: <code>&amp;&amp;</code> (y), <code>||</code> (o), <code>!</code>
+      (no), combinan condiciones.</li>
+    <li><strong>Asignación</strong>: <code>=</code>, y las compuestas <code>+= -= *= /= %=</code>.</li>
+    <li><strong>Incremento/decremento</strong>: <code>++</code> y <code>--</code> (prefijo o
+      sufijo).</li>
+  </ul>
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — División entera vs. residuo</span>
+<pre class="codigo"><code>int a = 7, b = 2;
+printf("%d\n", a / b);   // imprime 3 (division entera, se trunca)
+printf("%d\n", a % b);   // imprime 1 (residuo de 7 entre 2)
+printf("%f\n", (float)a / b);   // imprime 3.500000 (conversion explicita)</code></pre>
+</div>
+
+<h2 id="sec5">5. Entrada y salida estándar</h2>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — printf y scanf</span>
+  <code>printf</code> escribe en la consola una cadena de formato donde cada especificador
+  (<code>%d</code> entero, <code>%f</code> flotante, <code>%lf</code> double con
+  <code>scanf</code>, <code>%c</code> carácter, <code>%s</code> cadena) se sustituye por el valor
+  del argumento correspondiente. <code>scanf</code> lee de teclado hacia variables, y necesita el
+  operador <code>&amp;</code> (dirección de memoria) delante de cada variable —excepto para
+  cadenas (<code>char[]</code>), donde el nombre del arreglo ya es una dirección.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Programa integrador: área de un círculo</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    const float PI = 3.14159f;
+    float radio, area;
+
+    printf("Radio del circulo: ");
+    scanf("%f", &amp;radio);
+
+    area = PI * radio * radio;
+    printf("Area = %.2f\n", area);
+
+    return 0;
+}</code></pre>
+</div>
+
+<h2 id="sec6">6. Ejercicios propuestos y soluciones</h2>
+
+<div class="ejercicio">
+  <span class="num">1</span><strong>Escribe un programa que imprima tu nombre y el nombre de la
+  asignatura en dos líneas separadas, usando dos sentencias <code>printf</code>.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("Mi nombre es Ana Torres\n");
+    printf("Asignatura: Programacion\n");
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">2</span><strong>Declara variables <code>float base</code> y
+  <code>altura</code> para un triángulo, asígnales valores, calcula el área
+  (base×altura/2) e imprímela con dos decimales.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float base = 6.0f, altura = 4.5f, area;
+    area = base * altura / 2;
+    printf("Area del triangulo = %.2f\n", area);
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Nota</span>Con <code>base = 6.0</code> y
+  <code>altura = 4.5</code>, el área es 6.0 × 4.5 / 2 = 13.50.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">3</span><strong>El siguiente código tiene tres errores de sintaxis.
+  Identifícalos y corrígelos:</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void)
+    int x = 5
+    printf("x vale %d\n", x);
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Solución</span>Los tres errores: (i) falta el
+  paréntesis de apertura <code>{</code> después de <code>int main(void)</code>; (ii) falta el
+  punto y coma al final de <code>int x = 5</code>; (iii) sobra la llave de cierre <code>}</code>
+  final porque nunca se abrió la primera. Versión corregida:</div>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int x = 5;
+    printf("x vale %d\n", x);
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">4</span><strong>Declara una variable <code>char letra = 'A';</code> e imprime
+  su valor con <code>%c</code> y su código ASCII con <code>%d</code>.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    char letra = 'A';
+    printf("Caracter: %c\n", letra);
+    printf("Codigo ASCII: %d\n", letra);
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Salida</span><code>Caracter: A</code> y
+  <code>Codigo ASCII: 65</code>, porque el código ASCII de <code>'A'</code> es 65.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">5</span><strong>Escribe un programa que lea dos enteros con <code>scanf</code>
+  y muestre su suma, resta, producto, cociente entero y residuo.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int a, b;
+    printf("Ingrese dos enteros: ");
+    scanf("%d %d", &amp;a, &amp;b);
+
+    printf("Suma = %d\n", a + b);
+    printf("Resta = %d\n", a - b);
+    printf("Producto = %d\n", a * b);
+    printf("Cociente entero = %d\n", a / b);
+    printf("Residuo = %d\n", a % b);
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">6</span><strong>Usando <code>sizeof</code>, escribe un programa que imprima el
+  tamaño en bytes de <code>int</code>, <code>float</code>, <code>double</code> y
+  <code>char</code>.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("int:    %lu bytes\n", sizeof(int));
+    printf("float:  %lu bytes\n", sizeof(float));
+    printf("double: %lu bytes\n", sizeof(double));
+    printf("char:   %lu bytes\n", sizeof(char));
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Nota</span>En la mayoría de compiladores
+  actuales (arquitectura de 64 bits): <code>int</code> = 4, <code>float</code> = 4,
+  <code>double</code> = 8, <code>char</code> = 1 byte.</div>
+</div>
+
+<div class="paginacion">
+  <a href="index.html">&larr; Inicio</a>
+  <a href="ejercicios.html">Ejercicios de refuerzo &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>Programacion/semana-01/</code> — Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

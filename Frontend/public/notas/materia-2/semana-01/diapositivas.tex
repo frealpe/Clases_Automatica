@@ -1,0 +1,162 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\setbeamercolor{structure}{fg=unicaucaverde}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=cstyle}
+
+\title[Semana 1: Fundamentos de C]{Introducción a la programación y fundamentos de C}
+\subtitle{Programación --- Semana 1 de 16}
+\author{Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Semana 1: dónde estamos}
+  \begin{itemize}
+    \item Unidad: Fundamentos de programación en C.
+    \item Subtemas 1.1--1.4 --- RA1.1, RA1.2.
+    \item 4 horas: proceso de compilación y primer programa, luego tipos/operadores/E-S.
+  \end{itemize}
+  \tableofcontents
+\end{frame}
+
+\section{Algoritmos y lenguajes}
+
+\begin{frame}{¿Qué es programar?}
+  \begin{block}{Algoritmo}
+    Secuencia finita, ordenada y no ambigua de pasos que resuelve un problema.
+  \end{block}
+  \begin{block}{Programa}
+    Traducción de un algoritmo a un lenguaje que el computador puede ejecutar.
+  \end{block}
+  \vfill
+  \textbf{Compilado} (C): se traduce todo antes de ejecutar $\to$ ejecutable nativo.\\
+  \textbf{Interpretado} (Python): se traduce y ejecuta línea a línea.
+\end{frame}
+
+\section{Compilación y estructura de un programa}
+
+\begin{frame}{El proceso de compilación en C}
+  \begin{enumerate}
+    \item \textbf{Preprocesador} --- procesa \texttt{\#include}, \texttt{\#define}.
+    \item \textbf{Compilador} --- código fuente $\to$ ensamblador.
+    \item \textbf{Ensamblador} --- ensamblador $\to$ código objeto.
+    \item \textbf{Enlazador} --- objeto + librerías $\to$ ejecutable.
+  \end{enumerate}
+  \vfill
+  \texttt{gcc programa.c -o programa} hace las cuatro etapas de un solo paso.
+\end{frame}
+
+\begin{frame}[fragile]{Hola mundo}
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    printf("Hola, mundo\n");
+    return 0;
+}
+\end{lstlisting}
+  \begin{itemize}
+    \item \texttt{\#include}: directiva de preprocesador.
+    \item \texttt{main}: punto de entrada del programa.
+    \item Cada sentencia termina en \texttt{;}; el cuerpo va entre \texttt{\{ \}}.
+  \end{itemize}
+  \vfill
+  \textbf{Taller (hora 2):} compilar, ejecutar, modificar, provocar/corregir errores.
+\end{frame}
+
+\section{Tipos de datos, variables y constantes}
+
+\begin{frame}{Tipos de datos básicos}
+  \begin{center}
+  \begin{tabular}{lll}
+    \textbf{Tipo} & \textbf{Representa} & \textbf{Literal} \\ \hline
+    \texttt{int} & entero & \texttt{42} \\
+    \texttt{float} & real simple & \texttt{3.14f} \\
+    \texttt{double} & real doble & \texttt{3.14159265} \\
+    \texttt{char} & carácter & \texttt{'A'} \\
+  \end{tabular}
+  \end{center}
+  \vfill
+  El tamaño exacto en bytes se consulta con \texttt{sizeof}.
+\end{frame}
+
+\begin{frame}[fragile]{Variables y constantes}
+\begin{lstlisting}
+int edad = 20;
+const float PI = 3.1416f;
+#define MAX_ESTUDIANTES 40
+\end{lstlisting}
+  \begin{itemize}
+    \item Variable: declarar tipo + nombre, puede inicializarse.
+    \item \texttt{const}: constante con tipo, verificada por el compilador.
+    \item \texttt{\#define}: constante por sustitución de texto (preprocesador).
+  \end{itemize}
+\end{frame}
+
+\section{Operadores y entrada/salida}
+
+\begin{frame}{Familias de operadores}
+  \begin{itemize}
+    \item \textbf{Aritméticos:} \texttt{+ - * / \%}
+    \item \textbf{Relacionales:} \texttt{== != < > <= >=}
+    \item \textbf{Lógicos:} \texttt{\&\& || !}
+    \item \textbf{Asignación:} \texttt{= += -= *= /=}
+    \item \textbf{Incremento/decremento:} \texttt{++ --}
+  \end{itemize}
+  \begin{alertblock}{Cuidado}
+    \texttt{/} entre dos \texttt{int} trunca: \texttt{7/2} vale \texttt{3}, no \texttt{3.5}.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{printf} y \texttt{scanf}}
+\begin{lstlisting}
+float radio, area;
+printf("Radio: ");
+scanf("%f", &radio);
+area = 3.14159f * radio * radio;
+printf("Area = %.2f\n", area);
+\end{lstlisting}
+  \begin{itemize}
+    \item \texttt{\%d} entero, \texttt{\%f}/\texttt{\%lf} flotante, \texttt{\%c} carácter.
+    \item \texttt{scanf} necesita \texttt{\&} (dirección) delante de cada variable.
+  \end{itemize}
+  \vfill
+  \textbf{Taller (hora 4):} programa integrador con entrada de datos.
+\end{frame}
+
+\begin{frame}{Cierre de la semana}
+  \begin{itemize}
+    \item RA1.1: proceso de compilación, estructura mínima de un programa.
+    \item RA1.2: tipos de datos, variables, constantes, operadores, E/S estándar.
+    \item Control formativo al inicio de la Semana 2.
+  \end{itemize}
+  \vfill
+  \centering \Large Semana 2: estructuras de control --- condicionales y ciclos.
+\end{frame}
+
+\end{document}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.2 Dos ecuaciones con dos incógnitas</title>
+<link rel="stylesheet" href="css/estilo.css">
+<script>
+  window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>1.2 Dos ecuaciones con dos incógnitas</h1>
+    <p class="subtitulo">Semana 1 · Unidad 1 · Álgebra Lineal para Ingeniería — Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-1.html">1.1 Introducción</a></li>
+    <li><a href="tema-1-2.html">1.2 Dos incógnitas</a></li>
+    <li><a href="distancia.html">Distancia punto-recta</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Sistema 2×2</span>
+  Un sistema de dos ecuaciones lineales con dos incógnitas \(x,y\) tiene la forma
+  \[
+  \begin{aligned}
+    a_1 x + b_1 y &= c_1 \\
+    a_2 x + b_2 y &= c_2
+  \end{aligned}
+  \]
+  Cada ecuación, si \((a_i,b_i)\neq(0,0)\), es la ecuación cartesiana de una recta en \(\mathbb{R}^2\).
+  Resolver el sistema es hallar los puntos \((x,y)\) que están en <em>ambas</em> rectas a la vez:
+  la intersección.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Los tres casos</span>
+  Geométricamente, dos rectas en el plano solo pueden relacionarse de tres formas, que corresponden
+  exactamente a los tres tipos de sistema:
+  <ol>
+    <li><strong>Rectas secantes</strong> (se cortan en un punto) &rArr; <strong>solución única</strong>.</li>
+    <li><strong>Rectas paralelas distintas</strong> (misma pendiente, no coinciden) &rArr;
+        <strong>sin solución</strong> (sistema inconsistente).</li>
+    <li><strong>Rectas coincidentes</strong> (la misma recta escrita dos veces, salvo múltiplo escalar)
+        &rArr; <strong>infinitas soluciones</strong> (todos los puntos de la recta).</li>
+  </ol>
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Método de sustitución</span>
+  Se despeja una variable de una ecuación y se sustituye en la otra, reduciendo el sistema a una
+  sola ecuación con una incógnita.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Método de eliminación</span>
+  Se multiplican las ecuaciones por constantes adecuadas y se suman (o restan) para cancelar una de
+  las variables. Este método generaliza directamente a la eliminación de Gauss-Jordan de la
+  Semana 2.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Solución única</span>
+  \[
+  \begin{aligned}
+    x + y &= 5 \\
+    x - y &= 1
+  \end{aligned}
+  \]
+  Sumando ambas ecuaciones: \(2x = 6 \Rightarrow x=3\); sustituyendo, \(y=2\). Solución única:
+  \((3,2)\). Las rectas tienen pendientes distintas (\(-1\) y \(1\)), así que se cortan en un único punto.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Sin solución</span>
+  \[
+  \begin{aligned}
+    2x + y &= 4 \\
+    4x + 2y &= 3
+  \end{aligned}
+  \]
+  La segunda ecuación es el doble de \(2x+y\) igualado a \(3\) en vez de \(8\): mismas pendientes,
+  distinto término independiente &rArr; rectas paralelas distintas. El sistema es inconsistente.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Infinitas soluciones</span>
+  \[
+  \begin{aligned}
+    x - 2y &= 3 \\
+    -2x + 4y &= -6
+  \end{aligned}
+  \]
+  La segunda ecuación es \(-2\) veces la primera: es la misma recta. El conjunto solución es
+  \(\{(x,y) : x = 3+2y,\; y\in\mathbb{R}\}\), infinito.
+</div>
+
+<h2>Taller interactivo</h2>
+<p>
+  Ajusta los coeficientes de las dos rectas y observa en tiempo real cuál de los tres casos ocurre.
+  Corresponde al taller de la Hora 4 de la sesión.
+</p>
+
+<div class="controles">
+  <fieldset>
+    <legend>Recta 1 <span class="swatch swatch-1"></span>: a&#8321;x + b&#8321;y = c&#8321;</legend>
+    <label>a&#8321; <input type="number" id="a1" value="1" step="0.5"></label>
+    <label>b&#8321; <input type="number" id="b1" value="1" step="0.5"></label>
+    <label>c&#8321; <input type="number" id="c1" value="5" step="0.5"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Recta 2 <span class="swatch swatch-2"></span>: a&#8322;x + b&#8322;y = c&#8322;</legend>
+    <label>a&#8322; <input type="number" id="a2" value="1" step="0.5"></label>
+    <label>b&#8322; <input type="number" id="b2" value="-1" step="0.5"></label>
+    <label>c&#8322; <input type="number" id="c2" value="1" step="0.5"></label>
+  </fieldset>
+</div>
+
+<div id="plotDosEcuaciones" class="plot"></div>
+<div class="resultado plot-resultado" id="resDosEcuaciones"></div>
+
+<div class="paginacion">
+  <a href="tema-1-1.html">&larr; 1.1 Introducción</a>
+  <a href="distancia.html">Distancia punto-recta &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-01/</code> — Álgebra Lineal para Ingeniería, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+<script src="js/dos-ecuaciones.js"></script>
+</body>
+</html>

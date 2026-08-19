@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 1 — Sistemas embebidos en FPGA con Nios II</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Semana 1 — Sistemas embebidos en FPGA con Nios II</h1>
+    <p class="subtitulo">Énfasis · Universidad del Cauca · Del sistema Nios II en Quartus al software en Nios II EDS</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-1.html">1.1 Soft-core y Nios II</a></li>
+    <li><a href="tema-1-2.html">1.2 Flujo de herramientas</a></li>
+    <li><a href="tema-1-3.html">1.3 BSP y compilación</a></li>
+    <li><a href="practica.html">Práctica guiada</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="ficha">
+  <table>
+    <tr><td class="clave">Semana</td><td>1 de 16</td></tr>
+    <tr><td class="clave">Unidad</td><td>Introducción a sistemas embebidos en FPGA con procesador soft-core Nios II</td></tr>
+    <tr><td class="clave">Subtemas</td><td>1.1 (soft-core vs. hard-core, arquitectura Nios II), 1.2 (flujo de
+      herramientas), 1.3 (BSP y compilación cruzada), 1.4 (práctica integradora)</td></tr>
+    <tr><td class="clave">Resultados de aprendizaje</td><td>RA1.1, RA1.2 (parte 1 de 2 — continúa en Semana 2 con
+      periféricos memory-mapped propios y E/S sobre PIO)</td></tr>
+    <tr><td class="clave">Horas de clase</td><td>4</td></tr>
+  </table>
+</div>
+
+<h2>Relevancia para ingeniería</h2>
+<p>
+  Un <em>soft processor</em> como Nios II es un procesador completo descrito en HDL que se sintetiza dentro
+  del tejido lógico de una FPGA, en vez de venir fabricado como bloque fijo (<em>hard core</em>) en el silicio.
+  Eso permite diseñar sistemas donde el procesador convive, en el mismo chip, con lógica digital hecha a la
+  medida — controladores propios, aceleradores, interfaces no estándar — comunicados por el mismo bus. Es el
+  punto de entrada natural al co-diseño hardware/software: la habilidad de decidir qué parte de un sistema
+  conviene resolver en software sobre un procesador y qué parte conviene resolver en lógica dedicada, y de
+  mover esa frontera según el desempeño, el área o la potencia que exija el proyecto. Esa misma habilidad es
+  la que se necesita para trabajar con SoCs FPGA comerciales (Cyclone V SoC, Zynq) y, más adelante, con el
+  sucesor de Nios II en Intel/Altera — Nios V, basado en RISC-V.
+</p>
+
+<h2>Contenidos de la semana</h2>
+<div class="tarjetas">
+  <a class="tarjeta" href="tema-1-1.html">
+    <span class="etiqueta">1.1</span>
+    <h3>Soft-core vs. hard-core; arquitectura Nios II</h3>
+    <p>Qué es un soft processor, por qué usarlo, los tres núcleos Nios II (/e, /s, /f) y el bus
+       Avalon Memory-Mapped.</p>
+  </a>
+  <a class="tarjeta" href="tema-1-2.html">
+    <span class="etiqueta">1.2</span>
+    <h3>El flujo de herramientas</h3>
+    <p>Quartus Prime, Platform Designer y Nios II EDS: qué hace cada uno, en qué orden dependen entre sí,
+       y la nota de versión para Cyclone IV.</p>
+  </a>
+  <a class="tarjeta" href="tema-1-3.html">
+    <span class="etiqueta">1.3</span>
+    <h3>De hardware a software: BSP y compilación cruzada</h3>
+    <p>Board Support Package, compilación cruzada con <code>nios2-elf-gcc</code>, y la JTAG UART como
+       canal de <code>stdout</code>.</p>
+  </a>
+  <a class="tarjeta" href="practica.html">
+    <span class="etiqueta">Práctica</span>
+    <h3>Práctica guiada paso a paso</h3>
+    <p>8 capturas explicadas en detalle (New Project Wizard hasta abrir Platform Designer) y, después,
+       el ensamblado completo del sistema Nios II componente por componente: puertos, reset, memoria,
+       Address Map, checklist y Generate HDL.</p>
+  </a>
+</div>
+
+<h2>Plan de la sesión (4 horas)</h2>
+<table class="datos">
+  <tr><th>Hora</th><th>Actividad</th></tr>
+  <tr><td>1</td><td>Procesadores soft-core vs. hard-core; por qué tiene sentido sintetizar un procesador
+    dentro de una FPGA. Arquitectura Nios II (núcleos /e, /s, /f) y el bus Avalon Memory-Mapped. Panorama
+    del flujo Quartus Prime → Platform Designer → Nios II EDS de extremo a extremo (teoría + demostración
+    en vivo).</td></tr>
+  <tr><td>2</td><td>Taller guiado: crear el proyecto en Quartus Prime, abrir Platform Designer y ensamblar
+    el sistema — núcleo Nios II, fuente de reloj, memoria on-chip, JTAG UART, System ID — conectando los
+    buses Avalon y asignando direcciones base automáticamente; generar el sistema (HDL + <code>.sopcinfo</code>).</td></tr>
+  <tr><td>3</td><td>Integrar el sistema generado en el diseño top-level de Quartus, importar la asignación
+    de pines de la tarjeta, compilar el proyecto completo (Analysis &amp; Synthesis, Fitter, Assembler) y
+    programar la FPGA.</td></tr>
+  <tr><td>4</td><td>Taller: en Nios II EDS, crear el proyecto de aplicación y BSP a partir de la plantilla
+    Hello World, compilar, ejecutar sobre la tarjeta y verificar la salida por la terminal Nios II
+    (JTAG UART); resolución de fallas comunes.</td></tr>
+</table>
+
+<h2>Actividades</h2>
+<ul>
+  <li><strong>En clase</strong>: talleres de las horas 2, 3 y 4 (ver arriba).</li>
+  <li><strong>Trabajo autónomo</strong>: agregar un componente PIO de salida al sistema Qsys, regenerar el
+    BSP y modificar <code>hello_world.c</code> para hacer parpadear un LED además de imprimir el mensaje;
+    dibujar el diagrama de bloques del sistema armado (núcleo, memoria, JTAG UART, PIO, y las conexiones
+    Avalon-MM entre ellos). Entrega antes de la Semana 2.</li>
+</ul>
+
+<div class="recuadro ingenieria">
+  <span class="titulo">Evaluación de la semana</span>
+  Entregable funcional al inicio de la Semana 2: captura de pantalla (o video corto) de la terminal Nios II
+  mostrando el mensaje de Hello World recibido desde la tarjeta, más el diagrama de bloques del sistema
+  Qsys armado, para verificar RA1.1 y RA1.2 antes de avanzar a periféricos propios sobre PIO.
+</div>
+
+<h2>Bibliografía</h2>
+<ul>
+  <li>Intel/Altera. <em>Nios II Processor Reference Guide</em>.</li>
+  <li>Intel/Altera. <em>Nios II Software Developer's Handbook</em>.</li>
+  <li>Intel/Altera. <em>Platform Designer (Qsys) System Design Tutorial</em>.</li>
+  <li>Terasic Technologies. <em>DE2-115 User Manual</em>.</li>
+</ul>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-01/</code> — Énfasis, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

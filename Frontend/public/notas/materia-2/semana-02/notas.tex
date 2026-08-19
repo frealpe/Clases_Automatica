@@ -1,0 +1,485 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}[definicion]{Ejemplo}
+\newtheorem{propiedad}[definicion]{Propiedad}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b
+}
+\lstset{style=cstyle}
+
+\title{\textcolor{unicaucaverde}{\Large Notas de clase --- Semana 2}\\[4pt]
+  \large Estructuras de control: condicionales y ciclos}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Estructuras condicionales: \texttt{if}, \texttt{if-else}, \texttt{else if}, operador ternario}
+
+\begin{definicion}[Sentencia condicional]
+Una sentencia condicional ejecuta un bloque de código solo si una expresión --- la
+\emph{condición} --- es verdadera. En C, cualquier valor distinto de \texttt{0} se considera
+verdadero, y \texttt{0} se considera falso.
+\end{definicion}
+
+\begin{ejemplo}[\texttt{if} simple y \texttt{if-else}]
+\begin{lstlisting}
+int numero = -5;
+
+if (numero >= 0) {
+    printf("El numero es positivo o cero\n");
+} else {
+    printf("El numero es negativo\n");
+}
+\end{lstlisting}
+Si la condición \texttt{numero >= 0} es falsa, se ejecuta el bloque \texttt{else}. El bloque
+\texttt{else} es opcional.
+\end{ejemplo}
+
+\begin{ejemplo}[\texttt{else if} encadenado]
+\begin{lstlisting}
+float nota = 3.2f;
+
+if (nota >= 4.5f) {
+    printf("Excelente\n");
+} else if (nota >= 3.0f) {
+    printf("Aprobado\n");
+} else {
+    printf("Reprobado\n");
+}
+\end{lstlisting}
+Las condiciones se evalúan en orden; se ejecuta el primer bloque cuya condición sea verdadera, y
+se ignoran las siguientes.
+\end{ejemplo}
+
+\begin{definicion}[Operador ternario]
+La expresión \texttt{condicion ? valor\_si\_verdadero : valor\_si\_falso} es una forma compacta de
+un \texttt{if-else} que \emph{produce un valor}, útil para asignaciones simples.
+\end{definicion}
+
+\begin{ejemplo}[Operador ternario]
+\begin{lstlisting}
+int a = 8, b = 3, mayor;
+mayor = (a > b) ? a : b;
+printf("El mayor es %d\n", mayor);   // imprime 8
+\end{lstlisting}
+\end{ejemplo}
+
+\begin{propiedad}[Condiciones compuestas]
+Los operadores lógicos \texttt{\&\&} (y), \texttt{||} (o) y \texttt{!} (no) combinan varias
+condiciones relacionales en una sola expresión. C evalúa \texttt{\&\&} y \texttt{||} de izquierda a
+derecha y se detiene apenas el resultado queda determinado (\emph{cortocircuito}): en
+\texttt{a \&\& b}, si \texttt{a} es falso, \texttt{b} ni siquiera se evalúa.
+\end{propiedad}
+
+\begin{ejemplo}[Condición compuesta]
+\begin{lstlisting}
+int edad = 20;
+int tiene_carnet = 1;   // 1 = verdadero, 0 = falso
+
+if (edad >= 18 && tiene_carnet) {
+    printf("Puede ingresar\n");
+} else {
+    printf("No puede ingresar\n");
+}
+\end{lstlisting}
+\end{ejemplo}
+
+\begin{ejemplo}[Clasificador con varias condiciones compuestas]
+Cuando hay más de dos posibles resultados, se encadenan varios \texttt{if}/\texttt{else if}, cada
+uno con su propia condición compuesta, evaluados en orden de más a menos restrictivo:
+\begin{lstlisting}
+int tiene_sensor, tiene_actuador, conectado;
+float bateria;   // porcentaje, 0.0 a 100.0
+
+printf("Tiene sensor (1/0): ");
+scanf("%d", &tiene_sensor);
+printf("Tiene actuador (1/0): ");
+scanf("%d", &tiene_actuador);
+printf("Nivel de bateria: ");
+scanf("%f", &bateria);
+printf("Conectado a la red (1/0): ");
+scanf("%d", &conectado);
+
+if (tiene_sensor && tiene_actuador && bateria > 50 && conectado) {
+    printf("Dispositivo IoT avanzado\n");
+} else if (tiene_sensor && bateria >= 20 && conectado) {
+    printf("Dispositivo IoT basico\n");
+} else if ((tiene_sensor || tiene_actuador) && !conectado) {
+    printf("Dispositivo sin conexion\n");
+} else if (bateria < 10) {
+    printf("Bateria critica\n");
+} else {
+    printf("Dispositivo no clasificado\n");
+}
+\end{lstlisting}
+Cada rama se evalúa solo si todas las anteriores fueron falsas; por eso el orden importa: la
+condición más específica (avanzado) va primero, y la más general (\texttt{else} final) queda de
+respaldo para cualquier combinación no prevista.
+\end{ejemplo}
+
+\section{La instrucción \texttt{switch-case}}
+
+\begin{definicion}[\texttt{switch-case}]
+\texttt{switch} compara el valor de una expresión entera (o \texttt{char}) contra una lista de
+casos (\texttt{case}), y ejecuta el bloque del primer caso que coincide. Sin un \texttt{break} al
+final de cada caso, la ejecución \emph{cae} al siguiente caso (\emph{fall-through}). \texttt{default}
+es opcional y se ejecuta si ningún caso coincide.
+\end{definicion}
+
+\begin{ejemplo}[Menú con \texttt{switch}]
+\begin{lstlisting}
+int opcion = 2;
+float a = 10, b = 4, resultado;
+
+switch (opcion) {
+    case 1:
+        resultado = a + b;
+        printf("Suma = %.2f\n", resultado);
+        break;
+    case 2:
+        resultado = a - b;
+        printf("Resta = %.2f\n", resultado);
+        break;
+    case 3:
+        resultado = a * b;
+        printf("Producto = %.2f\n", resultado);
+        break;
+    default:
+        printf("Opcion invalida\n");
+}
+\end{lstlisting}
+Con \texttt{opcion = 2}, se ejecuta el caso 2 e imprime \texttt{Resta = 6.00}; el \texttt{break}
+evita que también se ejecute el caso 3.
+\end{ejemplo}
+
+\section{Ciclos: \texttt{while}, \texttt{do-while}, \texttt{for}}
+
+\begin{definicion}[Ciclo o bucle]
+Un ciclo repite un bloque de instrucciones mientras se cumpla una condición. C ofrece tres formas,
+que son intercambiables pero cada una es más natural según el problema.
+\end{definicion}
+
+\begin{propiedad}[\texttt{while} --- condición al inicio]
+\begin{lstlisting}
+int contador = 1;
+while (contador <= 5) {
+    printf("%d\n", contador);
+    contador++;
+}
+\end{lstlisting}
+La condición se evalúa \emph{antes} de cada repetición; si es falsa desde el principio, el cuerpo
+no se ejecuta ni una vez. Útil cuando no se sabe de antemano cuántas repeticiones habrá (por
+ejemplo, leer datos hasta que el usuario ingrese un centinela).
+\end{propiedad}
+
+\begin{propiedad}[\texttt{do-while} --- condición al final]
+\begin{lstlisting}
+int opcion;
+do {
+    printf("Ingrese una opcion (1-3): ");
+    scanf("%d", &opcion);
+} while (opcion < 1 || opcion > 3);
+\end{lstlisting}
+El cuerpo se ejecuta \emph{al menos una vez}, porque la condición se evalúa \emph{después}. Es la
+estructura natural para validar una entrada: hay que pedirla al menos una vez antes de poder
+validarla.
+\end{propiedad}
+
+\begin{propiedad}[\texttt{for} --- conteo explícito]
+\begin{lstlisting}
+for (int i = 1; i <= 5; i++) {
+    printf("%d\n", i);
+}
+\end{lstlisting}
+El \texttt{for} agrupa en un solo lugar la inicialización (\texttt{i = 1}), la condición
+(\texttt{i <= 5}) y el incremento (\texttt{i++}). Es la forma más natural cuando se conoce de
+antemano el número de repeticiones (o un rango claro).
+\end{propiedad}
+
+\section{\texttt{break}, \texttt{continue} y anidamiento}
+
+\begin{definicion}[\texttt{break} y \texttt{continue}]
+\texttt{break} termina inmediatamente el ciclo (o el \texttt{switch}) que lo contiene.
+\texttt{continue} salta el resto del cuerpo del ciclo actual y pasa directamente a evaluar la
+siguiente repetición.
+\end{definicion}
+
+\begin{ejemplo}[\texttt{break} y \texttt{continue}]
+\begin{lstlisting}
+for (int i = 1; i <= 10; i++) {
+    if (i == 7) {
+        break;              // termina el ciclo al llegar a 7
+    }
+    if (i % 2 == 0) {
+        continue;           // salta los pares, no los imprime
+    }
+    printf("%d\n", i);      // imprime 1, 3, 5
+}
+\end{lstlisting}
+\end{ejemplo}
+
+\begin{definicion}[Ciclos anidados]
+Un ciclo anidado es un ciclo dentro de otro. Por cada repetición del ciclo externo, el ciclo
+interno se ejecuta completo. Se usan, por ejemplo, para recorrer una tabla de dos dimensiones (fila
+por fila, y dentro de cada fila, columna por columna).
+\end{definicion}
+
+\begin{ejemplo}[Tabla de multiplicar con ciclos anidados]
+\begin{lstlisting}
+for (int fila = 1; fila <= 5; fila++) {
+    for (int col = 1; col <= 5; col++) {
+        printf("%3d", fila * col);
+    }
+    printf("\n");
+}
+\end{lstlisting}
+Por cada valor de \texttt{fila} (ciclo externo), el ciclo interno recorre \texttt{col} de 1 a 5 e
+imprime el producto; al terminar el ciclo interno, se imprime un salto de línea para pasar a la
+siguiente fila.
+\end{ejemplo}
+
+\section{Ejercicios propuestos}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Escribe un programa que lea un número entero e imprima si es positivo, negativo o cero.
+  \item Escribe un programa que lea una edad e imprima, con \texttt{if-else if}, si la persona es
+        menor de edad ($< 18$), adulto (18--59) o adulto mayor ($\geq 60$).
+  \item Escribe una calculadora básica: lee dos números y un operador (\texttt{'+'}, \texttt{'-'},
+        \texttt{'*'} o \texttt{'/'}) como \texttt{char}, y con \texttt{switch} imprime el resultado
+        de la operación correspondiente.
+  \item Escribe un programa que imprima los números del 1 al 20: primero usando \texttt{for}, y
+        luego, en un segundo bloque, usando \texttt{while}.
+  \item Escribe un programa que lea un entero \texttt{n} y calcule su factorial ($n!$) usando un
+        ciclo.
+  \item Escribe un programa que lea un entero mayor que 1 y determine, usando un ciclo, si es
+        primo.
+  \item Escribe un programa que imprima la tabla de multiplicar del 1 al 10 usando dos ciclos
+        \texttt{for} anidados (una fila por número, del 1 al 10).
+  \item Escribe un programa que, usando \texttt{do-while}, lea números enteros y los sume hasta que
+        el usuario ingrese un $0$ (el $0$ no se suma), e imprima el total al final.
+\end{enumerate}
+
+\section{Soluciones de los ejercicios propuestos}
+
+\begin{description}
+
+\item[\textbf{Ejercicio 1.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int n;
+    printf("Ingrese un numero: ");
+    scanf("%d", &n);
+
+    if (n > 0) {
+        printf("Es positivo\n");
+    } else if (n < 0) {
+        printf("Es negativo\n");
+    } else {
+        printf("Es cero\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 2.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int edad;
+    printf("Ingrese la edad: ");
+    scanf("%d", &edad);
+
+    if (edad < 18) {
+        printf("Menor de edad\n");
+    } else if (edad < 60) {
+        printf("Adulto\n");
+    } else {
+        printf("Adulto mayor\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 3.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    float a, b, resultado;
+    char operador;
+
+    printf("Ingrese numero, operador, numero (ej: 4 + 2): ");
+    scanf("%f %c %f", &a, &operador, &b);
+
+    switch (operador) {
+        case '+':
+            resultado = a + b;
+            break;
+        case '-':
+            resultado = a - b;
+            break;
+        case '*':
+            resultado = a * b;
+            break;
+        case '/':
+            if (b == 0) {
+                printf("Error: division por cero\n");
+                return 1;
+            }
+            resultado = a / b;
+            break;
+        default:
+            printf("Operador invalido\n");
+            return 1;
+    }
+    printf("Resultado = %.2f\n", resultado);
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 4.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    printf("Con for:\n");
+    for (int i = 1; i <= 20; i++) {
+        printf("%d ", i);
+    }
+    printf("\n");
+
+    printf("Con while:\n");
+    int i = 1;
+    while (i <= 20) {
+        printf("%d ", i);
+        i++;
+    }
+    printf("\n");
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 5.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int n;
+    long factorial = 1;
+
+    printf("Ingrese n: ");
+    scanf("%d", &n);
+
+    for (int i = 1; i <= n; i++) {
+        factorial *= i;
+    }
+    printf("%d! = %ld\n", n, factorial);
+    return 0;
+}
+\end{lstlisting}
+Con $n=5$: $factorial = 1 \cdot 2 \cdot 3 \cdot 4 \cdot 5 = 120$.
+
+\item[\textbf{Ejercicio 6.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int n, es_primo = 1;
+
+    printf("Ingrese un numero mayor que 1: ");
+    scanf("%d", &n);
+
+    for (int i = 2; i < n; i++) {
+        if (n % i == 0) {
+            es_primo = 0;
+            break;          // ya encontramos un divisor, no hace falta seguir
+        }
+    }
+
+    if (es_primo) {
+        printf("%d es primo\n", n);
+    } else {
+        printf("%d no es primo\n", n);
+    }
+    return 0;
+}
+\end{lstlisting}
+En cuanto se encuentra un divisor de \texttt{n} distinto de 1 y de sí mismo, \texttt{break} corta
+el ciclo: no hace falta seguir probando.
+
+\item[\textbf{Ejercicio 7.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    for (int fila = 1; fila <= 10; fila++) {
+        for (int col = 1; col <= 10; col++) {
+            printf("%4d", fila * col);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 8.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int numero, suma = 0;
+
+    do {
+        printf("Ingrese un numero (0 para terminar): ");
+        scanf("%d", &numero);
+        if (numero != 0) {
+            suma += numero;
+        }
+    } while (numero != 0);
+
+    printf("Suma total = %d\n", suma);
+    return 0;
+}
+\end{lstlisting}
+Se usa \texttt{do-while} porque hay que pedir el primer número antes de poder evaluar si es el
+centinela (\texttt{0}) que termina el ciclo.
+
+\end{description}
+
+\end{document}

@@ -1,0 +1,163 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\setbeamercolor{structure}{fg=unicaucaverde}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=cstyle}
+
+\title[Semana 2: Estructuras de control]{Estructuras de control: condicionales y ciclos}
+\subtitle{Programación --- Semana 2 de 16}
+\author{Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Semana 2: dónde estamos}
+  \begin{itemize}
+    \item Continuación de Fundamentos de programación en C.
+    \item Subtemas 2.1--2.2 --- RA2.1, RA2.2.
+    \item 4 horas: condicionales y \texttt{switch}, luego ciclos y anidamiento.
+  \end{itemize}
+  \tableofcontents
+\end{frame}
+
+\section{Condicionales}
+
+\begin{frame}[fragile]{\texttt{if}, \texttt{else if}, \texttt{else}}
+\begin{lstlisting}
+if (nota >= 4.5f) {
+    printf("Excelente\n");
+} else if (nota >= 3.0f) {
+    printf("Aprobado\n");
+} else {
+    printf("Reprobado\n");
+}
+\end{lstlisting}
+  \begin{itemize}
+    \item Se evalúan en orden; se ejecuta el primer bloque verdadero.
+    \item Operador ternario: \texttt{cond ? valor\_si\_true : valor\_si\_false}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Condiciones compuestas}
+  \begin{itemize}
+    \item \texttt{\&\&} (y), \texttt{||} (o), \texttt{!} (no).
+    \item Cortocircuito: \texttt{a \&\& b} no evalúa \texttt{b} si \texttt{a} ya es falso.
+  \end{itemize}
+  \begin{block}{Ejemplo}
+    \texttt{if (edad >= 18 \&\& tiene\_carnet) \{ ... \}}
+  \end{block}
+  \vfill
+  \textbf{Taller (hora 2):} menú con \texttt{switch-case}.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{switch-case}}
+\begin{lstlisting}
+switch (opcion) {
+    case 1: resultado = a + b; break;
+    case 2: resultado = a - b; break;
+    default: printf("Invalido\n");
+}
+\end{lstlisting}
+  \begin{alertblock}{Cuidado}
+    Sin \texttt{break}, la ejecución \emph{cae} al siguiente \texttt{case}.
+  \end{alertblock}
+\end{frame}
+
+\section{Ciclos}
+
+\begin{frame}[fragile]{\texttt{while} vs. \texttt{do-while}}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{while} (condición al inicio)
+\begin{lstlisting}
+while (cond) {
+    ...
+}
+\end{lstlisting}
+      Puede ejecutarse 0 veces.
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{do-while} (condición al final)
+\begin{lstlisting}
+do {
+    ...
+} while (cond);
+\end{lstlisting}
+      Se ejecuta al menos 1 vez.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{for}: conteo explícito}
+\begin{lstlisting}
+for (int i = 1; i <= 5; i++) {
+    printf("%d\n", i);
+}
+\end{lstlisting}
+  Inicialización + condición + incremento, todo en un solo lugar. Ideal cuando se conoce el número
+  de repeticiones.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{break} y \texttt{continue}}
+\begin{lstlisting}
+for (int i = 1; i <= 10; i++) {
+    if (i == 7) break;         // termina el ciclo
+    if (i % 2 == 0) continue;  // salta esta repeticion
+    printf("%d\n", i);
+}
+\end{lstlisting}
+  \begin{itemize}
+    \item \texttt{break}: termina el ciclo (o \texttt{switch}) inmediatamente.
+    \item \texttt{continue}: salta al resto del cuerpo, pasa a la siguiente repetición.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Ciclos anidados}
+\begin{lstlisting}
+for (int fila = 1; fila <= 5; fila++) {
+    for (int col = 1; col <= 5; col++) {
+        printf("%3d", fila * col);
+    }
+    printf("\n");
+}
+\end{lstlisting}
+  Por cada repetición del ciclo externo, el ciclo interno se ejecuta completo.
+  \vfill
+  \textbf{Taller (hora 4):} tabla de multiplicar, patrones, validación de entrada con
+  \texttt{while}.
+\end{frame}
+
+\begin{frame}{Cierre de la semana}
+  \begin{itemize}
+    \item RA2.1: condicionales simples, encadenados, \texttt{switch}, condiciones compuestas.
+    \item RA2.2: \texttt{while}/\texttt{do-while}/\texttt{for}, \texttt{break}/\texttt{continue},
+          anidamiento.
+    \item Control formativo al inicio de la Semana 3.
+  \end{itemize}
+\end{frame}
+
+\end{document}

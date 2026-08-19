@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test de Evaluación — Semana 4: Matrices, Inversa y Transpuesta</title>
+  <style>
+    :root {
+      --primary: #4338ca;
+      --primary-hover: #362d9e;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --success: #15803d;
+      --error: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    header p { margin: 0.5rem 0 0; opacity: 0.9; }
+    .question-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+    .question-card h3 {
+      margin-top: 0;
+      font-size: 1.05rem;
+      color: var(--primary);
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .option-btn {
+      text-align: left;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 0.65rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.15s;
+    }
+    .option-btn:hover {
+      background: #e2e8f0;
+    }
+    .option-btn.correct {
+      background: #dcfce7;
+      border-color: var(--success);
+      color: var(--success);
+      font-weight: bold;
+    }
+    .option-btn.incorrect {
+      background: #fee2e2;
+      border-color: var(--error);
+      color: var(--error);
+    }
+    .explanation {
+      margin-top: 0.8rem;
+      padding: 0.8rem;
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      font-size: 0.9rem;
+      display: none;
+    }
+    .score-banner {
+      background: white;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 2rem;
+
+    }
+  </style>
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Test de Evaluación Standalone — Semana 4</h1>
+      <p>Cuestionario de Autoevaluación de Álgebra Lineal: Matrices, Matriz Inversa y Transpuesta (24 Preguntas)</p>
+    </header>
+
+    <div id="score-banner" class="score-banner" style="display:none;">
+      <h2>Resultado: <span id="score-val">0</span> / 24</h2>
+      <p id="score-text"></p>
+    </div>
+
+    <div id="questions-list"></div>
+  </div>
+
+  <script>
+    const preguntas = [
+      {
+        id: "s04_p1",
+        tipo: "teoria",
+        pregunta: "¿Qué representa el producto de matriz por vector $A\\mathbf{x}$ en un sistema $A\\mathbf{x}=\\mathbf{b}$?",
+        opciones: [
+          { id: "a", texto: "Una suma de escalares independientes." },
+          { id: "b", texto: "Una combinación lineal de las columnas de $A$ ponderadas por los componentes de $\\mathbf{x}$." },
+          { id: "c", texto: "El producto punto de todos los elementos de $A$ por $\\mathbf{b}$." },
+          { id: "d", texto: "La transpuesta de la matriz $A$." }
+        ],
+        correcta: "b",
+        explicacion: "El producto $A\\mathbf{x}$ expresa la combinación lineal de las columnas de $A$: $x_1 \\mathbf{a}_1 + x_2 \\mathbf{a}_2 + \\dots + x_n \\mathbf{a}_n$."
+      },
+      {
+        id: "s04_p2",
+        tipo: "teoria",
+        pregunta: "Una matriz cuadrada $A$ de orden $n\\times n$ es invertible (no singular) si y solo si:",
+        opciones: [
+          { id: "a", texto: "Existe una matriz $B$ tal que $AB = BA = I_n$ y su determinante es distinto de cero." },
+          { id: "b", texto: "Todas sus entradas son mayores que cero." },
+          { id: "c", texto: "Su transpuesta es igual a cero." },
+          { id: "d", texto: "Tiene más filas que columnas." }
+        ],
+        correcta: "a",
+        explicacion: "Una matriz es invertible si posee matriz inversa única $A^{-1}$ que satisface $AA^{-1} = I_n$, equivalente a $\\det(A) \\neq 0$."
+      },
+      {
+        id: "s04_p3",
+        tipo: "ejercicio",
+        pregunta: "¿Cuál es la inversa de la matriz $A = \\begin{pmatrix} 2 & 5 \\\\ 1 & 3 \\end{pmatrix}$?",
+        opciones: [
+          { id: "a", texto: "$\\begin{pmatrix} 3 & -5 \\\\ -1 & 2 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\begin{pmatrix} 2 & -1 \\\\ -5 & 3 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\begin{pmatrix} -3 & 5 \\\\ 1 & -2 \\end{pmatrix}$" },
+          { id: "d", texto: "No tiene inversa porque $\\det(A) = 0$." }
+        ],
+        correcta: "a",
+        explicacion: "$\\det(A) = 2(3) - 5(1) = 1$. La inversa es $\\frac{1}{1}\\begin{pmatrix} 3 & -5 \\\\ -1 & 2 \\end{pmatrix} = \\begin{pmatrix} 3 & -5 \\\\ -1 & 2 \\end{pmatrix}$."
+      },
+      {
+        id: "s04_p4",
+        tipo: "ejercicio",
+        pregunta: "Dada $A = \\begin{pmatrix} 4 & 2 \\\\ 3 & 2 \\end{pmatrix}$, si $A\\mathbf{x} = \\begin{pmatrix} 10 \\\\ 8 \\end{pmatrix}$, ¿cuál es el vector solución $\\mathbf{x}$?",
+        opciones: [
+          { id: "a", texto: "$\\mathbf{x} = \\begin{pmatrix} 2 \\\\ 1 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\mathbf{x} = \\begin{pmatrix} 1 \\\\ 2 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\mathbf{x} = \\begin{pmatrix} 0 \\\\ 4 \\end{pmatrix}$" },
+          { id: "d", texto: "$\\mathbf{x} = \\begin{pmatrix} 3 \\\\ -1 \\end{pmatrix}$" }
+        ],
+        correcta: "a",
+        explicacion: "$\\det(A) = 2$, $A^{-1} = \\begin{pmatrix} 1 & -1 \\\\ -1.5 & 2 \\end{pmatrix}$. Multiplicando por $(10, 8)^T$ resulta $(2, 1)^T$."
+      },
+      {
+        id: "s04_p5",
+        tipo: "teoria",
+        pregunta: "¿Cuál de las siguientes identidades para la inversa del producto $(AB)^{-1}$ es correcta?",
+        opciones: [
+          { id: "a", texto: "$(AB)^{-1} = A^{-1} B^{-1}$" },
+          { id: "b", texto: "$(AB)^{-1} = B^{-1} A^{-1}$" },
+          { id: "c", texto: "$(AB)^{-1} = AB$" },
+          { id: "d", texto: "$(AB)^{-1} = (A+B)^{-1}$" }
+        ],
+        correcta: "b",
+        explicacion: "La inversa del producto de dos matrices invertibles invierte el orden de los factores: $(AB)^{-1} = B^{-1} A^{-1}$."
+      },
+      {
+        id: "s04_p6",
+        tipo: "teoria",
+        pregunta: "El algoritmo de Gauss-Jordan para calcular la inversa de una matriz $A$ transforma la matriz aumentada $[A \\mid I_n]$ en:",
+        opciones: [
+          { id: "a", texto: "$[I_n \\mid A^{-1}]$ mediante operaciones elementales por filas." },
+          { id: "b", texto: "$[A^{-1} \\mid A]$ mediante intercambio de columnas únicamente." },
+          { id: "c", texto: "$[0 \\mid I_n]$ para cualquier matriz." },
+          { id: "d", texto: "$[A^T \\mid I_n]$." }
+        ],
+        correcta: "a",
+        explicacion: "Al aplicar operaciones elementales de fila sobre $[A \\mid I_n]$ hasta llevar el lado izquierdo a $I_n$, el lado derecho se convierte en $A^{-1}$."
+      },
+      {
+        id: "s04_p7",
+        tipo: "ejercicio",
+        pregunta: "Si $A = \\begin{pmatrix} 1 & 4 & 7 \\\\ 2 & 5 & 8 \\end{pmatrix}_{2\\times 3}$, ¿cuál es su transpuesta $A^T$?",
+        opciones: [
+          { id: "a", texto: "$\\begin{pmatrix} 1 & 2 \\\\ 4 & 5 \\\\ 7 & 8 \\end{pmatrix}_{3\\times 2}$" },
+          { id: "b", texto: "$\\begin{pmatrix} 7 & 4 & 1 \\\\ 8 & 5 & 2 \\end{pmatrix}_{2\\times 3}$" },
+          { id: "c", texto: "$\\begin{pmatrix} 1 & 4 \\\\ 2 & 5 \\\\ 7 & 8 \\end{pmatrix}_{3\\times 2}$" },
+          { id: "d", texto: "No se puede transponer una matriz rectangular." }
+        ],
+        correcta: "a",
+        explicacion: "La transpuesta $A^T$ intercambia las filas por columnas: la primera fila de $A$ $(1,4,7)$ pasa a ser la primera columna de $A^T$."
+      },
+      {
+        id: "s04_p8",
+        tipo: "teoria",
+        pregunta: "Una matriz cuadrada $A$ se define como **simétrica** si:",
+        opciones: [
+          { id: "a", texto: "$A^T = A$" },
+          { id: "b", texto: "$A^T = -A$" },
+          { id: "c", texto: "$A^{-1} = A$" },
+          { id: "d", texto: "$\det(A) = 0$" }
+        ],
+        correcta: "a",
+        explicacion: "Una matriz es simétrica cuando al transponerla se obtiene la misma matriz: $A^T = A$ ($a_{ij} = a_{ji}$)."
+      },
+      {
+        id: "s04_p9",
+        tipo: "teoria",
+        pregunta: "Una matriz cuadrada $K$ es **antisimétrica** si $K^T = -K$. ¿Qué propiedad deben cumplir sus elementos diagonales $k_{ii}$?",
+        opciones: [
+          { id: "a", texto: "Todos deben ser iguales a 1." },
+          { id: "b", texto: "Todos deben ser estrictamente cero ($k_{ii} = 0$)." },
+          { id: "c", texto: "Deben ser todos números impares." },
+          { id: "d", texto: "No tienen ninguna restricción." }
+        ],
+        correcta: "b",
+        explicacion: "Puesto que $k_{ii} = -k_{ii}$, se deduce que $2 k_{ii} = 0 \\implies k_{ii} = 0$ para todo $i$ en la diagonal."
+      },
+      {
+        id: "s04_p10",
+        tipo: "ejercicio",
+        pregunta: "Dada $A = \\begin{pmatrix} 2 & 5 \\\\ 1 & 4 \\end{pmatrix}$, ¿cuál es su componente simétrica $S = \\frac{1}{2}(A + A^T)$?",
+        opciones: [
+          { id: "a", texto: "$\\begin{pmatrix} 2 & 3 \\\\ 3 & 4 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\begin{pmatrix} 0 & 2 \\\\ -2 & 0 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\begin{pmatrix} 4 & 6 \\\\ 6 & 8 \\end{pmatrix}$" },
+          { id: "d", texto: "$\\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\end{pmatrix}$" }
+        ],
+        correcta: "a",
+        explicacion: "$A^T = \\begin{pmatrix} 2 & 1 \\\\ 5 & 4 \\end{pmatrix}$. La suma $A+A^T = \\begin{pmatrix} 4 & 6 \\\\ 6 & 8 \\end{pmatrix}$. Multiplicando por $1/2$ da $\\begin{pmatrix} 2 & 3 \\\\ 3 & 4 \\end{pmatrix}$."
+      },
+      {
+        id: "s04_p11",
+        tipo: "ejercicio",
+        pregunta: "Dada $A = \\begin{pmatrix} 2 & 5 \\\\ 1 & 4 \\end{pmatrix}$, ¿cuál es su componente antisimétrica $K = \\frac{1}{2}(A - A^T)$?",
+        opciones: [
+          { id: "a", texto: "$\\begin{pmatrix} 0 & 2 \\\\ -2 & 0 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\begin{pmatrix} 2 & 3 \\\\ 3 & 4 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\begin{pmatrix} 0 & 4 \\\\ -4 & 0 \\end{pmatrix}$" },
+          { id: "d", texto: "$\\begin{pmatrix} 1 & -1 \\\\ 1 & -1 \\end{pmatrix}$" }
+        ],
+        correcta: "a",
+        explicacion: "$A-A^T = \\begin{pmatrix} 0 & 4 \\\\ -4 & 0 \\end{pmatrix}$. Dividido entre 2 resulta $\\begin{pmatrix} 0 & 2 \\\\ -2 & 0 \\end{pmatrix}$."
+      },
+      {
+        id: "s04_p12",
+        tipo: "teoria",
+        pregunta: "¿Cuál es el resultado de la expresión $(AB)^T$ para matrices de dimensiones compatibles?",
+        opciones: [
+          { id: "a", texto: "$B^T A^T$" },
+          { id: "b", texto: "$A^T B^T$" },
+          { id: "c", texto: "$(BA)^T$" },
+          { id: "d", texto: "$A B^T$" }
+        ],
+        correcta: "a",
+        explicacion: "Al igual que con las inversas, la transpuesta de un producto de matrices invierte el orden: $(AB)^T = B^T A^T$."
+      },
+      {
+        id: "s04_p13",
+        tipo: "ejercicio",
+        pregunta: "Si $A$ es una matriz $3\\times 3$ cuya inversa es $A^{-1} = \\begin{pmatrix} 1 & 0 & -1 \\\\ 0 & 2 & 0 \\\\ 1 & 1 & 1 \\end{pmatrix}$, ¿cuál es la solución del sistema $A\\mathbf{x} = \\begin{pmatrix} 2 \\\\ 1 \\\\ 0 \\end{pmatrix}$?",
+        opciones: [
+          { id: "a", texto: "$\\mathbf{x} = \\begin{pmatrix} 2 \\\\ 2 \\\\ 3 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\mathbf{x} = \\begin{pmatrix} 1 \\\\ 0 \\\\ 1 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\mathbf{x} = \\begin{pmatrix} 0 \\\\ 1 \\\\ 2 \\end{pmatrix}$" },
+          { id: "d", texto: "$\\mathbf{x} = \\begin{pmatrix} -1 \\\\ 2 \\\\ 0 \\end{pmatrix}$" }
+        ],
+        correcta: "a",
+        explicacion: "$\\mathbf{x} = A^{-1}\\mathbf{b} = \\begin{pmatrix} 1(2)+0(1)-1(0) \\\\ 0(2)+2(1)+0(0) \\\\ 1(2)+1(1)+1(0) \\end{pmatrix} = \\begin{pmatrix} 2 \\\\ 2 \\\\ 3 \\end{pmatrix}$."
+      },
+      {
+        id: "s04_p14",
+        tipo: "teoria",
+        pregunta: "Si una matriz cuadrada $A$ cumple que $A^2 = I$, ¿cuál es su inversa $A^{-1}$?",
+        opciones: [
+          { id: "a", texto: "La misma matriz $A$ ($A^{-1} = A$)." },
+          { id: "b", texto: "La matriz nula $0$." },
+          { id: "c", texto: "No existe inversa." },
+          { id: "d", texto: "La matriz transpuesta $A^T$." }
+        ],
+        correcta: "a",
+        explicacion: "Como $A \\cdot A = I$, por definición de inversa se cumple directamente que $A^{-1} = A$ (matriz involutiva)."
+      },
+      {
+        id: "s04_p15",
+        tipo: "ejercicio",
+        pregunta: "Dadas $A = \\begin{pmatrix} 1 & 2 \\\\ 0 & 1 \\end{pmatrix}$ y $B = \\begin{pmatrix} 3 & 1 \\\\ 2 & 1 \\end{pmatrix}$, ¿cuál es la matriz $(AB)^{-1}$?",
+        opciones: [
+          { id: "a", texto: "$\\begin{pmatrix} 1 & -3 \\\\ -2 & 7 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\begin{pmatrix} 7 & 3 \\\\ 2 & 1 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\begin{pmatrix} -1 & 3 \\\\ 2 & -7 \\end{pmatrix}$" },
+          { id: "d", texto: "$\\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\end{pmatrix}$" }
+        ],
+        correcta: "a",
+        explicacion: "$AB = \\begin{pmatrix} 7 & 3 \\\\ 2 & 1 \\end{pmatrix}$. Su determinante es $7(1)-3(2)=1$. Por tanto $(AB)^{-1} = \\begin{pmatrix} 1 & -3 \\\\ -2 & 7 \\end{pmatrix}$."
+      },
+      {
+        id: "s04_p16",
+        tipo: "teoria",
+        pregunta: "Si $A$ es una matriz no singular (invertible), ¿cuál es la relación entre $(A^T)^{-1}$ y $(A^{-1})^T$?",
+        opciones: [
+          { id: "a", texto: "Son exactamente iguales: $(A^T)^{-1} = (A^{-1})^T$." },
+          { id: "b", texto: "Tienen signos opuestos." },
+          { id: "c", texto: "No guardan ninguna relación." },
+          { id: "d", texto: "Solo son iguales si $A$ es diagonal." }
+        ],
+        correcta: "a",
+        explicacion: "La operación de transposición commuta con la inversión de matrices: la transpuesta de la inversa es igual a la inversa de la transpuesta."
+      },
+      {
+        id: "s04_p17",
+        tipo: "ejercicio",
+        pregunta: "Para $A = \\begin{pmatrix} 1 & -1 & 3 \\\\ 2 & 0 & 4 \\end{pmatrix}$, calcular la matriz $M = A A^T$.",
+        opciones: [
+          { id: "a", texto: "$\\begin{pmatrix} 11 & 14 \\\\ 14 & 20 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\begin{pmatrix} 10 & 12 \\\\ 12 & 16 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\begin{pmatrix} 11 & 0 \\\\ 0 & 20 \\end{pmatrix}$" },
+          { id: "d", texto: "No se puede calcular $A A^T$ porque $A$ no es cuadrada." }
+        ],
+        correcta: "a",
+        explicacion: "$A^T$ tiene tamaño $3\\times 2$. El producto $(2\\times 3)(3\\times 2)$ da una matriz $2\\times 2$: entradas $1+1+9=11$, $2+0+12=14$, $14$, $4+0+16=20$."
+      },
+      {
+        id: "s04_p18",
+        tipo: "teoria",
+        pregunta: "Para cualquier matriz $A$ de tamaño $m\\times n$, ¿qué propiedad especial cumple la matriz $M = A A^T$?",
+        opciones: [
+          { id: "a", texto: "Siempre es una matriz cuadrada y simétrica de orden $m\\times m$." },
+          { id: "b", texto: "Siempre es una matriz antisimétrica." },
+          { id: "c", texto: "Siempre es igual a la matriz identidad." },
+          { id: "d", texto: "Siempre es singular." }
+        ],
+        correcta: "a",
+        explicacion: "Puesto que $(A A^T)^T = (A^T)^T A^T = A A^T$, la matriz producto $M = A A^T$ es intrínsecamente simétrica."
+      },
+      {
+        id: "s04_p19",
+        tipo: "ejercicio",
+        pregunta: "¿Para qué valor del parámetro $k$ la matriz $A = \\begin{pmatrix} 2 & k \\\\ 4 & 6 \\end{pmatrix}$ **NO** tiene inversa?",
+        opciones: [
+          { id: "a", texto: "$k = 3$" },
+          { id: "b", texto: "$k = 0$" },
+          { id: "c", texto: "$k = 6$" },
+          { id: "d", texto: "$k = -3$" }
+        ],
+        correcta: "a",
+        explicacion: "La matriz es singular si $\\det(A) = 0 \\implies 2(6) - 4k = 0 \\implies 12 - 4k = 0 \\implies k = 3$."
+      },
+      {
+        id: "s04_p20",
+        tipo: "teoria",
+        pregunta: "Si $A$ es una matriz escalar del tipo $A = c I_n$ con $c \\neq 0$, ¿cuál es su inversa $A^{-1}$?",
+        opciones: [
+          { id: "a", texto: "$A^{-1} = \\frac{1}{c} I_n$" },
+          { id: "b", texto: "$A^{-1} = c I_n$" },
+          { id: "c", texto: "$A^{-1} = -c I_n$" },
+          { id: "d", texto: "$A^{-1} = I_n$" }
+        ],
+        correcta: "a",
+        explicacion: "$(c I_n) \\left(\\frac{1}{c} I_n\\right) = \\left(c \\cdot \\frac{1}{c}\\right) (I_n I_n) = 1 \\cdot I_n = I_n$."
+      },
+      {
+        id: "s04_p21",
+        tipo: "ejercicio",
+        pregunta: "Si $A$ es una matriz cuadrada tal que $A^T = -A$ y tiene dimensión $3\\times 3$, ¿cuánto vale su entrada $a_{22}$?",
+        opciones: [
+          { id: "a", texto: "0" },
+          { id: "b", texto: "1" },
+          { id: "c", texto: "-1" },
+          { id: "d", texto: "No se puede saber sin más datos." }
+        ],
+        correcta: "a",
+        explicacion: "Por ser antisimétrica ($A^T = -A$), todas sus entradas en la diagonal principal son cero ($a_{11}=a_{22}=a_{33}=0$)."
+      },
+      {
+        id: "s04_p22",
+        tipo: "ejercicio",
+        pregunta: "Resolver el sistema $A\\mathbf{x} = \\mathbf{b}$ usando matriz inversa donde $A = \\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$ y $\\mathbf{b} = \\begin{pmatrix} 5 \\\\ 11 \\end{pmatrix}$.",
+        opciones: [
+          { id: "a", texto: "$\\mathbf{x} = \\begin{pmatrix} 1 \\\\ 2 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\mathbf{x} = \\begin{pmatrix} 2 \\\\ 1 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\mathbf{x} = \\begin{pmatrix} 3 \\\\ 1 \\end{pmatrix}$" },
+          { id: "d", texto: "$\\mathbf{x} = \\begin{pmatrix} 0 \\\\ 2.5 \\end{pmatrix}$" }
+        ],
+        correcta: "a",
+        explicacion: "$\\det(A) = -2$, $A^{-1} = \\begin{pmatrix} -2 & 1 \\\\ 1.5 & -0.5 \\end{pmatrix}$. Multiplicando por $(5, 11)^T$: $x_1 = -10+11=1$, $x_2 = 7.5-5.5=2$."
+      },
+      {
+        id: "s04_p23",
+        tipo: "teoria",
+        pregunta: "¿Qué ocurre con el determinante de la matriz inversa $\\det(A^{-1})$ respecto al determinante de $A$?",
+        opciones: [
+          { id: "a", texto: "$\\det(A^{-1}) = \\frac{1}{\\det(A)}$" },
+          { id: "b", texto: "$\\det(A^{-1}) = -\\det(A)$" },
+          { id: "c", texto: "$\\det(A^{-1}) = \\det(A)$" },
+          { id: "d", texto: "$\\det(A^{-1}) = (\\det(A))^2$" }
+        ],
+        correcta: "a",
+        explicacion: "Como $A A^{-1} = I$, se cumple $\\det(A A^{-1}) = \\det(A)\\det(A^{-1}) = \\det(I) = 1 \\implies \\det(A^{-1}) = 1/\\det(A)$."
+      },
+      {
+        id: "s04_p24",
+        tipo: "ejercicio",
+        pregunta: "Si $A = \\begin{pmatrix} 3 & 0 \\\\ 0 & 4 \\end{pmatrix}$, ¿cuál es su inversa $A^{-1}$?",
+        opciones: [
+          { id: "a", texto: "$\\begin{pmatrix} 1/3 & 0 \\\\ 0 & 1/4 \\end{pmatrix}$" },
+          { id: "b", texto: "$\\begin{pmatrix} 4 & 0 \\\\ 0 & 3 \\end{pmatrix}$" },
+          { id: "c", texto: "$\\begin{pmatrix} -3 & 0 \\\\ 0 & -4 \\end{pmatrix}$" },
+          { id: "d", texto: "$\\begin{pmatrix} 1/4 & 0 \\\\ 0 & 1/3 \\end{pmatrix}$" }
+        ],
+        correcta: "a",
+        explicacion: "La inversa de una matriz diagonal se obtiene invirtiendo cada uno de los elementos de su diagonal principal: $\\text{diag}(1/3, 1/4)$."
+      }
+    ];
+
+    let userAnswers = {};
+
+    function renderQuestions() {
+      const container = document.getElementById("questions-list");
+      container.innerHTML = "";
+
+      preguntas.forEach((q, idx) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        
+        let html = `<h3>Pregunta ${idx + 1} (${q.tipo.toUpperCase()})</h3>`;
+        html += `<p>${q.pregunta}</p>`;
+        html += `<div class="options">`;
+
+        q.opciones.forEach(opt => {
+          html += `<button class="option-btn" onclick="selectOption('${q.id}', '${opt.id}', this)">${opt.id.toUpperCase()}) ${opt.texto}</button>`;
+        });
+
+        html += `</div>`;
+        html += `<div id="exp-${q.id}" class="explanation"><strong>Explicación:</strong> ${q.explicacion}</div>`;
+        
+        card.innerHTML = html;
+        container.appendChild(card);
+      });
+
+      if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function selectOption(qId, optId, btn) {
+      userAnswers[qId] = optId;
+      const q = preguntas.find(p => p.id === qId);
+      const parent = btn.parentElement;
+      const buttons = parent.querySelectorAll(".option-btn");
+
+      buttons.forEach(b => {
+        b.disabled = true;
+        b.style.cursor = "default";
+      });
+
+      if (optId === q.correcta) {
+        btn.classList.add("correct");
+      } else {
+        btn.classList.add("incorrect");
+        buttons.forEach(b => {
+          if (b.innerText.startsWith(q.correcta.toUpperCase() + ")")) {
+            b.classList.add("correct");
+          }
+        });
+      }
+
+      document.getElementById(`exp-${qId}`).style.display = "block";
+      updateScore();
+    }
+
+    function updateScore() {
+      let score = 0;
+      let count = 0;
+      preguntas.forEach(q => {
+        if (userAnswers[q.id]) {
+          count++;
+          if (userAnswers[q.id] === q.correcta) score++;
+        }
+      });
+
+      const banner = document.getElementById("score-banner");
+      banner.style.display = "block";
+      document.getElementById("score-val").innerText = score;
+      document.getElementById("score-text").innerText = `Has respondido ${count} de ${preguntas.length} preguntas.`;
+    }
+
+    document.addEventListener("DOMContentLoaded", renderQuestions);
+  </script>
+</body>
+</html>

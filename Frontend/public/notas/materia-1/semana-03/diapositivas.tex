@@ -1,0 +1,253 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\setbeamercolor{structure}{fg=unicaucaverde}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\vv}[1]{\mathbf{#1}}
+
+\title[Semana 3: Vectores y matrices]{Vectores y matrices: definiciones y operaciones básicas}
+\subtitle{Álgebra Lineal para Ingeniería --- Semana 3 de 16}
+\author{Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Semana 3: dónde estamos}
+  \begin{itemize}
+    \item Unidad 2 de 8: Vectores y matrices.
+    \item Subtemas 2.1 y 2.2 --- RA2.1, RA2.2.
+    \item 4 horas: definiciones y suma/escalar $\to$ producto punto y $A\vv{x}$ $\to$ producto de
+          matrices.
+  \end{itemize}
+  \tableofcontents
+\end{frame}
+
+\section{Vectores y matrices}
+
+\begin{frame}{Vector y matriz}
+  \begin{block}{Vector}
+    $n$-tupla ordenada $\vv{x}=(x_1,\ldots,x_n)\in\R^n$; por convención, columna.
+  \end{block}
+  \begin{block}{Matriz $m\times n$}
+    \[
+      A = \begin{pmatrix}
+        a_{11} & \cdots & a_{1n} \\
+        \vdots & \ddots & \vdots \\
+        a_{m1} & \cdots & a_{mn}
+      \end{pmatrix} = (a_{ij}), \quad i=\text{fila},\; j=\text{columna}.
+    \]
+  \end{block}
+  Un vector columna de $\R^n$ es una matriz $n\times 1$.
+\end{frame}
+
+\begin{frame}{Matrices especiales}
+  \begin{itemize}
+    \item \textbf{Fila} ($1\times n$) / \textbf{columna} ($m\times 1$).
+    \item \textbf{Cuadrada}: $m=n$.
+    \item \textbf{Nula} $\vv{0}$: todas las entradas cero.
+    \item \textbf{Diagonal}: cuadrada, $a_{ij}=0$ si $i\neq j$.
+    \item \textbf{Identidad} $I_n$: diagonal con $a_{ii}=1$.
+  \end{itemize}
+  \vfill
+  \textbf{Igualdad}: mismo tamaño y todas las entradas iguales.
+\end{frame}
+
+\begin{frame}{Suma, resta y multiplicación por escalar}
+  Para $A,B$ del \textbf{mismo tamaño} $m\times n$ y $c\in\R$, entrada a entrada:
+  \[
+    A+B = (a_{ij}+b_{ij}), \qquad A-B=(a_{ij}-b_{ij}), \qquad cA=(c\,a_{ij}).
+  \]
+  \begin{alertblock}{Advertencia}
+    La suma \textbf{solo} está definida si ambas matrices tienen exactamente el mismo tamaño.
+  \end{alertblock}
+  \vfill
+  Ejemplo: $A=\begin{pmatrix}1&2\\-1&0\end{pmatrix}$, $B=\begin{pmatrix}3&-1\\2&4\end{pmatrix}$
+  $\Rightarrow$ $2A-B=\begin{pmatrix}-1&5\\-4&-4\end{pmatrix}$.
+\end{frame}
+
+\begin{frame}{Propiedades algebraicas}
+  Para $A,B,C$ del mismo tamaño y $c,d\in\R$:
+  \begin{itemize}
+    \item $A+B=B+A$; \quad $(A+B)+C=A+(B+C)$.
+    \item $A+\vv{0}=A$; \quad $A+(-1)A=\vv{0}$.
+    \item $c(A+B)=cA+cB$; \quad $(c+d)A=cA+dA$; \quad $c(dA)=(cd)A$.
+  \end{itemize}
+  \vfill
+  \textbf{Taller (hora 2):} operar con matrices dadas y verificar estas propiedades.
+\end{frame}
+
+\section{Producto punto y producto matriz-vector}
+
+\begin{frame}{Producto punto de vectores}
+  \begin{block}{Definición}
+    $\vv{u}\cdot\vv{v} = \sum_{k=1}^n u_kv_k$, para $\vv{u},\vv{v}\in\R^n$ (mismo número de
+    componentes).
+  \end{block}
+  \begin{itemize}
+    \item Conmutativo, distributivo, $(c\vv{u})\cdot\vv{v}=c(\vv{u}\cdot\vv{v})$.
+    \item $\vv{u}\cdot\vv{u}\geq 0$, y $=0$ solo si $\vv{u}=\vv{0}$.
+    \item $\vv{u}\cdot\vv{v}=0$ ($\vv{u},\vv{v}\neq\vv{0}$) $\Rightarrow$ \textbf{ortogonales}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Producto matriz-vector \texorpdfstring{$A\vv{x}$}{Ax}}
+  \begin{block}{Por filas (producto punto)}
+    \[ (A\vv{x})_i = \sum_{k=1}^n a_{ik}x_k \]
+  \end{block}
+  \begin{alertblock}{Por columnas (combinación lineal)}
+    \[ A\vv{x} = x_1\vv{a}_1 + x_2\vv{a}_2 + \cdots + x_n\vv{a}_n \]
+  \end{alertblock}
+  Dos formas de ver lo mismo: $A\vv{x}$ siempre es una combinación lineal de las columnas de $A$.
+\end{frame}
+
+\begin{frame}{Forma matricial de un sistema: \texorpdfstring{$A\vv{x}=\vv{b}$}{Ax=b}}
+  El sistema
+  \[
+  \begin{aligned}
+    a_{11}x_1+\cdots+a_{1n}x_n &= b_1 \\ &\;\vdots \\ a_{m1}x_1+\cdots+a_{mn}x_n &= b_m
+  \end{aligned}
+  \]
+  es exactamente $A\vv{x}=\vv{b}$.
+  \vfill
+  \textbf{Ejemplo:} $2x_1-x_2=4,\;x_1+3x_2=5$
+  $\Longleftrightarrow$
+  $\begin{pmatrix}2&-1\\1&3\end{pmatrix}\begin{pmatrix}x_1\\x_2\end{pmatrix} = \begin{pmatrix}4\\5\end{pmatrix}$.
+  \vfill
+  \small Conecta con la Unidad 1: resolver el sistema $=$ hallar $\vv{x}$ tal que $A\vv{x}=\vv{b}$.
+\end{frame}
+
+\section{Producto de matrices}
+
+\begin{frame}{Producto de matrices \texorpdfstring{$AB$}{AB}}
+  \begin{alertblock}{Condición de compatibilidad}
+    $A$ de tamaño $m\times p$, $B$ de tamaño $p\times n$: columnas de $A$ = filas de $B$.
+  \end{alertblock}
+  \[
+    C=AB \text{ es } m\times n, \qquad c_{ij} = \sum_{k=1}^p a_{ik}b_{kj}
+  \]
+  (fila $i$ de $A$ $\cdot$ columna $j$ de $B$). Si no coinciden columnas de $A$ con filas de $B$,
+  $AB$ \textbf{no está definido}.
+\end{frame}
+
+\begin{frame}{Ejemplo: regla fila por columna}
+  \[
+    A=\begin{pmatrix}1&2\\0&-1\end{pmatrix}, \qquad B=\begin{pmatrix}3&1\\2&4\end{pmatrix}
+  \]
+  \[
+    AB = \begin{pmatrix}1(3)+2(2) & 1(1)+2(4)\\0(3)+(-1)(2) & 0(1)+(-1)(4)\end{pmatrix}
+    = \begin{pmatrix}7&9\\-2&-4\end{pmatrix}
+  \]
+\end{frame}
+
+\begin{frame}{Propiedades del producto de matrices}
+  \begin{itemize}
+    \item $(AB)C=A(BC)$ (asociativa).
+    \item $A(B+C)=AB+AC$, $(A+B)C=AC+BC$ (distributivas).
+    \item $(cA)B=A(cB)=c(AB)$.
+    \item $I_mA=A=AI_n$.
+  \end{itemize}
+  \begin{alertblock}{No conmutativa}
+    En general $AB\neq BA$ --- incluso pueden tener tamaños distintos, o uno estar definido y el
+    otro no.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Ejemplo: no conmutatividad}
+  \[
+    A=\begin{pmatrix}1&2\\0&1\end{pmatrix}, \quad B=\begin{pmatrix}1&0\\3&1\end{pmatrix}
+  \]
+  \[
+    AB=\begin{pmatrix}7&2\\3&1\end{pmatrix} \qquad\neq\qquad BA=\begin{pmatrix}1&2\\3&7\end{pmatrix}
+  \]
+  Basta comparar la entrada $(1,1)$: $7$ contra $1$.
+\end{frame}
+
+\begin{frame}{Aplicación: consumo de recursos en producción}
+  Matriz de consumo unitario (acero, mano de obra, energía) por producto:
+  \[
+    A = \begin{pmatrix}2&3\\1&4\\5&2\end{pmatrix}
+  \]
+  Producción $\vv{x}=(40,25)$ unidades $\Rightarrow$
+  \[
+    A\vv{x} = 40\begin{pmatrix}2\\1\\5\end{pmatrix} + 25\begin{pmatrix}3\\4\\2\end{pmatrix}
+    = \begin{pmatrix}155\\140\\250\end{pmatrix}
+  \]
+  \textbf{155 kg de acero, 140 h de mano de obra, 250 kWh}: $A\vv{x}$ es, otra vez, una
+  combinación lineal de columnas.
+\end{frame}
+
+\section{Soluciones de ejercicios}
+
+\begin{frame}{Ej. 1 y 2 — Suma/escalar y producto punto}
+  \[
+    A=\begin{pmatrix}1&2&-1\\0&3&4\end{pmatrix},\; B=\begin{pmatrix}2&-1&0\\1&2&-3\end{pmatrix}
+    \;\Rightarrow\; 3A-2B=\begin{pmatrix}-1&8&-3\\-2&5&18\end{pmatrix}
+  \]
+  \[
+    \vv{u}=(1,-2,3),\;\vv{v}=(0,4,-1) \;\Rightarrow\; \vv{u}\cdot\vv{v}=-11 \quad(\text{no
+    ortogonales}).
+  \]
+\end{frame}
+
+\begin{frame}{Ej. 3 — \texorpdfstring{$AB$}{AB} y \texorpdfstring{$BA$}{BA} de tamaños distintos}
+  $A$ ($2\times 3$), $B$ ($3\times 2$): ambos productos están definidos, pero
+  \[
+    AB=\begin{pmatrix}10&5\\2&-2\end{pmatrix}\ (2\times 2) \qquad\neq\qquad
+    BA=\begin{pmatrix}1&3&5\\1&-3&-1\\2&6&10\end{pmatrix}\ (3\times 3).
+  \]
+  \begin{alertblock}{Resultado}
+    Ni siquiera tienen el mismo tamaño.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Ej. 4 — Forma matricial \texorpdfstring{$A\vv{x}=\vv{b}$}{Ax=b}}
+  $2x_1-x_2+3x_3=5,\; x_1+4x_2-x_3=-2,\; -3x_1+2x_2+x_3=0$
+  \[
+    \begin{pmatrix}2&-1&3\\1&4&-1\\-3&2&1\end{pmatrix}
+    \begin{pmatrix}x_1\\x_2\\x_3\end{pmatrix} =
+    \begin{pmatrix}5\\-2\\0\end{pmatrix}
+  \]
+\end{frame}
+
+\begin{frame}{Ej. 5 — Horas-máquina}
+  $M=\begin{pmatrix}0.5&1.2&0.8\\1.0&0.3&1.5\end{pmatrix}$, producción
+  $\vv{x}=(100,50,30)$:
+  \[
+    M\vv{x} = \begin{pmatrix}134\\160\end{pmatrix} \text{ horas (máquina 1, máquina 2).}
+  \]
+\end{frame}
+
+\begin{frame}{Ej. 6 — No conmutatividad, mismo tamaño}
+  $A=\begin{pmatrix}1&2\\0&1\end{pmatrix}$, $B=\begin{pmatrix}1&0\\3&1\end{pmatrix}$: ambos
+  $2\times 2$.
+  \[
+    AB=\begin{pmatrix}7&2\\3&1\end{pmatrix} \neq \begin{pmatrix}1&2\\3&7\end{pmatrix}=BA.
+  \]
+  \begin{block}{Conclusión}
+    Aun con el mismo tamaño en ambos órdenes, el producto de matrices no es conmutativo.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Cierre de la sesión}
+  \begin{itemize}
+    \item RA2.1: vectores, matrices, suma, resta, producto por escalar.
+    \item RA2.2: producto punto, $A\vv{x}$, forma $A\vv{x}=\vv{b}$, producto $AB$.
+    \item Próxima semana: 2.3--2.5 --- sistemas de ecuaciones vía matrices, inversa, transpuesta.
+  \end{itemize}
+  \vfill
+  \centering \Large Control formativo al inicio de la Semana 4.
+\end{frame}
+
+\end{document}

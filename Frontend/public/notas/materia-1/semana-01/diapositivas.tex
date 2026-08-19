@@ -1,0 +1,235 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\setbeamercolor{structure}{fg=unicaucaverde}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+
+\newcommand{\R}{\mathbb{R}}
+
+\title[Semana 1: Sistemas de ecuaciones]{Sistemas de ecuaciones lineales: introducción y el
+  caso de dos incógnitas}
+\subtitle{Álgebra Lineal para Ingeniería --- Semana 1 de 16}
+\author{Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Semana 1: dónde estamos}
+  \begin{itemize}
+    \item Unidad 1 de 8: Sistemas de ecuaciones lineales.
+    \item Subtemas 1.1 y 1.2 --- RA1.1, RA1.2.
+    \item 4 horas: teoría + taller de sistemas en general, luego teoría + taller de sistemas
+          $2\times 2$.
+  \end{itemize}
+  \tableofcontents
+\end{frame}
+
+\section{Introducción a los sistemas}
+
+\begin{frame}{¿Por qué sistemas de ecuaciones?}
+  \begin{itemize}
+    \item Leyes de Kirchhoff en circuitos eléctricos.
+    \item Equilibrio de fuerzas en armaduras y estructuras.
+    \item Balances de materia y energía en procesos.
+    \item Precios de equilibrio oferta-demanda.
+  \end{itemize}
+  \vfill
+  En todos los casos: varias incógnitas ligadas por relaciones lineales simultáneas.
+\end{frame}
+
+\begin{frame}{Ecuación lineal y sistema}
+  \begin{block}{Ecuación lineal}
+    \[
+      a_1x_1+a_2x_2+\cdots+a_nx_n = b
+    \]
+  \end{block}
+  \begin{block}{Sistema de $m$ ecuaciones con $n$ incógnitas}
+    \[
+    \begin{aligned}
+      a_{11}x_1+\cdots+a_{1n}x_n &= b_1 \\
+      &\;\vdots \\
+      a_{m1}x_1+\cdots+a_{mn}x_n &= b_m
+    \end{aligned}
+    \]
+  \end{block}
+  Una \textbf{solución} es una $n$-tupla que satisface las $m$ ecuaciones a la vez.
+\end{frame}
+
+\begin{frame}{Consistente / inconsistente}
+  \begin{itemize}
+    \item \textbf{Consistente}: tiene al menos una solución.
+    \item \textbf{Inconsistente}: no tiene ninguna.
+  \end{itemize}
+  \begin{alertblock}{Un sistema consistente tiene...}
+    exactamente una solución, o infinitas --- nunca un número finito mayor que uno. Se ve ya en
+    el caso $2\times 2$ y se demuestra en general en la Semana 2.
+  \end{alertblock}
+  \vfill
+  \textbf{Taller (hora 2):} verificar soluciones; traducir un problema de circuito o mezcla a un
+  sistema.
+\end{frame}
+
+\section{Dos ecuaciones con dos incógnitas}
+
+\begin{frame}{Sistema $2\times 2$: dos rectas}
+  \[
+  \begin{aligned}
+    a_1x+b_1y &= c_1 \\
+    a_2x+b_2y &= c_2
+  \end{aligned}
+  \]
+  Cada ecuación es una recta en $\R^2$. Resolver el sistema = hallar la intersección.
+\end{frame}
+
+\begin{frame}{Los tres casos}
+  \begin{columns}
+    \begin{column}{0.33\textwidth}
+      \centering \textbf{Secantes}\\ solución única
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \centering \textbf{Paralelas}\\ sin solución
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \centering \textbf{Coincidentes}\\ infinitas soluciones
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{exampleblock}{Solución única}
+    $x+y=5,\; x-y=1 \;\Rightarrow\; (3,2)$
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Sustitución y eliminación}
+  \begin{block}{Sustitución}
+    Despejar una variable de una ecuación y sustituir en la otra.
+  \end{block}
+  \begin{block}{Eliminación}
+    Combinar (sumar/restar múltiplos de) las ecuaciones para cancelar una variable. Generaliza
+    directamente a Gauss-Jordan (Semana 2).
+  \end{block}
+\end{frame}
+
+\begin{frame}{Ejemplos: los tres casos}
+  \textbf{Sin solución:}
+  \[
+    2x+y=4, \qquad 4x+2y=3
+  \]
+  (mismas pendientes, distinto término independiente: rectas paralelas)
+
+  \vfill
+  \textbf{Infinitas soluciones:}
+  \[
+    x-2y=3, \qquad -2x+4y=-6
+  \]
+  (la segunda ecuación es $-2$ veces la primera: la misma recta)
+
+  \vfill
+  \textbf{Taller (hora 4):} \texttt{visualizacion/} sección \emph{1.1--1.2} --- variar
+  $a_1,b_1,c_1,a_2,b_2,c_2$ y observar los tres casos.
+\end{frame}
+
+\section{Soluciones de ejercicios}
+
+\begin{frame}{Ej. 1 — Forma general $3 \times 4$}
+  Sistema de $m=3$ ecuaciones con $n=4$ incógnitas ($x_1,x_2,x_3,x_4$):
+  \[
+  \begin{aligned}
+    a_{11}x_1 + a_{12}x_2 + a_{13}x_3 + a_{14}x_4 &= b_1 \\
+    a_{21}x_1 + a_{22}x_2 + a_{23}x_3 + a_{24}x_4 &= b_2 \\
+    a_{31}x_1 + a_{32}x_2 + a_{33}x_3 + a_{34}x_4 &= b_3
+  \end{aligned}
+  \]
+  \begin{block}{Elementos}
+    $a_{ij}$ son los coeficientes, $b_i$ los términos independientes.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Ej. 2 — Verificación de solución}
+  ¿Es $(2,-1,1)$ solución de $\{x_1+x_2+x_3=2,\; 2x_1-x_2+x_3=6\}$?
+  \vfill
+  \begin{itemize}
+    \item Ecuación 1: $2 + (-1) + 1 = 2$ \quad \textcolor{unicaucaverde}{\checkmark (Cumple)}
+    \item Ecuación 2: $2(2) - (-1) + 1 = 4 + 1 + 1 = 6$ \quad \textcolor{unicaucaverde}{\checkmark (Cumple)}
+  \end{itemize}
+  \vfill
+  \begin{alertblock}{Conclusión}
+    Satisface ambas ecuaciones $\Rightarrow$ \textbf{Sí es solución}.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Ej. 3 — Aplicación en circuitos}
+  Modelado: $3I_1 - I_2 = 5$ y $-2I_1 + 5I_2 = 0$.
+  \vfill
+  \textbf{Resolviendo por eliminación:}
+  \begin{align*}
+    5 \times \text{Eq}_1 + \text{Eq}_2 \implies 13I_1 = 25 \implies I_1 = \frac{25}{13} \text{ A}
+  \end{align*}
+  Sustituyendo $I_1$: $5I_2 = 2I_1 \implies I_2 = \frac{10}{13} \text{ A}$.
+  \vfill
+  \begin{block}{Resultado}
+    \[ \boxed{I_1 = \frac{25}{13}\text{ A}, \quad I_2 = \frac{10}{13}\text{ A}} \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Ej. 4 — Sustitución y clasificación}
+  Sistema: $\{3x-y=7,\; x+2y=0\}$.
+  \vfill
+  De la 2da ecuación: $x = -2y$. Sustituyendo en la 1ra:
+  \[
+    3(-2y) - y = 7 \implies -7y = 7 \implies y = -1 \implies x = 2
+  \]
+  \vfill
+  \begin{block}{Resultado}
+    \[ \boxed{(x,y) = (2,-1)} \]
+    \textbf{Sistema consistente determinado} (solución única, rectas secantes).
+  \end{block}
+\end{frame}
+
+\begin{frame}{Ej. 5 — Análisis de coeficientes}
+  Sistema: $\{x+3y=6,\; 2x+6y=10\}$.
+  \vfill
+  \begin{itemize}
+    \item Pendientes: $m_1 = -1/3$, $m_2 = -2/6 = -1/3$ (paralelas).
+    \item Comparación de razones: $\frac{1}{2} = \frac{3}{6} \neq \frac{6}{10}$.
+  \end{itemize}
+  \vfill
+  \begin{alertblock}{Resultado}
+    Rectas paralelas distintas $\Rightarrow$ \textbf{Sin solución} (inconsistente).
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Ej. 6 — Construcción de sistema indeterminado}
+  Primera ecuación dada: $3x + y = 9$.
+  \vfill
+  \begin{block}{Construcción}
+    Multiplicando la ecuación por un escalar no nulo ($c = 2$):
+    \[
+      2(3x + y) = 2(9) \implies 6x + 2y = 18
+    \]
+  \end{block}
+  \vfill
+  El sistema $\{3x+y=9,\; 6x+2y=18\}$ representa la misma recta y tiene \textbf{infinitas soluciones}.
+\end{frame}
+
+\begin{frame}{Cierre de la semana}
+  \begin{itemize}
+    \item RA1.1: forma general de un sistema, verificación de soluciones.
+    \item RA1.2: sistemas $2\times 2$, sustitución/eliminación, tres casos geométricos.
+    \item Control formativo al inicio de la Semana 2.
+  \end{itemize}
+  \vfill
+  \centering \Large Semana 2: $m$ ecuaciones con $n$ incógnitas --- Gauss-Jordan y sistemas
+  homogéneos.
+\end{frame}
+
+\end{document}

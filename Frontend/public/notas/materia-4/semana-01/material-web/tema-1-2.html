@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.2 El flujo de herramientas: Quartus, Platform Designer, Nios II EDS</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>1.2 El flujo de herramientas</h1>
+    <p class="subtitulo">Quartus Prime · Platform Designer · Nios II EDS — Semana 1 · Énfasis, Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="tema-1-1.html">1.1 Soft-core y Nios II</a></li>
+    <li><a href="tema-1-2.html">1.2 Flujo de herramientas</a></li>
+    <li><a href="tema-1-3.html">1.3 BSP y compilación</a></li>
+    <li><a href="practica.html">Práctica guiada</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<p>
+  Construir un sistema Nios II funcionando no es una sola herramienta: son tres, cada una con una
+  responsabilidad distinta y una dependencia estricta de la anterior.
+</p>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Tres herramientas, tres responsabilidades</span>
+  <table class="datos">
+    <tr><th>Herramienta</th><th>Responsabilidad</th></tr>
+    <tr>
+      <td><strong>Quartus Prime</strong></td>
+      <td>Síntesis, place &amp; route y programación de la FPGA. Contiene el diseño top-level que
+        instancia el sistema Nios II junto con el resto de la lógica del proyecto.</td>
+    </tr>
+    <tr>
+      <td><strong>Platform Designer</strong></td>
+      <td>Ensamblado gráfico del sistema (antes llamado Qsys): agregar el núcleo Nios II y sus
+        periféricos, conectar el bus Avalon-MM, asignar direcciones base, y generar el HDL del sistema
+        y el archivo <code>.sopcinfo</code> que lo describe.</td>
+    </tr>
+    <tr>
+      <td><strong>Nios II EDS</strong></td>
+      <td><em>Eclipse-based Development Suite</em>: a partir del <code>.sopcinfo</code>, genera el BSP
+        (Board Support Package) del sistema exacto que se armó, y compila/descarga/depura software en C
+        que corre sobre ese sistema.</td>
+    </tr>
+  </table>
+</div>
+
+<div class="recuadro ingenieria">
+  <span class="titulo">Orden de dependencia estricto</span>
+  Platform Designer necesita el proyecto de Quartus para existir; Nios II EDS necesita el
+  <code>.sopcinfo</code> que produce Platform Designer — y ese <code>.sopcinfo</code> debe corresponder
+  exactamente al bitstream programado en la FPGA, o el software fallará al ejecutar contra un mapa de
+  memoria que no es el real. Este encadenamiento es la razón por la que, en la <a href="practica.html">práctica
+  guiada</a>, el primer paso siempre es crear el proyecto en Quartus antes de tocar Platform Designer.
+</div>
+
+<div class="aviso">
+  <span class="titulo">Nota de versión</span>
+  Cyclone IV — la familia de la DE2-115 — solo está soportada hasta Quartus Prime 18.1 (Standard
+  Edition), la última versión que además incluye el flujo clásico de Nios II EDS. Versiones posteriores
+  de Quartus Prime dejaron de dar soporte tanto a Cyclone IV como al propio Nios II Classic, en favor de
+  familias más nuevas y de Nios V (basado en RISC-V). Para este laboratorio se usa Quartus Prime 18.1
+  Standard Edition.
+</div>
+
+<div class="paginacion">
+  <a href="tema-1-1.html">&larr; 1.1 Soft-core y arquitectura Nios II</a>
+  <a href="tema-1-3.html">1.3 BSP y compilación cruzada &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>semana-01/</code> — Énfasis, Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>
