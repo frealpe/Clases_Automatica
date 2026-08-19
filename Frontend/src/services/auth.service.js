@@ -17,6 +17,18 @@ export const authService = {
     }
   },
 
+  async registrar(datos) {
+    try {
+      const response = await apiClient.post('/auth/register', datos);
+      return response.data;
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        throw new Error(err.response.data.message);
+      }
+      throw new Error('Error al registrar usuario en el servidor');
+    }
+  },
+
   logout() {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_data');

@@ -216,6 +216,20 @@ export const useCourseStore = create((set, get) => ({
     return { ok: true, user: data.user };
   },
 
+  registrarWithJWT: async (datos) => {
+    const data = await authService.registrar(datos);
+    localStorage.setItem('jwt_token', data.access_token);
+    localStorage.setItem('user_data', JSON.stringify(data.user));
+
+    set({
+      tokenJWT: data.access_token,
+      usuario: data.user
+    });
+
+    get().cargarMateriasFromService();
+    return { ok: true, user: data.user };
+  },
+
   logoutJWT: () => {
     authService.logout();
     set({ tokenJWT: null, usuario: null });

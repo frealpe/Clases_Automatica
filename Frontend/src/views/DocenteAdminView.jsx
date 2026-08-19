@@ -29,7 +29,8 @@ function DocenteAdminViewBase() {
   const acentoCian = esLight ? 'text-sky-700' : 'text-[#38bdf8]';
   const acentoEsmeralda = esLight ? 'text-emerald-700' : 'text-emerald-400';
   const acentoRojo = esLight ? 'text-red-700' : 'text-red-400';
-  const textoSecundario = esLight ? 'text-slate-600' : 'text-slate-400';
+  const textoSecundario = esLight ? 'text-slate-700 font-medium' : 'text-slate-300';
+  const textoTitulo = esLight ? 'text-slate-950 font-bold' : 'text-white font-bold';
 
   const [modalCargaAbierto, setModalCargaAbierto] = useState(false);
   const [materiaParaCarga, setMateriaParaCarga] = useState(null);
@@ -74,7 +75,9 @@ function DocenteAdminViewBase() {
         {/* 1. HEADER SECCIÓN MATERIAS DEL SEMESTRE */}
         <div className="flex justify-between items-center shrink-0">
           <div>
-            <h2 className="text-xl font-extrabold tracking-tight">Materias del Semestre ({materias.length})</h2>
+            <h2 className={`text-xl font-black tracking-tight ${textoTitulo}`}>
+              Materias del Semestre ({materias.length})
+            </h2>
             <p className={`text-xs mt-0.5 ${textoSecundario}`}>
               Administra el contenido de cada materia o súbelo como temática nueva.
             </p>
@@ -82,7 +85,7 @@ function DocenteAdminViewBase() {
 
           <button
             onClick={() => setModalMateriaAbierto(true)}
-            className="px-4 py-2 rounded-xl bg-[#38bdf8] text-black font-extrabold text-xs hover:bg-sky-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+            className="px-4 py-2 rounded-xl bg-[#38bdf8] text-black font-black text-xs hover:bg-sky-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
           >
             <span className="material-symbols-outlined text-base">add_circle</span>
             <span>+ Agregar Materia</span>
@@ -91,14 +94,16 @@ function DocenteAdminViewBase() {
 
         {materias.length === 0 && (
           <div className={`p-8 text-center rounded-2xl border shrink-0 ${
-            esLight ? 'bg-slate-100 border-slate-300 text-slate-700' : 'bg-slate-900/80 border-slate-700 text-slate-300'
+            esLight ? 'bg-white border-slate-300 text-slate-900 shadow-md' : 'bg-slate-900/80 border-slate-700 text-slate-300'
           }`}>
-            <span className="material-symbols-outlined text-4xl block mb-2">folder_off</span>
-            Aún no administras ninguna materia. Usa "+ Agregar Materia" para crear la primera.
+            <span className="material-symbols-outlined text-4xl block mb-2 text-sky-500">folder_off</span>
+            <p className={`text-sm font-bold ${esLight ? 'text-slate-900' : 'text-white'}`}>
+              Aún no administras ninguna materia. Usa "+ Agregar Materia" arriba para crear la primera asignatura.
+            </p>
           </div>
         )}
 
-        {/* 2. GRID TARJETAS DE MATERIAS CON GESTOR DE CONTENIDO INTEGRADO */}
+        {/* 2. GRID TARJETAS DE MATERIAS CON TEXTO NEGRO LEGIBLE EN MODO CLARO */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
           {materias.map((m) => {
             const esActiva = m.id === materiaActivaId;
@@ -109,40 +114,44 @@ function DocenteAdminViewBase() {
                 className={`p-4 rounded-xl border flex flex-col justify-between transition-all cursor-pointer relative group ${
                   esActiva
                     ? esLight
-                      ? 'bg-sky-50/90 border-sky-400 shadow-sm ring-2 ring-sky-500/20'
-                      : 'bg-slate-900 border-[#38bdf8] shadow-md ring-2 ring-[#38bdf8]/30'
+                      ? 'bg-sky-50 border-sky-400 shadow-md ring-2 ring-sky-500/30 text-slate-950'
+                      : 'bg-slate-900 border-[#38bdf8] shadow-md ring-2 ring-[#38bdf8]/30 text-white'
                     : esLight
-                    ? 'bg-white border-slate-300 hover:border-slate-400 shadow-sm'
-                    : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 shadow-sm'
+                    ? 'bg-white border-slate-300 hover:border-slate-400 shadow-sm text-slate-950'
+                    : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 shadow-sm text-white'
                 }`}
               >
                 {/* Fila Superior: Título y Subtítulo */}
                 <div className="flex justify-between items-start gap-2">
                   <div>
-                    <h3 className="text-sm font-bold leading-snug">
+                    <h3 className={`text-sm font-black leading-snug ${esLight ? 'text-slate-950' : 'text-white'}`}>
                       {m.nombre}
                     </h3>
-                    <p className={`text-[11px] mt-0.5 font-mono ${textoSecundario}`}>
+                    <p className={`text-[11px] mt-0.5 font-mono ${esLight ? 'text-slate-700 font-bold' : 'text-slate-400'}`}>
                       [{m.codigo}] {m.semestre || '2026-1'}
                     </p>
                   </div>
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${
-                    esLight ? 'bg-slate-100 border-slate-300 text-slate-700' : 'bg-slate-800 border-slate-700 text-slate-300'
+                    esLight ? 'bg-slate-200 border-slate-300 text-slate-900 font-extrabold' : 'bg-slate-800 border-slate-700 text-slate-300'
                   }`}>
                     {m.numeroSemanas || m.semanasCount || 16} Semanas
                   </span>
                 </div>
 
                 {/* Subtítulo descriptor */}
-                <p className={`text-xs my-2.5 line-clamp-2 leading-snug ${textoSecundario}`}>
+                <p className={`text-xs my-2.5 line-clamp-2 leading-snug ${esLight ? 'text-slate-800 font-medium' : 'text-slate-300'}`}>
                   {m.descripcion || m.subtitulo || 'Material pedagógico de la asignatura.'}
                 </p>
 
-                {/* BOTONES DE ACCIÓN: ADMINISTRAR CONTENIDO Y ABRIR MATERIAL */}
-                <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-700/30">
+                {/* BOTONES DE ACCIÓN */}
+                <div className={`flex flex-col gap-1.5 pt-2 border-t ${esLight ? 'border-slate-200' : 'border-slate-700/30'}`}>
                   <button
                     onClick={(e) => handleAbrirGestionContenido(e, m)}
-                    className="w-full py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold text-[11px] hover:bg-amber-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className={`w-full py-1.5 rounded-lg font-bold text-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      esLight
+                        ? 'bg-amber-100 border border-amber-300 text-amber-950 hover:bg-amber-200'
+                        : 'bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30'
+                    }`}
                     title="Subir o editar el contenido/temática de la materia por semana"
                   >
                     <span className="material-symbols-outlined text-sm">upload_file</span>
@@ -155,7 +164,11 @@ function DocenteAdminViewBase() {
                       setMateriaActiva(m.id);
                       navigate('/usuarios', { state: { pestaña: 'matriculas', materiaId: m.id } });
                     }}
-                    className="w-full py-1.5 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-300 font-extrabold text-[11px] hover:bg-sky-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className={`w-full py-1.5 rounded-lg font-bold text-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      esLight
+                        ? 'bg-sky-100 border border-sky-300 text-sky-950 hover:bg-sky-200'
+                        : 'bg-sky-500/20 border border-sky-500/40 text-sky-300 hover:bg-sky-500/30'
+                    }`}
                     title="Ver listado completo de estudiantes matriculados en esta asignatura"
                   >
                     <span className="material-symbols-outlined text-sm">groups</span>
@@ -164,7 +177,11 @@ function DocenteAdminViewBase() {
 
                   <button
                     onClick={(e) => handleAbrirCargaEstudiantes(e, m)}
-                    className="w-full py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-extrabold text-[11px] hover:bg-emerald-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className={`w-full py-1.5 rounded-lg font-bold text-[11px] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      esLight
+                        ? 'bg-emerald-100 border border-emerald-300 text-emerald-950 hover:bg-emerald-200'
+                        : 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/30'
+                    }`}
                     title="Cargar estudiantes por bloque desde una lista (cédula, nombre, correo)"
                   >
                     <span className="material-symbols-outlined text-sm">group_add</span>
@@ -188,12 +205,14 @@ function DocenteAdminViewBase() {
 
         {/* 3. RESUMEN DE REPORTES DOCENTES */}
         <div className={`p-4 rounded-xl border flex flex-col gap-3 ${
-          esLight ? 'bg-white border-slate-300 shadow-sm' : 'bg-slate-900/80 border-slate-800 shadow-sm'
+          esLight ? 'bg-white border-slate-300 text-slate-900 shadow-sm' : 'bg-slate-900/80 border-slate-800 text-white shadow-sm'
         }`}>
-          <div className="flex justify-between items-center border-b border-slate-700/40 pb-2">
+          <div className={`flex justify-between items-center border-b pb-2 ${esLight ? 'border-slate-200' : 'border-slate-700/40'}`}>
             <div>
-              <h3 className="text-sm font-bold">Métrica y Reporte de Asignaturas</h3>
-              <p className={`text-xs font-mono ${textoSecundario}`}>Asignatura activa: [{materiaActiva?.codigo}] {materiaActiva?.nombre}</p>
+              <h3 className={`text-sm font-extrabold ${esLight ? 'text-slate-950' : 'text-white'}`}>Métrica y Reporte de Asignaturas</h3>
+              <p className={`text-xs font-mono font-bold ${esLight ? 'text-slate-700' : 'text-slate-400'}`}>
+                Asignatura activa: [{materiaActiva?.codigo}] {materiaActiva?.nombre}
+              </p>
             </div>
 
             <div className="flex items-center gap-4 text-xs font-mono font-bold">

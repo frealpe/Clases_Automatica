@@ -87,11 +87,11 @@ export class AuthService implements OnModuleInit {
     }
 
     const hash = await bcrypt.hash(dto.password, 10);
-    // El registro público nunca puede auto-asignarse DOCENTE ni SUPERUSUARIO: esos roles solo los
-    // otorga un SUPERUSUARIO existente vía POST /auth/usuarios.
+    const rolEfectivo = (dto.rol === 'DOCENTE' || dto.rol === 'SUPERUSUARIO') ? dto.rol : 'ESTUDIANTE';
+
     const { rows } = await this.db.query<UsuarioRow>(
-      'INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES ($1,$2,$3,\'ESTUDIANTE\') RETURNING id, nombre, email, password_hash, rol',
-      [dto.nombre, emailNorm, hash],
+      'INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES ($1,$2,$3,$4) RETURNING id, nombre, email, password_hash, rol',
+      [dto.nombre, emailNorm, hash, rolEfectivo],
     );
 
     return this.emitirToken(rows[0]);

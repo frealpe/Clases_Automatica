@@ -129,6 +129,12 @@ function GestionUsuariosView() {
           rol: formUsuario.rol,
           materiaIds: formUsuario.materiaIds,
         });
+        if (formUsuario.rol === 'DOCENTE') {
+          setMensajeInscripcion({
+            tipo: 'exito',
+            texto: `✔ Docente ${formUsuario.nombre} creado. ¿Ir a gestor de materias?`
+          });
+        }
       }
       setModalUsuarioAbierto(false);
       setFormUsuario({ nombre: '', email: '', documentoIdentidad: '', password: '', rol: 'DOCENTE', materiaIds: [] });
