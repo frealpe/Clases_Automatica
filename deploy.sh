@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# Script de Despliegue Automatizado y Seguro - Servidor Multimateria Unicauca 2026
+# Script de Despliegue Automatizado y Seguro - Unicauca 2026
 # Servidor de Destino: 176.57.150.155
 # ==============================================================================
 # Uso:
@@ -85,7 +85,7 @@ for arg in "$@"; do
 done
 
 echo -e "${BLUE}======================================================================${NC}"
-echo -e "${BLUE}🚀 INICIANDO DESPLIEGUE SEGURO A SERVIDOR: http://${SERVER_IP}${NC}"
+echo -e "${BLUE}🚀 INICIANDO DESPLIEGUE A SERVIDOR: http://${SERVER_IP}${NC}"
 echo -e "${BLUE}======================================================================${NC}"
 
 # ------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ if [ "$DEPLOY_FRONTEND" = true ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Transferencia de Código, Configuración Nginx y Despliegue de Servicios
+# 4. Transferencia de Código y Despliegue de Servicios
 # ------------------------------------------------------------------------------
 if [ "$DEPLOY_BACKEND" = true ]; then
   echo -e "\n${YELLOW}[4/5] Transfiriendo archivos del Backend a ${SERVER_IP}:${REMOTE_BACKEND_DIR}...${NC}"
@@ -190,15 +190,27 @@ if [ "$DEPLOY_FRONTEND" = true ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# Configuración Segura de Nginx como Reverse Proxy
+# Configuración de Nginx Reverse Proxy (Soporte HTTP 80 y HTTPS 443 sin bloqueo)
 # ------------------------------------------------------------------------------
-echo -e "\n${YELLOW}-> Verificando y aplicando Hardening de Seguridad Nginx Reverse Proxy...${NC}"
+echo -e "\n${YELLOW}-> Verificando y aplicando configuración Nginx Reverse Proxy...${NC}"
 run_ssh "bash -s" << EOF
+  mkdir -p /etc/ssl/certs /etc/ssl/private
+
+  if [ ! -f /etc/ssl/certs/nginx-selfsigned.crt ]; then
+    echo "Generando certificado SSL/TLS para ${SERVER_IP}..."
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+      -keyout /etc/ssl/private/nginx-selfsigned.key \
+      -out /etc/ssl/certs/nginx-selfsigned.crt \
+      -subj "/C=CO/ST=Cauca/L=Popayan/O=Unicauca/OU=Automation/CN=${SERVER_IP}" \
+      -addext "subjectAltName=IP:${SERVER_IP}" 2>/dev/null || true
+  fi
+
   if command -v nginx &> /dev/null; then
     cat << 'NGINX_CONF' > /etc/nginx/sites-available/default
 limit_req_zone \$binary_remote_addr zone=api_limit:10m rate=20r/s;
 limit_req_zone \$binary_remote_addr zone=login_limit:10m rate=10r/m;
 
+# 1. Servidor HTTP (Puerto 80)
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -213,7 +225,6 @@ server {
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
     client_max_body_size 25M;
 
@@ -257,10 +268,76 @@ server {
         log_not_found off;
     }
 }
+
+# 2. Servidor HTTPS (Puerto 443) opcional
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name _;
+
+    root ${REMOTE_FRONTEND_DIR};
+    index index.html;
+
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    server_tokens off;
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+
+    client_max_body_size 25M;
+
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    location /api/auth/login {
+        limit_req zone=login_limit burst=5 nodelay;
+        proxy_pass http://127.0.0.1:3000/auth/login;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+
+    location /api/ {
+        limit_req zone=api_limit burst=30 nodelay;
+        proxy_pass http://127.0.0.1:3000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_cache_bypass \$http_upgrade;
+    }
+
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:3000/uploads/;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+}
 NGINX_CONF
     ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
     nginx -t && systemctl reload nginx
-    echo "✔ Nginx Reverse Proxy configurado con cabeceras de seguridad y rate-limiting."
+    echo "✔ Nginx Reverse Proxy configurado correctamente para HTTP y HTTPS."
   fi
 EOF
 
@@ -298,5 +375,5 @@ EOF
 fi
 
 echo -e "\n${GREEN}======================================================================${NC}"
-echo -e "${GREEN}🎉 DESPLIEGUE SEGURO FINALIZADO EXITOSAMENTE EN: http://${SERVER_IP}${NC}"
+echo -e "${GREEN}🎉 DESPLIEGUE FINALIZADO EXITOSAMENTE EN: http://${SERVER_IP}${NC}"
 echo -e "${GREEN}======================================================================${NC}"
