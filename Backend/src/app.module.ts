@@ -12,6 +12,7 @@ import { MateriasController } from './materias/materias.controller';
 import { SemanasController } from './semanas/semanas.controller';
 import { EstudiantesController } from './estudiantes/estudiantes.controller';
 import { ExamenesProgramadosController } from './examenes-programados/examenes-programados.controller';
+import { AsistenciaController } from './asistencia/asistencia.controller';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -37,6 +38,7 @@ import { DatabaseModule } from './database/database.module';
     SemanasController,
     EstudiantesController,
     ExamenesProgramadosController,
+    AsistenciaController,
   ],
   providers: [AuthService, JwtStrategy],
 })

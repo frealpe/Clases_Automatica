@@ -24,6 +24,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "dotenv": "^16.4.5",
+    "nodemailer": "^9.0.5",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.0",
@@ -37,6 +38,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/multer": "^2.2.0",
     "@types/node": "^20.0.0",
+    "@types/nodemailer": "^8.0.1",
     "@types/passport-jwt": "^3.0.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.0"

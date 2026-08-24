@@ -66,9 +66,9 @@ function parsearLista(texto: string): { filas: FilaLista[]; errores: string[] } 
       return;
     }
 
-    const documento = campos[0];
-    const nombre = campos[1];
-    const email = campos[2];
+    const documento = (campos[0] || '').trim().replace(/\s+/g, '');
+    const nombre = (campos[1] || '').trim();
+    const email = (campos[2] || '').trim().toLowerCase();
 
     if (!REGEX_EMAIL.test(email)) {
       errores.push(`Línea ${idx + 1}: correo electrónico inválido ("${email}")`);
@@ -79,7 +79,7 @@ function parsearLista(texto: string): { filas: FilaLista[]; errores: string[] } 
       linea: idx + 1,
       documento: documento || '12345678',
       nombre: nombre || 'Estudiante',
-      email: email.toLowerCase(),
+      email,
     });
   });
 
@@ -220,25 +220,26 @@ export class EstudiantesController implements OnModuleInit {
 
     for (const fila of filas) {
       try {
-        const { rows: nuevos } = await this.db.query(
+        const docLimpio = fila.documento.trim().replace(/\s+/g, '');
+        const { rows: existentes } = await this.db.query('SELECT id FROM usuarios WHERE email = $1', [fila.email]);
+        const yaExistia = existentes.length > 0;
+
+        const { rows: resultado } = await this.db.query(
           `INSERT INTO usuarios (nombre, email, password_hash, rol, documento_identidad)
            VALUES ($1, $2, $3, 'ESTUDIANTE', $4)
-           ON CONFLICT (email) DO NOTHING
+           ON CONFLICT (email) DO UPDATE SET
+             password_hash = EXCLUDED.password_hash,
+             documento_identidad = EXCLUDED.documento_identidad,
+             nombre = EXCLUDED.nombre
            RETURNING id`,
-          [fila.nombre, fila.email, await bcrypt.hash(fila.documento, 10), fila.documento],
+          [fila.nombre, fila.email, await bcrypt.hash(docLimpio, 10), docLimpio],
         );
 
-        let estudianteId: number;
-        if (nuevos[0]) {
-          estudianteId = nuevos[0].id;
-          creados += 1;
-        } else {
-          const { rows: existentes } = await this.db.query(
-            `SELECT id FROM usuarios WHERE email = $1`,
-            [fila.email],
-          );
-          estudianteId = existentes[0].id;
+        const estudianteId = resultado[0].id;
+        if (yaExistia) {
           yaExistian += 1;
+        } else {
+          creados += 1;
         }
 
         await this.db.query(

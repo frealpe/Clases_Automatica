@@ -132,6 +132,55 @@ CREATE TABLE IF NOT EXISTS intentos_examen (
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 8. Horario de clase por materia: ventana semanal recurrente (día + hora inicio/fin) que el
+-- docente configura para contrastar la asistencia por QR.
+CREATE TABLE IF NOT EXISTS horarios_materia (
+    id SERIAL PRIMARY KEY,
+    materia_id INT NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+    dia_semana SMALLINT NOT NULL CHECK (dia_semana BETWEEN 0 AND 6), -- 0=domingo, igual que Date#getDay()
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (hora_fin > hora_inicio)
+);
+
+-- 9. Sesión de asistencia: instancia concreta de una clase, abierta por el docente al proyectar
+-- el QR. token_actual es el valor que el QR codifica ahora mismo y rota cada 20-30s;
+-- token_expira_en controla la validez del token_actual (no de la sesión, que dura hasta
+-- ventana_fin).
+CREATE TABLE IF NOT EXISTS sesiones_asistencia (
+    id SERIAL PRIMARY KEY,
+    materia_id INT NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+    horario_id INT REFERENCES horarios_materia(id) ON DELETE SET NULL,
+    docente_id INT NOT NULL REFERENCES usuarios(id),
+    fecha_clase DATE NOT NULL,
+    ventana_inicio TIMESTAMP NOT NULL,
+    ventana_fin TIMESTAMP NOT NULL,
+    token_actual VARCHAR(64) NOT NULL,
+    token_expira_en TIMESTAMP NOT NULL,
+    cerrada BOOLEAN NOT NULL DEFAULT FALSE,
+    creada_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (materia_id, fecha_clase, ventana_inicio)
+);
+CREATE INDEX IF NOT EXISTS idx_sesiones_asistencia_token ON sesiones_asistencia (token_actual);
+
+-- 10. Registro de asistencia: una fila por (sesión, estudiante). Se crea PRESENTE al escanear;
+-- las filas de quien nunca escaneó se materializan como FALTA al sincronizar (ver
+-- AsistenciaController.sincronizarFaltasVencidas), no al abrir la sesión.
+CREATE TABLE IF NOT EXISTS registros_asistencia (
+    id SERIAL PRIMARY KEY,
+    sesion_id INT NOT NULL REFERENCES sesiones_asistencia(id) ON DELETE CASCADE,
+    estudiante_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    estado VARCHAR(20) NOT NULL DEFAULT 'PRESENTE' CHECK (estado IN ('PRESENTE', 'FALTA')),
+    justificada BOOLEAN NOT NULL DEFAULT FALSE,
+    justificacion_comentario TEXT,
+    escaneado_en TIMESTAMP,
+    notificacion_enviada BOOLEAN NOT NULL DEFAULT FALSE,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (sesion_id, estudiante_id)
+);
+CREATE INDEX IF NOT EXISTS idx_registros_asistencia_estudiante ON registros_asistencia (estudiante_id, estado, justificada);
+
 -- Datos iniciales en PostgreSQL
 -- Contraseñas reales: nunca en texto plano en este archivo; quien las necesite las pide a
 -- quien administra la cuenta, no las lee del repositorio.

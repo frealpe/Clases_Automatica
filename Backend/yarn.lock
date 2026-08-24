@@ -411,6 +411,13 @@
   dependencies:
     undici-types "~6.21.0"
 
+"@types/nodemailer@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.npmjs.org/@types/nodemailer/-/nodemailer-8.0.1.tgz"
+  integrity sha512-PxpaInm8V1JQDd4j0ds5HfvWQk8JupS1C0Picb96QJsrrRDjBH+DlK7L4ZdNSqNULhiZRQHc40nLVShaGxXAMw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/passport-jwt@^3.0.8":
   version "3.0.13"
   resolved "https://registry.npmjs.org/@types/passport-jwt/-/passport-jwt-3.0.13.tgz"
@@ -2315,6 +2322,11 @@ node-releases@^2.0.51:
   version "2.0.52"
   resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.52.tgz"
   integrity sha512-MRlTqhAfoMx/4mhEbPo3Hi02g9LJZaJkka69V6h67Cb1gjrAG0jsTE4CZX1eptNx+VCAwJmfpnDIF4P0Nh1A7A==
+
+nodemailer@^9.0.5:
+  version "9.0.5"
+  resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-9.0.5.tgz"
+  integrity sha512-wvjiKvjczmsN7U/8006JOdXubgBk2XFAbioDMbT+sM7cPs0QrhJTa6KBRX7P5REGGkDcLUz/EarWidb8G8C1jQ==
 
 nopt@^5.0.0:
   version "5.0.0"

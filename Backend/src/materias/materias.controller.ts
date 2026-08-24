@@ -39,7 +39,7 @@ export class MateriasController implements OnModuleInit {
       return rows;
     }
 
-    // ESTUDIANTE: solo materias donde tiene una inscripción registrada.
+    // ESTUDIANTE: solo las materias en las que está inscrito
     const { rows } = await this.db.query(
       `SELECT m.id, m.codigo, m.nombre, m.descripcion, m.semestre, m.docente_id AS "docenteId",
               m.numero_semanas AS "numeroSemanas"

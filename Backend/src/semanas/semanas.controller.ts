@@ -85,14 +85,14 @@ function extraerProyectoZip(buffer: Buffer, destino: string): string {
   }
 
   if (fs.existsSync(path.join(destino, 'index.html'))) {
-    return 'index.html';
+    return '';
   }
 
   const itemsRaiz = fs.readdirSync(destino);
   if (itemsRaiz.length === 1) {
     const subcarpeta = path.join(destino, itemsRaiz[0]);
     if (fs.statSync(subcarpeta).isDirectory() && fs.existsSync(path.join(subcarpeta, 'index.html'))) {
-      return path.join(itemsRaiz[0], 'index.html');
+      return itemsRaiz[0];
     }
   }
 
@@ -122,11 +122,23 @@ export class SemanasController implements OnModuleInit {
   async obtenerTodas(@Req() req: any, @Query('materiaId') materiaId?: string) {
     const mid = materiaId ? parseInt(materiaId, 10) : 1;
 
-    // Si el usuario es DOCENTE, verificar estricta propiedad de la asignatura:
-    if (req.user && req.user.rol === 'DOCENTE') {
-      const { rows: m } = await this.db.query('SELECT docente_id FROM materias WHERE id = $1', [mid]);
-      if (m.length > 0 && m[0].docente_id !== req.user.id) {
-        throw new ForbiddenException('No tienes permiso para ver el material de apoyo de las asignaturas de otro docente.');
+    if (req.user.rol === 'ESTUDIANTE') {
+      const { rows: insc } = await this.db.query(
+        `SELECT 1 FROM inscripciones WHERE materia_id = $1 AND estudiante_id = $2`,
+        [mid, req.user.id],
+      );
+      if (insc.length === 0) {
+        throw new ForbiddenException('No estás matriculado en esta materia');
+      }
+    }
+
+    if (req.user.rol === 'DOCENTE') {
+      const { rows: mat } = await this.db.query(
+        `SELECT 1 FROM materias WHERE id = $1 AND docente_id = $2`,
+        [mid, req.user.id],
+      );
+      if (mat.length === 0) {
+        throw new ForbiddenException('Esta materia no pertenece al docente autenticado');
       }
     }
 
@@ -148,10 +160,23 @@ export class SemanasController implements OnModuleInit {
     const semana = rows[0];
     if (!semana) throw new BadRequestException('Semana no encontrada');
 
-    if (req.user && req.user.rol === 'DOCENTE') {
-      const { rows: m } = await this.db.query('SELECT docente_id FROM materias WHERE id = $1', [semana.materiaId]);
-      if (m.length > 0 && m[0].docente_id !== req.user.id) {
-        throw new ForbiddenException('No tienes permiso para ver el material de apoyo de las asignaturas de otro docente.');
+    if (req.user.rol === 'ESTUDIANTE') {
+      const { rows: insc } = await this.db.query(
+        `SELECT 1 FROM inscripciones WHERE materia_id = $1 AND estudiante_id = $2`,
+        [semana.materiaId, req.user.id],
+      );
+      if (insc.length === 0) {
+        throw new ForbiddenException('No estás matriculado en esta materia');
+      }
+    }
+
+    if (req.user.rol === 'DOCENTE') {
+      const { rows: mat } = await this.db.query(
+        `SELECT 1 FROM materias WHERE id = $1 AND docente_id = $2`,
+        [semana.materiaId, req.user.id],
+      );
+      if (mat.length === 0) {
+        throw new ForbiddenException('Esta semana no pertenece a una materia del docente autenticado');
       }
     }
 
