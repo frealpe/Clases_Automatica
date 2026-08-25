@@ -4,6 +4,17 @@ import { apiClient } from './apiClient';
  * Servicio de Gestión de Materias (MateriasService)
  */
 export const materiasService = {
+  // Catálogo público (sin JWT): usado en la portada para visitantes sin sesión iniciada.
+  async getMateriasPublicas() {
+    try {
+      const response = await apiClient.get('/materias/publicas');
+      return response.data;
+    } catch (err) {
+      console.warn('MateriasService: error al cargar el catálogo público de materias');
+      return null;
+    }
+  },
+
   async getMaterias() {
     try {
       const response = await apiClient.get('/materias');

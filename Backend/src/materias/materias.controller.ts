@@ -20,6 +20,20 @@ export class MateriasController implements OnModuleInit {
     }
   }
 
+  // Catálogo público (sin JWT) para la portada del sitio: solo datos no sensibles
+  // (nombre de materia + nombre del docente), nunca ids/roles/datos de gestión.
+  @Get('publicas')
+  async obtenerPublicas() {
+    const { rows } = await this.db.query(
+      `SELECT m.id, m.codigo, m.nombre, m.descripcion, m.semestre,
+              m.numero_semanas AS "numeroSemanas", u.nombre AS "docenteNombre"
+       FROM materias m
+       JOIN usuarios u ON u.id = m.docente_id
+       ORDER BY u.nombre, m.id`,
+    );
+    return rows;
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   async obtenerTodas(@Req() req: any) {

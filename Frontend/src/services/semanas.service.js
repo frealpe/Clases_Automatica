@@ -4,6 +4,25 @@ import { apiClient } from './apiClient';
  * Servicio de Semanas de Curso (SemanasService)
  */
 export const semanasService = {
+  // Versión pública (sin JWT): usada en la portada para visitantes sin sesión iniciada.
+  async getSemanasPublicas(materiaId = 1) {
+    try {
+      const response = await apiClient.get('/semanas/publicas', { params: { materiaId } });
+      return response.data;
+    } catch (err) {
+      return null;
+    }
+  },
+
+  async getSemanaPublicaById(id) {
+    try {
+      const response = await apiClient.get(`/semanas/publicas/${id}`);
+      return response.data;
+    } catch (err) {
+      return null;
+    }
+  },
+
   async getSemanas(materiaId = 1) {
     try {
       const response = await apiClient.get('/semanas', { params: { materiaId } });

@@ -83,6 +83,34 @@ const ASIGNATURAS_POSTGRESQL = [
   { id: 4, codigo: 'ENF-401', nombre: 'Énfasis / Electivas', descripcion: 'Procesador Nios II sobre FPGA (GPIO, USART, SPI, ADC) y Procesamiento Digital de Señales', semestre: '2026-1' }
 ];
 
+// Normaliza la respuesta cruda del backend (privada o pública) al shape que consume la UI.
+// La variante pública omite duracionExamenMin/preguntasExamenCount/tipoExamen/bancoPreguntasUrl
+// (el backend no los envía en /semanas/publicas), quedan como null/valor por defecto.
+function normalizarSemanas(list) {
+  return list.map((s) => ({
+    id: s.id,
+    materiaId: s.materiaId,
+    numero: s.numero,
+    unidadNombre: s.unidadNombre,
+    unidad: `${s.unidadNombre} (${s.capituloGrossman || 'Unidad'})`,
+    ra: s.ra,
+    raDescripcion: s.raDescripcion,
+    objetivos: Array.isArray(s.objetivosJson) && s.objetivosJson.length > 0
+      ? s.objetivosJson
+      : [{ ra: s.ra || '', descripcion: s.raDescripcion || '' }],
+    min: s.duracionExamenMin,
+    preguntasExamenCount: s.preguntasExamenCount ?? null,
+    tipoExamen: s.tipoExamen || 'combinada',
+    contenidoJson: s.contenidoJson || null,
+    notasPdfUrl: s.notasPdfUrl || null,
+    guiaPdfUrl: s.guiaPdfUrl || null,
+    diapositivasPdfUrl: s.diapositivasPdfUrl || null,
+    claseWebUrl: s.claseWebUrl || null,
+    ejerciciosResueltosUrl: s.ejerciciosResueltosUrl || null,
+    bancoPreguntasUrl: s.bancoPreguntasUrl || null
+  }));
+}
+
 export const useCourseStore = create((set, get) => ({
   materias: ASIGNATURAS_POSTGRESQL,
   materiaActivaId: 1,
@@ -127,6 +155,33 @@ export const useCourseStore = create((set, get) => ({
     }
   },
 
+  // Catálogo público (sin JWT): se usa para visitantes sin sesión iniciada, para que la portada
+  // (EstudianteView) muestre docente + materias reales (incluida su asignatura web) en vez de
+  // quedarse en el fallback local ASIGNATURAS_POSTGRESQL cuando nadie ha iniciado sesión.
+  cargarMateriasPublicasFromService: async () => {
+    const list = await materiasService.getMateriasPublicas();
+    if (Array.isArray(list) && list.length > 0) {
+      set((state) => {
+        const activaSigueValida = list.some((m) => m.id === state.materiaActivaId);
+        return {
+          materias: list,
+          materiaActivaId: activaSigueValida ? state.materiaActivaId : list[0].id
+        };
+      });
+    }
+  },
+
+  cargarSemanasPublicasFromService: async (materiaId = 1) => {
+    const list = await semanasService.getSemanasPublicas(materiaId);
+    if (list && list.length > 0) {
+      const normalizadas = normalizarSemanas(list);
+      set({ semanas: normalizadas, semanaSeleccionadaId: normalizadas[0]?.id || null });
+    } else {
+      const semResp = PLANES_SEMANALES_MATERIAS[materiaId] || [];
+      set({ semanas: semResp, semanaSeleccionadaId: semResp[0]?.id || null });
+    }
+  },
+
   // Integración Dinámica con MateriasService (GET /materias desde NestJS / PostgreSQL)
   // list === null solo ocurre ante un fallo de red real (no ante una lista vacía legítima, p.
   // ej. un docente sin materias asignadas), y en ese caso se conserva lo que ya había en pantalla.
@@ -148,6 +203,7 @@ export const useCourseStore = create((set, get) => ({
   },
 
   setMateriaActiva: (materiaId) => {
+    const state = get();
     const semMateria = PLANES_SEMANALES_MATERIAS[materiaId] || [];
     set({
       materiaActivaId: materiaId,
@@ -155,35 +211,18 @@ export const useCourseStore = create((set, get) => ({
       semanaSeleccionadaId: semMateria[0]?.id || null,
       preguntasMap: {}
     });
-    get().cargarSemanasFromService(materiaId);
+    if (state.tokenJWT) {
+      get().cargarSemanasFromService(materiaId);
+    } else {
+      get().cargarSemanasPublicasFromService(materiaId);
+    }
   },
 
   // Integración con SemanasService
   cargarSemanasFromService: async (materiaId = 1) => {
     const list = await semanasService.getSemanas(materiaId);
     if (list && list.length > 0) {
-      const normalizadas = list.map((s) => ({
-        id: s.id,
-        materiaId: s.materiaId,
-        numero: s.numero,
-        unidadNombre: s.unidadNombre,
-        unidad: `${s.unidadNombre} (${s.capituloGrossman || 'Unidad'})`,
-        ra: s.ra,
-        raDescripcion: s.raDescripcion,
-        objetivos: Array.isArray(s.objetivosJson) && s.objetivosJson.length > 0
-          ? s.objetivosJson
-          : [{ ra: s.ra || '', descripcion: s.raDescripcion || '' }],
-        min: s.duracionExamenMin,
-        preguntasExamenCount: s.preguntasExamenCount ?? null,
-        tipoExamen: s.tipoExamen || 'combinada',
-        contenidoJson: s.contenidoJson || null,
-        notasPdfUrl: s.notasPdfUrl || null,
-        guiaPdfUrl: s.guiaPdfUrl || null,
-        diapositivasPdfUrl: s.diapositivasPdfUrl || null,
-        claseWebUrl: s.claseWebUrl || null,
-        ejerciciosResueltosUrl: s.ejerciciosResueltosUrl || null,
-        bancoPreguntasUrl: s.bancoPreguntasUrl || null
-      }));
+      const normalizadas = normalizarSemanas(list);
       set({ semanas: normalizadas, semanaSeleccionadaId: normalizadas[0]?.id || null });
     } else {
       const semResp = PLANES_SEMANALES_MATERIAS[materiaId] || [];

@@ -24,6 +24,14 @@ const COLUMNAS_SEMANA = `id, materia_id AS "materiaId", numero, unidad_nombre AS
   clase_web_url AS "claseWebUrl", ejercicios_resueltos_url AS "ejerciciosResueltosUrl",
   banco_preguntas_url AS "bancoPreguntasUrl"`;
 
+// Versión pública (sin JWT) para la portada: excluye duracionExamenMin/preguntasExamenCount/
+// tipoExamen/bancoPreguntasUrl (información de gestión de exámenes, no debe ser pública).
+const COLUMNAS_SEMANA_PUBLICA = `id, materia_id AS "materiaId", numero, unidad_nombre AS "unidadNombre",
+  capitulo_grossman AS "capituloGrossman", ra, ra_descripcion AS "raDescripcion",
+  objetivos_json AS "objetivosJson", contenido_json AS "contenidoJson",
+  notas_pdf_url AS "notasPdfUrl", guia_pdf_url AS "guiaPdfUrl", diapositivas_pdf_url AS "diapositivasPdfUrl",
+  clase_web_url AS "claseWebUrl", ejercicios_resueltos_url AS "ejerciciosResueltosUrl"`;
+
 const TIPOS_PDF_COLUMNA: Record<string, string> = {
   notas: 'notas_pdf_url',
   guia: 'guia_pdf_url',
@@ -147,6 +155,30 @@ export class SemanasController implements OnModuleInit {
       [mid],
     );
     return rows;
+  }
+
+  // Rutas públicas (sin JWT) para la portada del sitio — DEBEN declararse antes de @Get(':id')
+  // para que 'publicas' no sea interceptado como valor de :id.
+  @Get('publicas')
+  async obtenerPublicas(@Query('materiaId') materiaId?: string) {
+    const mid = materiaId ? parseInt(materiaId, 10) : 1;
+    const { rows } = await this.db.query(
+      `SELECT ${COLUMNAS_SEMANA_PUBLICA} FROM semanas WHERE materia_id = $1 ORDER BY numero`,
+      [mid],
+    );
+    return rows;
+  }
+
+  @Get('publicas/:id')
+  async obtenerUnaPublica(@Param('id') id: string) {
+    const semanaId = parseIdOrThrow(id);
+    const { rows } = await this.db.query(
+      `SELECT ${COLUMNAS_SEMANA_PUBLICA} FROM semanas WHERE id = $1`,
+      [semanaId],
+    );
+    const semana = rows[0];
+    if (!semana) throw new BadRequestException('Semana no encontrada');
+    return semana;
   }
 
   @Get(':id')

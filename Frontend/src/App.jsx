@@ -17,6 +17,8 @@ export default function App() {
   const tokenJWT = useCourseStore((state) => state.tokenJWT);
   const cargarMateriasFromService = useCourseStore((state) => state.cargarMateriasFromService);
   const cargarSemanasFromService = useCourseStore((state) => state.cargarSemanasFromService);
+  const cargarMateriasPublicasFromService = useCourseStore((state) => state.cargarMateriasPublicasFromService);
+  const cargarSemanasPublicasFromService = useCourseStore((state) => state.cargarSemanasPublicasFromService);
 
   const location = useLocation();
   const esVistaProyectos = location.pathname.startsWith('/labor') ||
@@ -31,12 +33,20 @@ export default function App() {
   useEffect(() => {
     if (tokenJWT) {
       cargarMateriasFromService();
+    } else {
+      // Sin sesión iniciada (visitante público o tras cerrar sesión): el catálogo público
+      // reemplaza el fallback local, para que la portada muestre docente + materias reales.
+      cargarMateriasPublicasFromService();
     }
-  }, [tokenJWT, cargarMateriasFromService]);
+  }, [tokenJWT, cargarMateriasFromService, cargarMateriasPublicasFromService]);
 
   useEffect(() => {
-    cargarSemanasFromService(materiaActivaId);
-  }, [cargarSemanasFromService, materiaActivaId]);
+    if (tokenJWT) {
+      cargarSemanasFromService(materiaActivaId);
+    } else {
+      cargarSemanasPublicasFromService(materiaActivaId);
+    }
+  }, [cargarSemanasFromService, cargarSemanasPublicasFromService, materiaActivaId, tokenJWT]);
 
   const esLight = themeMode === 'light';
 
