@@ -173,9 +173,13 @@ export class AuthService implements OnModuleInit {
     let whereClause = '';
     const params: any[] = [];
 
-    // Un DOCENTE sólo puede ver su propia cuenta y a los estudiantes (nunca a otros docentes ni superusuarios).
+    // Un DOCENTE sólo puede ver su propia cuenta y a los estudiantes inscritos en materias que él dicta
+    // (nunca a otros docentes, superusuarios, ni estudiantes de materias ajenas).
     if (solicitante && solicitante.rol === 'DOCENTE') {
-      whereClause = `WHERE u.id = $1 OR u.rol = 'ESTUDIANTE'`;
+      whereClause = `WHERE u.id = $1 OR (u.rol = 'ESTUDIANTE' AND EXISTS (
+        SELECT 1 FROM inscripciones i JOIN materias m ON m.id = i.materia_id
+        WHERE i.estudiante_id = u.id AND m.docente_id = $1
+      ))`;
       params.push(solicitante.id);
     }
 
