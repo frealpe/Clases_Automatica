@@ -3,7 +3,7 @@ import { useCourseStore } from '../store/useCourseStore';
 
 // URL del último .apk publicado en EAS (Movil/). Se actualiza a mano tras cada build nuevo:
 // ver Movil/eas.json (perfil "preview") y HISTORY/LATEST.md para el enlace vigente.
-const APK_DOWNLOAD_URL = 'https://expo.dev/accounts/frealpe/projects/algebra-lineal-evaluaciones/builds';
+const APK_DOWNLOAD_URL = '/downloads/app-automatica.apk';
 
 export default function DescargaMovilDropdown({ isOpen, onClose }) {
   const themeMode = useCourseStore((state) => state.themeMode);

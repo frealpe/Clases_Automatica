@@ -271,6 +271,121 @@ imprime el producto; al terminar el ciclo interno, se imprime un salto de línea
 siguiente fila.
 \end{ejemplo}
 
+\section{Matrices: llenado e indexación con ciclos anidados (adelanto)}
+
+\begin{definicion}[Matriz (arreglo bidimensional)]
+Esto es un adelanto informal: el tema completo de arreglos se estudia en una unidad posterior. Aquí
+se introduce solo lo necesario para practicar ciclos anidados sobre una estructura de dos
+dimensiones. Una \emph{matriz} en C se declara indicando su tipo y su número de filas y columnas:
+\begin{lstlisting}
+int matriz[FILAS][COLUMNAS];
+\end{lstlisting}
+Cada elemento se accede e identifica con dos índices, \texttt{matriz[fila][columna]}, ambos
+empezando en 0: el primer elemento es \texttt{matriz[0][0]}, y el último es
+\texttt{matriz[FILAS-1][COLUMNAS-1]}.
+\end{definicion}
+
+\begin{ejemplo}[Llenar una matriz con el producto de sus índices]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int matriz[4][4];
+
+    // Llenado: un ciclo anidado ASIGNA un valor a cada posicion
+    for (int fila = 0; fila < 4; fila++) {
+        for (int col = 0; col < 4; col++) {
+            matriz[fila][col] = (fila + 1) * (col + 1);
+        }
+    }
+
+    // Uso/impresion: un SEGUNDO ciclo anidado LEE lo que ya se guardo
+    for (int fila = 0; fila < 4; fila++) {
+        for (int col = 0; col < 4; col++) {
+            printf("%4d", matriz[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+El primer par de ciclos \emph{llena} la matriz (asigna un valor a cada \texttt{matriz[fila][col]});
+el segundo par la \emph{recorre} para imprimirla. Llenar y usar una matriz son dos pasos distintos,
+aunque el patrón de los ciclos (fila por fila, columna por columna) sea igual en ambos.
+\end{ejemplo}
+
+\begin{ejemplo}[Llenar una matriz identidad comparando índices]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int identidad[5][5];
+
+    for (int fila = 0; fila < 5; fila++) {
+        for (int col = 0; col < 5; col++) {
+            if (fila == col) {
+                identidad[fila][col] = 1;   // diagonal principal
+            } else {
+                identidad[fila][col] = 0;
+            }
+        }
+    }
+
+    for (int fila = 0; fila < 5; fila++) {
+        for (int col = 0; col < 5; col++) {
+            printf("%2d", identidad[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+Aquí el \emph{índice} de cada posición decide qué valor se guarda ahí: cuando \texttt{fila} y
+\texttt{col} coinciden (la diagonal principal), se guarda 1; en cualquier otra posición, 0.
+\end{ejemplo}
+
+\begin{ejemplo}[Llenar una matriz leída por teclado y acumular su suma]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int datos[3][3];
+    int suma = 0;
+
+    for (int fila = 0; fila < 3; fila++) {
+        for (int col = 0; col < 3; col++) {
+            printf("Valor [%d][%d]: ", fila, col);
+            scanf("%d", &datos[fila][col]);
+            suma += datos[fila][col];   // se acumula MIENTRAS se llena
+        }
+    }
+    printf("Suma total = %d\n", suma);
+    return 0;
+}
+\end{lstlisting}
+No hace falta un tercer ciclo para sumar: como el acumulador \texttt{suma} vive fuera de los
+ciclos, se puede actualizar dentro del mismo ciclo que llena la matriz, en el mismo momento en que
+cada valor queda disponible.
+\end{ejemplo}
+
+\begin{propiedad}[El orden de los ciclos decide el orden de recorrido, no el de almacenamiento]
+Una vez llena, la matriz guarda sus valores en posiciones fijas (\texttt{matriz[fila][col]}); pero
+el \emph{orden en que se visita} cada posición depende de cuál ciclo es el externo y cuál el
+interno. Intercambiar los ciclos externo/interno --- recorrer primero por columnas y, dentro de
+cada columna, por filas --- visita las mismas posiciones pero en otro orden:
+\begin{lstlisting}
+// Recorrido por columnas (col es el ciclo externo)
+for (int col = 0; col < 4; col++) {
+    for (int fila = 0; fila < 4; fila++) {
+        printf("%4d", matriz[fila][col]);
+    }
+    printf("\n");
+}
+\end{lstlisting}
+Los valores impresos son los mismos que guarda la matriz; lo que cambia es el orden en que
+aparecen en la salida.
+\end{propiedad}
+
 \section{Ejercicios propuestos}
 
 \begin{enumerate}[leftmargin=1.2cm]
@@ -290,6 +405,17 @@ siguiente fila.
         \texttt{for} anidados (una fila por número, del 1 al 10).
   \item Escribe un programa que, usando \texttt{do-while}, lea números enteros y los sume hasta que
         el usuario ingrese un $0$ (el $0$ no se suma), e imprima el total al final.
+  \item Declara una matriz \texttt{int} de $4\times4$ y llénala, con ciclos anidados, con la suma
+        de sus índices (\texttt{fila + col}); luego imprímela con otro par de ciclos anidados.
+  \item Declara una matriz \texttt{int} de $n\times n$ (con $n$ leído por teclado, hasta 10) y
+        llénala con una matriz identidad: 1 en la diagonal principal, 0 en el resto.
+  \item Declara una matriz \texttt{float} de $3\times3$, llénala leyendo sus 9 valores por teclado,
+        y calcula e imprime la suma de cada fila por separado (un total por fila, no un único total
+        general).
+  \item Dada una matriz \texttt{int} de $4\times4$ ya llena con el producto de sus índices (como en
+        el primer ejemplo de \S 5), recórrela e imprímela \textbf{por columnas} (el ciclo externo
+        avanza en \texttt{col}, el interno en \texttt{fila}), y compara el resultado impreso con el
+        de recorrerla por filas.
 \end{enumerate}
 
 \section{Soluciones de los ejercicios propuestos}
@@ -479,6 +605,121 @@ int main(void) {
 \end{lstlisting}
 Se usa \texttt{do-while} porque hay que pedir el primer número antes de poder evaluar si es el
 centinela (\texttt{0}) que termina el ciclo.
+
+\item[\textbf{Ejercicio 9.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int matriz[4][4];
+
+    for (int fila = 0; fila < 4; fila++) {
+        for (int col = 0; col < 4; col++) {
+            matriz[fila][col] = fila + col;
+        }
+    }
+
+    for (int fila = 0; fila < 4; fila++) {
+        for (int col = 0; col < 4; col++) {
+            printf("%3d", matriz[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 10.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int n;
+    int identidad[10][10];
+
+    printf("Tamano n (hasta 10): ");
+    scanf("%d", &n);
+
+    for (int fila = 0; fila < n; fila++) {
+        for (int col = 0; col < n; col++) {
+            identidad[fila][col] = (fila == col) ? 1 : 0;
+        }
+    }
+
+    for (int fila = 0; fila < n; fila++) {
+        for (int col = 0; col < n; col++) {
+            printf("%2d", identidad[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 11.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    float valores[3][3];
+
+    for (int fila = 0; fila < 3; fila++) {
+        for (int col = 0; col < 3; col++) {
+            printf("Valor [%d][%d]: ", fila, col);
+            scanf("%f", &valores[fila][col]);
+        }
+    }
+
+    for (int fila = 0; fila < 3; fila++) {
+        float sumaFila = 0;
+        for (int col = 0; col < 3; col++) {
+            sumaFila += valores[fila][col];
+        }
+        printf("Suma fila %d = %.2f\n", fila, sumaFila);
+    }
+    return 0;
+}
+\end{lstlisting}
+La suma de cada fila se reinicia (\texttt{sumaFila = 0}) antes de cada nueva fila: son 3 sumas
+independientes, no una acumulada entre filas.
+
+\item[\textbf{Ejercicio 12.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int matriz[4][4];
+
+    for (int fila = 0; fila < 4; fila++) {
+        for (int col = 0; col < 4; col++) {
+            matriz[fila][col] = (fila + 1) * (col + 1);
+        }
+    }
+
+    printf("Por filas:\n");
+    for (int fila = 0; fila < 4; fila++) {
+        for (int col = 0; col < 4; col++) {
+            printf("%4d", matriz[fila][col]);
+        }
+        printf("\n");
+    }
+
+    printf("Por columnas:\n");
+    for (int col = 0; col < 4; col++) {
+        for (int fila = 0; fila < 4; fila++) {
+            printf("%4d", matriz[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+\end{lstlisting}
+La matriz almacenada es la misma en ambos casos; lo único que cambia es el orden de recorrido:
+"por filas" imprime primero toda la fila 0, luego toda la fila 1, etc.; "por columnas" imprime
+primero toda la columna 0 (un valor de cada fila), luego toda la columna 1, etc. Como en este
+ejemplo \texttt{matriz[fila][col] = (fila+1)*(col+1)} es simétrica respecto a fila y columna, las
+dos salidas se ven parecidas; con una matriz no simétrica (como la del Ejercicio 9) el cambio de
+orden sí produce una salida visiblemente distinta.
 
 \end{description}
 

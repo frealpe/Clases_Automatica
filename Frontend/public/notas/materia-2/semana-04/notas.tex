@@ -1,0 +1,357 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\hypersetup{colorlinks=true,linkcolor=unicaucaverde,urlcolor=unicaucaverde}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{unicaucaverde}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{ejemplo}[definicion]{Ejemplo}
+\newtheorem{propiedad}[definicion]{Propiedad}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b
+}
+\lstset{style=cstyle}
+
+\title{\textcolor{unicaucaverde}{\Large Notas de clase --- Semana 4}\\[4pt]
+  \large Ámbito avanzado y recursión}
+\author{Programación --- Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Variables estáticas locales: tiempo de vida frente a ámbito}
+
+\begin{definicion}[Ámbito y tiempo de vida]
+El \emph{ámbito} (\emph{scope}) de una variable es la región del código donde su nombre es visible
+y se puede usar. El \emph{tiempo de vida} (\emph{storage duration}) es el período durante el cual
+la variable existe realmente en memoria. En una variable local ordinaria ambos coinciden: nace y
+muere con cada ejecución de la función. La palabra clave \texttt{static} rompe esa coincidencia.
+\end{definicion}
+
+\begin{definicion}[Variable estática local]
+Una variable local declarada con el calificador \texttt{static} conserva su \emph{ámbito} normal
+(solo es visible dentro de la función donde se declaró), pero su \emph{tiempo de vida} pasa a ser
+el de todo el programa: se inicializa una única vez, y conserva su valor de una llamada a la
+siguiente en lugar de recrearse cada vez.
+\end{definicion}
+
+\begin{ejemplo}[Contador que persiste entre llamadas]
+\begin{lstlisting}
+#include <stdio.h>
+
+int contadorLlamadas(void) {
+    static int veces = 0;   // se inicializa UNA sola vez, en toda la ejecucion
+    veces++;
+    return veces;
+}
+
+int main(void) {
+    printf("%d\n", contadorLlamadas());   // imprime 1
+    printf("%d\n", contadorLlamadas());   // imprime 2
+    printf("%d\n", contadorLlamadas());   // imprime 3
+    return 0;
+}
+\end{lstlisting}
+A diferencia de una variable local ordinaria (que reiniciaría \texttt{veces} a 0 en cada llamada),
+\texttt{static int veces = 0;} solo ejecuta la inicialización \texttt{= 0} la primera vez que el
+programa pasa por esa línea; en las llamadas siguientes conserva el valor que tenía al salir de la
+función anterior.
+\end{ejemplo}
+
+\begin{propiedad}[\texttt{static} local frente a variable global]
+Una variable estática local y una variable global comparten el mismo tiempo de vida (todo el
+programa), pero difieren en ámbito: la global es visible desde cualquier función que la vea
+declarada, mientras que la estática local solo es visible \emph{dentro} de la función donde se
+declaró. Esto la hace preferible cuando el estado que se quiere conservar (un contador, una
+bandera de "primera vez") le pertenece conceptualmente a una sola función y no debe poder ser leído
+ni modificado por el resto del programa.
+\end{propiedad}
+
+\section{Ámbito avanzado: bloques anidados y sombreado}
+
+\begin{definicion}[Bloque]
+En C, cualquier par de llaves \texttt{\{ \}} delimita un \emph{bloque}: el cuerpo de una función,
+de un \texttt{if}, de un \texttt{for}, o incluso un bloque suelto. Una variable declarada dentro de
+un bloque es local a ese bloque: su ámbito termina en la llave de cierre \texttt{\}}
+correspondiente.
+\end{definicion}
+
+\begin{ejemplo}[Sombreado dentro de bloques anidados]
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    int x = 1;
+    printf("Afuera: x = %d\n", x);        // 1
+    {
+        int x = 2;                        // sombrea (oculta) la x externa
+        printf("Bloque interno: x = %d\n", x);  // 2
+    }
+    printf("Afuera de nuevo: x = %d\n", x);     // 1 (la x externa no cambio)
+    return 0;
+}
+\end{lstlisting}
+Dentro del bloque interno, el nombre \texttt{x} se refiere a la nueva variable declarada ahí (que
+\emph{sombrea} a la externa); al salir del bloque, esa \texttt{x} interna desaparece y el nombre
+vuelve a referirse a la \texttt{x} original, que nunca fue tocada.
+\end{ejemplo}
+
+\begin{propiedad}[Regla práctica]
+Combinar \texttt{static} con bloques anidados o con nombres repetidos entre funciones distintas es
+una fuente común de errores difíciles de rastrear: antes de declarar una variable estática o de
+reutilizar un nombre en un bloque anidado, conviene preguntarse explícitamente qué ámbito y qué
+tiempo de vida necesita realmente esa variable.
+\end{propiedad}
+
+\section{Recursión: caso base y caso recursivo}
+
+\begin{definicion}[Función recursiva]
+Una función es \emph{recursiva} cuando, en su propio cuerpo, se llama a sí misma (directamente, o
+indirectamente a través de otra función). Toda función recursiva correcta necesita dos partes: un
+\emph{caso base} que se resuelve directamente sin volver a llamarse, y uno o más \emph{casos
+recursivos} que reducen el problema a una versión más pequeña del mismo problema y se apoyan en esa
+llamada más pequeña para construir el resultado.
+\end{definicion}
+
+\begin{ejemplo}[Factorial recursivo]
+\begin{lstlisting}
+#include <stdio.h>
+
+int factorial(int n) {
+    if (n <= 1) {           // caso base
+        return 1;
+    }
+    return n * factorial(n - 1);   // caso recursivo
+}
+
+int main(void) {
+    printf("5! = %d\n", factorial(5));   // 120
+    return 0;
+}
+\end{lstlisting}
+\texttt{factorial(5)} llama a \texttt{factorial(4)}, que llama a \texttt{factorial(3)}, y así
+sucesivamente hasta \texttt{factorial(1)}, que es el caso base y devuelve 1 sin generar más
+llamadas. A partir de ahí, cada llamada pendiente multiplica su \texttt{n} por el resultado que
+recibió: $1 \to 1 \to 2 \to 6 \to 24 \to 120$.
+\end{ejemplo}
+
+\begin{propiedad}[Por qué el caso base es obligatorio]
+Sin un caso base que detenga las llamadas, una función recursiva se llama a sí misma
+indefinidamente. Cada llamada consume memoria adicional (ver \S 4), así que una recursión sin caso
+base --- o con un caso base que nunca se alcanza para ciertas entradas --- termina agotando esa
+memoria (\emph{stack overflow}) y el programa se detiene con un error en tiempo de ejecución, no en
+tiempo de compilación.
+\end{propiedad}
+
+\section{La pila de llamadas; recursión frente a iteración}
+
+\begin{definicion}[Pila de llamadas]
+La \emph{pila de llamadas} (\emph{call stack}) es la estructura que usa el programa en ejecución
+para llevar el control de las funciones activas: cada vez que se llama a una función se apila un
+nuevo \emph{marco} con sus parámetros y variables locales, y ese marco se retira de la pila
+(\emph{desapila}) cuando la función termina y devuelve su resultado a quien la llamó. En una
+función recursiva, cada llamada activa agrega un marco nuevo, distinto de los anteriores: los
+parámetros \texttt{n} de \texttt{factorial(5)}, \texttt{factorial(4)}, \ldots, \texttt{factorial(1)}
+coexisten en la pila, cada uno en su propio marco, mientras las llamadas están pendientes de
+terminar.
+\end{definicion}
+
+\begin{ejemplo}[Fibonacci: recursivo frente a iterativo]
+\begin{lstlisting}
+// Version recursiva
+int fibonacciRec(int n) {
+    if (n == 0) return 0;         // caso base 1
+    if (n == 1) return 1;         // caso base 2
+    return fibonacciRec(n - 1) + fibonacciRec(n - 2);   // caso recursivo
+}
+
+// Version iterativa equivalente
+int fibonacciIter(int n) {
+    if (n == 0) return 0;
+    int anterior = 0, actual = 1;
+    for (int i = 2; i <= n; i++) {
+        int siguiente = anterior + actual;
+        anterior = actual;
+        actual = siguiente;
+    }
+    return actual;
+}
+\end{lstlisting}
+Ambas funciones calculan el mismo resultado, pero \texttt{fibonacciRec} genera dos llamadas nuevas
+por cada llamada que no es caso base (crece exponencialmente en número de llamadas), mientras que
+\texttt{fibonacciIter} usa un solo ciclo y un tamaño de memoria constante. La versión recursiva
+suele ser más clara de leer porque refleja directamente la definición matemática; la versión
+iterativa suele ser más eficiente en tiempo y memoria. Elegir entre una y otra es una decisión de
+diseño, no una regla fija.
+\end{ejemplo}
+
+\begin{propiedad}[Cuándo preferir cada una]
+Se prefiere recursión cuando el problema tiene una estructura naturalmente recursiva y la claridad
+del código importa más que el costo adicional de las llamadas (por ejemplo, recorrer una
+estructura con subestructuras del mismo tipo). Se prefiere iteración cuando el problema es
+esencialmente un conteo o acumulación simple, o cuando el número de llamadas recursivas necesarias
+podría ser muy grande y el costo en memoria de la pila de llamadas es una preocupación real.
+\end{propiedad}
+
+\section{Ejercicios propuestos}
+
+\begin{enumerate}[leftmargin=1.2cm]
+  \item Escribe una función \texttt{int siguienteId(void)} que use una variable estática local para
+        devolver 1 en la primera llamada, 2 en la segunda, 3 en la tercera, y así sucesivamente.
+  \item Escribe una función recursiva \texttt{int potencia(int base, int exp)} que calcule
+        $\text{base}^{\text{exp}}$ (con \texttt{exp} $\geq 0$), identificando claramente su caso
+        base.
+  \item Escribe una función recursiva \texttt{int sumaHasta(int n)} que calcule
+        $1 + 2 + \cdots + n$ para $n \geq 1$.
+  \item Escribe una función recursiva \texttt{int fibonacci(int n)} (como en el ejemplo de \S 4) y
+        una función iterativa \texttt{int fibonacciIter(int n)} equivalente; verifica que ambas
+        producen el mismo resultado para $n = 0, 1, \ldots, 10$.
+  \item Dado el código
+        \texttt{int f(void) \{ static int c = 0; c++; return c; \}}, llamado tres veces seguidas
+        desde \texttt{main} e imprimiendo cada resultado, indica qué se imprime y explica por qué.
+  \item Explica con tus palabras por qué una función recursiva sin caso base (o con un caso base
+        inalcanzable) eventualmente provoca un error de \emph{stack overflow} en vez de un error de
+        compilación.
+\end{enumerate}
+
+\section{Soluciones de los ejercicios propuestos}
+
+\begin{description}
+
+\item[\textbf{Ejercicio 1.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int siguienteId(void);
+
+int main(void) {
+    printf("%d\n", siguienteId());
+    printf("%d\n", siguienteId());
+    printf("%d\n", siguienteId());
+    return 0;
+}
+
+int siguienteId(void) {
+    static int id = 0;
+    id++;
+    return id;
+}
+\end{lstlisting}
+Imprime \texttt{1}, \texttt{2}, \texttt{3}.
+
+\item[\textbf{Ejercicio 2.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int potencia(int base, int exp);
+
+int main(void) {
+    printf("2^5 = %d\n", potencia(2, 5));
+    return 0;
+}
+
+int potencia(int base, int exp) {
+    if (exp == 0) {          // caso base
+        return 1;
+    }
+    return base * potencia(base, exp - 1);   // caso recursivo
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 3.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int sumaHasta(int n);
+
+int main(void) {
+    printf("Suma 1..6 = %d\n", sumaHasta(6));
+    return 0;
+}
+
+int sumaHasta(int n) {
+    if (n == 1) {             // caso base
+        return 1;
+    }
+    return n + sumaHasta(n - 1);   // caso recursivo
+}
+\end{lstlisting}
+
+\item[\textbf{Ejercicio 4.}]
+\begin{lstlisting}
+#include <stdio.h>
+
+int fibonacci(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+int fibonacciIter(int n) {
+    if (n == 0) return 0;
+    int anterior = 0, actual = 1;
+    for (int i = 2; i <= n; i++) {
+        int siguiente = anterior + actual;
+        anterior = actual;
+        actual = siguiente;
+    }
+    return actual;
+}
+
+int main(void) {
+    for (int n = 0; n <= 10; n++) {
+        printf("n=%d rec=%d iter=%d\n", n, fibonacci(n), fibonacciIter(n));
+    }
+    return 0;
+}
+\end{lstlisting}
+Para $n = 0, \ldots, 10$ ambas funciones producen la misma secuencia:
+$0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55$.
+
+\item[\textbf{Ejercicio 5.}]
+Se imprime \texttt{1}, \texttt{2}, \texttt{3}. La variable \texttt{static int c = 0;} se inicializa
+una sola vez, en la primera llamada a \texttt{f}; en cada llamada posterior conserva el valor que
+tenía al salir de la llamada anterior, así que \texttt{c++} lo va incrementando de forma acumulada
+(1, luego 2, luego 3) en vez de reiniciarse a 0 en cada llamada como haría una variable local
+ordinaria.
+
+\item[\textbf{Ejercicio 6.}]
+Cada llamada recursiva pendiente agrega un marco nuevo a la pila de llamadas (con sus propios
+parámetros y variables locales), y ese marco solo se retira cuando la llamada termina y regresa un
+valor. Si nunca se alcanza un caso base, ninguna llamada termina nunca: los marcos se siguen
+apilando sin límite hasta agotar la memoria reservada para la pila. Esto ocurre en tiempo de
+ejecución (mientras el programa corre y va haciendo las llamadas), no en tiempo de compilación,
+porque el compilador no puede saber en general si el caso base se alcanzará o no para una entrada
+dada.
+\[\boxed{\text{Sin caso base alcanzable, la pila de llamadas crece sin límite: \emph{stack overflow} en tiempo de ejecución.}}\]
+
+\end{description}
+
+\end{document}

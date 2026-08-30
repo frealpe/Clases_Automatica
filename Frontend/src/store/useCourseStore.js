@@ -204,6 +204,9 @@ export const useCourseStore = create((set, get) => ({
 
   setMateriaActiva: (materiaId) => {
     const state = get();
+    if (state.materias && state.materias.length > 0 && !state.materias.some((m) => m.id === materiaId)) {
+      return;
+    }
     const semMateria = PLANES_SEMANALES_MATERIAS[materiaId] || [];
     set({
       materiaActivaId: materiaId,

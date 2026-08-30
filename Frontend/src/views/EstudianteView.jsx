@@ -1,48 +1,51 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCourseStore } from '../store/useCourseStore';
+import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../services/apiClient';
+import { semanasService } from '../services/semanas.service';
+import NotasSemana01 from '../components/NotasSemana01';
 import ExamenModal from '../components/ExamenModal';
 
-function formatearFechaCorta(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-}
+const getDownloadUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/notas') || url.startsWith('/uploads')) return url;
+  return `${API_URL}${url}`;
+};
 
 export default function EstudianteView() {
+  const { estaAutenticado } = useAuth();
   const semanas = useCourseStore((state) => state.semanas);
-  const usuario = useCourseStore((state) => state.usuario);
   const materias = useCourseStore((state) => state.materias);
   const materiaActivaId = useCourseStore((state) => state.materiaActivaId);
   const setMateriaActiva = useCourseStore((state) => state.setMateriaActiva);
   const themeMode = useCourseStore((state) => state.themeMode);
-  const examenesProgramados = useCourseStore((state) => state.examenesProgramados);
-  const cargarMisExamenesFromService = useCourseStore((state) => state.cargarMisExamenesFromService);
+  const cargarSemanasFromService = useCourseStore((state) => state.cargarSemanasFromService);
+  const cargarSemanasPublicasFromService = useCourseStore((state) => state.cargarSemanasPublicasFromService);
 
+  // Estados de visualización
+  const [semanaClaseActiva, setSemanaClaseActiva] = useState(null);
+  const [contenidoDB, setContenidoDB] = useState(null);
   const [semanaExamen, setSemanaExamen] = useState(null);
-  const [examenProgramadoActivo, setExamenProgramadoActivo] = useState(null);
-  const [modalSemanasAbierto, setModalSemanasAbierto] = useState(false);
-
-  useEffect(() => {
-    if (usuario?.rol === 'ESTUDIANTE') cargarMisExamenesFromService();
-  }, [usuario, cargarMisExamenesFromService]);
-
-  const examenesPendientes = useMemo(
-    () => examenesProgramados
-      .filter((ex) => ex.estadoCalculado === 'activo' || ex.estadoCalculado === 'proximo')
-      .sort((a, b) => new Date(a.fechaInicio) - new Date(b.fechaInicio)),
-    [examenesProgramados]
-  );
+  const [mostrarAvisoLogin, setMostrarAvisoLogin] = useState(false);
 
   const esLight = themeMode === 'light';
   const materiaActiva = materias.find((m) => m.id === materiaActivaId) || materias[0];
-  const carpetaNotas = (numero) => `/notas/semana-${numero}`;
 
-  // Clases adaptativas de alto contraste para ambos temas (Light & Dark)
-  const textoTitulo = esLight ? 'text-slate-900' : 'text-white';
-  const textoSub = esLight ? 'text-slate-700 font-medium' : 'text-slate-200 font-medium';
-  const textoMuted = esLight ? 'text-slate-600' : 'text-slate-400';
-  const acentoCian = esLight ? 'text-sky-700 font-bold' : 'text-[#38bdf8] font-bold';
+  useEffect(() => {
+    if (!materiaActivaId) return;
+    if (estaAutenticado) {
+      cargarSemanasFromService(materiaActivaId);
+    } else {
+      cargarSemanasPublicasFromService(materiaActivaId);
+    }
+  }, [materiaActivaId, estaAutenticado, cargarSemanasFromService, cargarSemanasPublicasFromService]);
+
+  const textoTitulo  = esLight ? 'text-slate-900' : 'text-white';
+  const textoSub     = esLight ? 'text-slate-700 font-medium' : 'text-slate-200 font-medium';
+  const textoMuted   = esLight ? 'text-slate-600' : 'text-slate-400';
+  const acentoCian   = esLight ? 'text-sky-700 font-bold' : 'text-[#38bdf8] font-bold';
   const borderAcento = esLight ? 'border-sky-700' : 'border-[#38bdf8]';
-  const btnBotonModal = esLight ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-black hover:bg-slate-100';
 
   const getMateriaIcon = (codigo, index) => {
     if (codigo?.includes('MAT')) return 'calculate';
@@ -79,17 +82,47 @@ export default function EstudianteView() {
     return styles[index % styles.length];
   };
 
+  const handleAbrirClaseWeb = async (semana) => {
+    if (semanaClaseActiva?.id === semana.id) {
+      setSemanaClaseActiva(null);
+      return;
+    }
+    setSemanaClaseActiva(semana);
+    setContenidoDB(null);
+    if (semana?.id) {
+      const resDetalle = estaAutenticado
+        ? await semanasService.getSemanaById(semana.id)
+        : await semanasService.getSemanaPublicaById(semana.id);
+      if (resDetalle && resDetalle.contenidoJson) {
+        setContenidoDB(resDetalle.contenidoJson);
+      }
+    }
+  };
+
+  const handleIntentarPresentarTest = (semana) => {
+    if (!estaAutenticado) {
+      setMostrarAvisoLogin(true);
+      return;
+    }
+    setSemanaExamen(semana);
+  };
+
+  const carpetaNotas = (numero) => `/notas/materia-${materiaActivaId || 1}/semana-${numero}`;
+
   return (
-    <div className="h-full w-full flex flex-col justify-between py-2 relative z-10 overflow-hidden">
-      {/* 1. SECCIÓN HERO TITULAR */}
-      <div className="flex flex-col justify-center gap-3">
-        {/* Tags de Asignatura */}
-        <div className={`flex items-center gap-4 font-mono text-xs uppercase tracking-widest ${acentoCian}`}>
+    <div className="w-full flex flex-col gap-4 sm:gap-6 py-2 relative z-10">
+      
+      {/* 1. ENCABEZADO DE PRESENTACIÓN */}
+      <div className="flex flex-col justify-center gap-2">
+        <div className={`flex items-center gap-3 font-mono text-[10px] sm:text-xs uppercase tracking-widest overflow-x-auto pb-1 ${acentoCian}`}>
           {materias.map((m) => (
             <button
               key={m.id}
-              onClick={() => setMateriaActiva(m.id)}
-              className={`transition-all cursor-pointer ${
+              onClick={() => {
+                setMateriaActiva(m.id);
+                setSemanaClaseActiva(null);
+              }}
+              className={`transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 m.id === materiaActivaId ? `font-extrabold ${acentoCian} border-b-2 ${borderAcento}` : `${textoMuted} hover:opacity-100`
               }`}
             >
@@ -98,66 +131,51 @@ export default function EstudianteView() {
           ))}
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <div>
-            <h1 className={`text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight ${textoTitulo}`}>
-              Claro. Preciso.<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5056AC] via-[#38bdf8] to-[#a7c8ff]">
-                Automatizado.
-              </span>
-            </h1>
-            <p className={`text-xs sm:text-sm max-w-xl mt-1.5 leading-relaxed ${textoSub}`}>
-              Departamento de Instrumentación y Control — Universidad del Cauca.<br />
-              Plataforma docente interactiva para formación en Ingeniería en Automática Industrial.
-            </p>
-          </div>
-
-          {/* Tarjeta del Docente / Perfil Activo de Alto Contraste Adaptativa */}
-          <div className="glass-panel p-4 flex items-center gap-3.5 rounded-2xl shadow-2xl overflow-hidden shrink-0">
-            <div className={`w-10 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-              esLight ? 'bg-sky-100 border border-sky-300 text-sky-900' : 'bg-[#5056AC]/50 border border-[#38bdf8]/40 text-white'
-            }`}>
-              <span className="material-symbols-outlined text-2xl">person_filled</span>
-            </div>
-            <div>
-              <div className={`text-xs font-bold ${textoTitulo}`}>
-                {usuario?.nombre ? usuario.nombre : 'Prof. Fabio Hernán Realpe'}
-              </div>
-              <div className={`text-[10px] font-mono ${textoMuted}`}>
-                {usuario?.rol ? `Rol: ${usuario.rol} · Docente Ocasional Tiempo Completo` : 'Docente Ocasional Tiempo Completo · Unicauca'}
-              </div>
-              <div className={`text-[11px] font-bold ${acentoCian} mt-0.5`}>
-                Ingeniería en Automática Industrial
-              </div>
-            </div>
-          </div>
+        <div>
+          <h1 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight ${textoTitulo}`}>
+            Material de Apoyo Docente<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5056AC] via-[#38bdf8] to-[#a7c8ff]">
+              Universidad del Cauca · 2026
+            </span>
+          </h1>
+          <p className={`text-xs sm:text-sm max-w-2xl mt-1.5 leading-relaxed ${textoSub}`}>
+            Departamento de Instrumentación y Control — Ingeniería en Automática Industrial.<br />
+            Selecciona una asignatura para desplegar hacia abajo sus guías de aprendizaje, notas de clase, diapositivas y módulos interactivos.
+          </p>
         </div>
       </div>
 
-      {/* 2. TARJETAS DINÁMICAS DE MATERIAS ASIGNADAS */}
-      <div className={`grid grid-cols-1 gap-4 my-1 ${
-        materias.length === 1 ? 'md:grid-cols-1' :
-        materias.length === 2 ? 'md:grid-cols-2' :
-        materias.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'
+      {/* 2. SELECCIÓN DE ASIGNATURA (TARJETAS DE MATERIAS) */}
+      <div className={`grid gap-3 sm:gap-4 ${
+        materias.length === 1
+          ? 'grid-cols-1'
+          : materias.length === 2
+          ? 'grid-cols-1 sm:grid-cols-2'
+          : materias.length === 3
+          ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
+          : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4'
       }`}>
         {materias.map((m, idx) => {
           const esActiva = m.id === materiaActivaId;
           const style = getMateriaStyles(m.codigo, idx);
-          const icon = getMateriaIcon(m.codigo, idx);
+          const icon  = getMateriaIcon(m.codigo, idx);
 
           return (
             <div
               key={m.id}
-              onClick={() => setMateriaActiva(m.id)}
-              className={`glass-panel p-4 sm:p-5 rounded-2xl flex flex-col justify-between group cursor-pointer overflow-hidden transition-all duration-300 border ${
+              onClick={() => {
+                setMateriaActiva(m.id);
+                setSemanaClaseActiva(null);
+              }}
+              className={`glass-panel p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between group cursor-pointer overflow-hidden transition-all duration-300 border ${
                 esActiva ? style.activeBorder : 'border-slate-300/40 hover:scale-[1.01]'
               }`}
             >
               <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${style.icon}`}>
-                      <span className="material-symbols-outlined text-lg">{icon}</span>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${style.icon}`}>
+                      <span className="material-symbols-outlined text-base sm:text-lg">{icon}</span>
                     </div>
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${style.badge}`}>
                       {m.codigo}
@@ -167,7 +185,7 @@ export default function EstudianteView() {
                   {esActiva && (
                     <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center gap-1 shrink-0">
                       <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
-                      Activa
+                      Seleccionada
                     </span>
                   )}
                 </div>
@@ -175,16 +193,21 @@ export default function EstudianteView() {
                 <h3 className={`text-sm sm:text-base font-extrabold leading-snug ${textoTitulo}`}>
                   {m.nombre}
                 </h3>
-                <p className={`text-xs mt-2 leading-relaxed line-clamp-3 break-words ${textoSub}`}>
+                <p className={`text-xs mt-1.5 leading-relaxed line-clamp-2 break-words ${textoSub}`}>
                   {m.descripcion}
                 </p>
+                {m.docenteNombre && (
+                  <p className={`text-[11px] mt-1 flex items-center gap-1 ${textoMuted}`}>
+                    <span className="material-symbols-outlined text-xs">person</span>
+                    {m.docenteNombre}
+                  </p>
+                )}
               </div>
 
-              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs font-mono">
+              <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-xs font-mono">
                 <span className={textoMuted}>{m.semestre || '2026-1'}</span>
                 <span className={`font-bold flex items-center gap-1 ${esActiva ? acentoCian : textoMuted}`}>
-                  {esActiva ? 'Seleccionada' : 'Seleccionar'}
-                  <span className="material-symbols-outlined text-sm">chevron_right</span>
+                  {esActiva ? 'Desplegado abajo ↓' : 'Ver Contenido →'}
                 </span>
               </div>
             </div>
@@ -192,181 +215,255 @@ export default function EstudianteView() {
         })}
       </div>
 
-      {/* 2.5 AGENDA DE EXÁMENES PROGRAMADOS (calendario con ventana de fecha/hora) */}
-      {examenesPendientes.length > 0 && (
-        <div className="glass-panel p-4 rounded-2xl flex flex-col gap-2.5 overflow-hidden">
-          <div className={`text-xs font-mono font-bold uppercase tracking-wider ${esLight ? 'text-sky-700' : 'text-[#38bdf8]'}`}>
-            🗓️ Exámenes Programados
-          </div>
-          {examenesPendientes.map((ex) => {
-            const activo = ex.estadoCalculado === 'activo';
-            return (
-              <div key={ex.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-1.5 border-b border-white/10 last:border-b-0">
-                <div>
-                  <div className={`text-sm font-extrabold ${textoTitulo}`}>{ex.titulo}</div>
-                  <div className={`text-[11px] font-mono ${textoMuted}`}>
-                    {ex.materiaNombre ? `${ex.materiaNombre} · ` : ''}
-                    {activo ? 'Disponible ahora hasta' : 'Abre'} {formatearFechaCorta(activo ? ex.fechaFin : ex.fechaInicio)}
-                    {' · '}{ex.duracionMin} min
-                  </div>
-                </div>
-                <button
-                  onClick={() => setExamenProgramadoActivo(ex)}
-                  disabled={!activo}
-                  className={`px-4 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed ${btnBotonModal}`}
-                >
-                  {activo ? 'Presentar ahora' : 'Aún no disponible'}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* 3. BARRA DE ACCESO RÁPIDO A EVALUACIONES Y MATERIALES */}
-      <div className="glass-panel p-4.5 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 overflow-hidden">
-        <div className="flex items-center gap-3">
-          <span className={`material-symbols-outlined text-3xl ${acentoCian}`}>menu_book</span>
+      {/* 3. SECCIÓN DE CONTENIDO DESPLEGADO HACIA ABAJO DE LA MATERIA SELECCIONADA */}
+      <div className="glass-panel p-4 sm:p-6 rounded-2xl flex flex-col gap-4">
+        
+        {/* Encabezado del contenido desplegado */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-700/40">
           <div>
             <div className={`text-xs font-mono font-bold uppercase tracking-wider ${acentoCian}`}>
-              Asignatura: [{materiaActiva?.codigo}] {materiaActiva?.nombre}
+              CONTENIDO DE CLASE DESPLEGADO — [{materiaActiva?.codigo}]
             </div>
-            <div className={`text-xs sm:text-sm font-extrabold ${textoTitulo}`}>
-              Accede al Banco de Evaluaciones, PDFs y Diapositivas
-            </div>
+            <h2 className={`text-xl sm:text-2xl font-extrabold ${textoTitulo}`}>
+              {materiaActiva?.nombre}
+            </h2>
+          </div>
+          <div className={`text-xs font-mono px-3 py-1 rounded-full border ${
+            esLight ? 'bg-sky-100 text-sky-900 border-sky-300' : 'bg-sky-500/20 text-[#38bdf8] border-sky-500/30'
+          }`}>
+            {semanas.length} Semanas de Aprendizaje
           </div>
         </div>
 
-        <button
-          onClick={() => setModalSemanasAbierto(true)}
-          className={`rounded-full px-6 py-2.5 text-xs font-black transition-all flex items-center gap-2 shadow-2xl cursor-pointer whitespace-nowrap ${btnBotonModal}`}
-        >
-          <span className="material-symbols-outlined text-base">quiz</span>
-          Ver Semanas y Presentar Test ({semanas.length})
-        </button>
-      </div>
-
-      {/* 4. FOOTER PANTALLA ÚNICA */}
-      <footer className={`w-full pt-1.5 flex justify-between items-center text-[10px] sm:text-[11px] font-mono border-t ${
-        esLight ? 'border-slate-300 text-slate-600' : 'border-white/15 text-white/70'
-      }`}>
-        <div>© 2026 Universidad del Cauca · Departamento de Instrumentación y Control</div>
-        <div>Prof. Fabio Hernán Realpe</div>
-      </footer>
-
-      {/* MODAL GLASS CON EL BANCO DE SEMANAS Y MATERIALES */}
-      {modalSemanasAbierto && (
-        <div className="modal-overlay">
-          <div className="modal-content max-w-4xl w-full max-h-[85vh] overflow-y-auto">
-            <div className={`flex justify-between items-center mb-6 pb-4 border-b ${
-              esLight ? 'border-slate-300' : 'border-slate-700'
-            }`}>
-              <div>
-                <span className={`text-xs font-mono font-bold ${acentoCian}`}>
-                  [{materiaActiva?.codigo}] {materiaActiva?.nombre}
+        {/* VISOR DE CLASE WEB INTERACTIVA (Si el usuario hizo clic en "Ver Clase Web") */}
+        {semanaClaseActiva && (
+          <div className={`rounded-2xl border p-4 sm:p-5 transition-all shadow-2xl ${
+            esLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900/95 border-slate-700 text-white'
+          }`}>
+            <div className="flex justify-between items-center pb-3 mb-3 border-b border-slate-700/50">
+              <div className="flex items-center gap-2 truncate pr-2">
+                <span className="px-2.5 py-1 rounded bg-[#38bdf8]/20 border border-[#38bdf8]/40 text-[#38bdf8] font-mono text-xs font-bold shrink-0">
+                  Semana {semanaClaseActiva.numero}
                 </span>
-                <h2 className={`text-2xl font-bold ${textoTitulo}`}>Plan Semanal de Evaluaciones</h2>
+                <span className="font-bold text-sm sm:text-base truncate">
+                  {semanaClaseActiva.unidad}
+                </span>
               </div>
-
-              <button
-                onClick={() => setModalSemanasAbierto(false)}
-                className={`text-2xl font-bold p-1 cursor-pointer ${textoMuted} hover:opacity-100`}
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => handleIntentarPresentarTest(semanaClaseActiva)}
+                  className="px-3 py-1.5 rounded-xl border text-xs font-bold bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30 transition-all cursor-pointer flex items-center gap-1"
+                  title="Presentar test interactivo (requiere inicio de sesión)"
+                >
+                  <span className="material-symbols-outlined text-sm">quiz</span>
+                  <span>Presentar Test</span>
+                </button>
+                <button
+                  onClick={() => setSemanaClaseActiva(null)}
+                  className="px-3 py-1.5 rounded-xl border text-xs font-bold bg-red-500/20 text-red-400 border-red-500/40 hover:bg-red-500/30 transition-all cursor-pointer"
+                >
+                  ✕ Cerrar
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {semanas.length === 0 ? (
-                <div className={`p-8 text-center col-span-2 font-mono text-xs rounded-2xl border ${
-                  esLight ? 'bg-slate-100 border-slate-300 text-slate-700' : 'bg-slate-900/80 border-slate-700 text-slate-300'
-                }`}>
-                  <span className={`material-symbols-outlined text-4xl block mb-2 ${acentoCian}`}>folder_off</span>
-                  Esta asignatura ([{materiaActiva?.codigo}] {materiaActiva?.nombre}) aún no cuenta con guías redactadas ni evaluaciones registradas en las carpetas docentes.
-                </div>
+            <div className="w-full min-h-[65vh]">
+              {semanaClaseActiva?.claseWebUrl ? (
+                <iframe
+                  src={
+                    semanaClaseActiva.claseWebUrl.startsWith('/notas')
+                      ? semanaClaseActiva.claseWebUrl
+                      : getDownloadUrl(semanaClaseActiva.claseWebUrl)
+                  }
+                  title={`Material Web — Semana ${semanaClaseActiva.numero}`}
+                  className="w-full h-full min-h-[65vh] border-0 rounded-xl bg-white"
+                />
               ) : (
-                semanas.map((s) => (
-                  <div key={s.id} className="glass-panel p-5 rounded-xl flex flex-col justify-between overflow-hidden">
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded border ${
-                          esLight ? 'bg-sky-100 text-sky-800 border-sky-300' : 'bg-[#38bdf8]/20 text-[#38bdf8] border-[#38bdf8]/40'
-                        }`}>
-                          Semana {s.numero}
-                        </span>
-                        <span className={`text-[11px] font-mono ${textoMuted}`}>
-                          {s.ra}
-                        </span>
-                      </div>
-
-                      <h4 className={`text-base font-bold mb-1 ${textoTitulo}`}>
-                        {s.unidad}
-                      </h4>
-
-                      <p className={`text-xs mb-3 ${textoMuted}`}>
-                        ⏱ Límite: {s.min} minutos
-                      </p>
-
-                      {s.raDescripcion && (
-                        <p className={`text-xs p-2.5 rounded-lg mb-4 leading-relaxed font-medium border ${
-                          esLight ? 'bg-slate-100 text-slate-800 border-slate-200' : 'bg-slate-950/80 text-slate-200 border-slate-800'
-                        }`}>
-                          {s.raDescripcion}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <a
-                          href={`${carpetaNotas(s.numero)}/guia.pdf`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`px-3 py-1 rounded text-xs border font-bold no-underline ${
-                            esLight ? 'bg-slate-200 border-slate-300 text-slate-800 hover:bg-slate-300' : 'bg-slate-800 border-slate-600 text-white hover:bg-slate-700'
-                          }`}
-                        >
-                          📋 Guía
-                        </a>
-                        <a
-                          href={`${carpetaNotas(s.numero)}/notas.pdf`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`px-3 py-1 rounded text-xs border font-bold no-underline ${
-                            esLight ? 'bg-slate-200 border-slate-300 text-slate-800 hover:bg-slate-300' : 'bg-slate-800 border-slate-600 text-white hover:bg-slate-700'
-                          }`}
-                        >
-                          📖 Notas
-                        </a>
-                        <a
-                          href={`${carpetaNotas(s.numero)}/diapositivas.pdf`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`px-3 py-1 rounded text-xs border font-bold no-underline ${
-                            esLight ? 'bg-slate-200 border-slate-300 text-slate-800 hover:bg-slate-300' : 'bg-slate-800 border-slate-600 text-white hover:bg-slate-700'
-                          }`}
-                        >
-                          📊 Slides
-                        </a>
-                      </div>
-
-                      <button
-                        onClick={() => setSemanaExamen(s)}
-                        className={`w-full py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-md ${btnBotonModal}`}
-                      >
-                        Presentar Evaluación
-                      </button>
-                    </div>
-                  </div>
-                ))
+                <NotasSemana01 contenidoDB={contenidoDB} />
               )}
             </div>
           </div>
+        )}
+
+        {/* GRID DE SEMANAS Y MATERIALES (DESPLEGADO HACIA ABAJO) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+          {semanas.length === 0 ? (
+            <div className={`p-8 text-center col-span-full font-mono text-xs rounded-2xl border ${
+              esLight ? 'bg-slate-100 border-slate-300 text-slate-700' : 'bg-slate-900/80 border-slate-700 text-slate-300'
+            }`}>
+              <span className={`material-symbols-outlined text-4xl block mb-2 ${acentoCian}`}>folder_off</span>
+              Esta asignatura ([{materiaActiva?.codigo}] {materiaActiva?.nombre}) no cuenta con guías redactadas aún.
+            </div>
+          ) : (
+            semanas.map((s) => {
+              const codigoSesion = `${materiaActiva?.codigo || 'MAT'}-S${s.numero}`;
+              return (
+              <div
+                key={s.id}
+                className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
+                  esLight
+                    ? 'bg-white border-slate-300 shadow-sm hover:border-sky-400'
+                    : 'bg-slate-900/70 border-slate-800 shadow-md hover:border-[#38bdf8]/60'
+                }`}
+              >
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                      esLight ? 'bg-sky-100 text-sky-800 border-sky-300' : 'bg-[#38bdf8]/20 text-[#38bdf8] border-[#38bdf8]/40'
+                    }`}>
+                      Semana {s.numero}
+                    </span>
+                    <span className={`text-[10px] font-mono ${textoMuted}`}>
+                      {s.ra || 'RA'}
+                    </span>
+                  </div>
+
+                  <span
+                    onClick={() => navigator.clipboard?.writeText(codigoSesion)}
+                    title="Código de sesión — clic para copiar"
+                    className={`inline-block text-[9px] font-mono mb-1.5 px-1.5 py-0.5 rounded border cursor-pointer ${
+                      esLight ? 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200' : 'bg-slate-950/60 text-slate-400 border-slate-700 hover:bg-slate-800'
+                    }`}
+                  >
+                    🔑 {codigoSesion}
+                  </span>
+
+                  <h3 className={`text-xs sm:text-sm font-bold mb-1.5 leading-snug ${textoTitulo}`}>
+                    {s.unidad}
+                  </h3>
+
+                  {s.raDescripcion && (
+                    <p className={`text-[11px] p-2 rounded mb-3 leading-relaxed font-medium line-clamp-3 border ${
+                      esLight ? 'bg-slate-50 text-slate-800 border-slate-200' : 'bg-slate-950/80 text-slate-300 border-slate-800/80'
+                    }`}>
+                      {s.raDescripcion}
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-2.5 border-t border-slate-700/30 flex flex-col gap-2">
+                  {/* BOTONES DE DESCARGA PDF */}
+                  <div className="flex flex-wrap gap-1">
+                    <a
+                      href={s.guiaPdfUrl ? getDownloadUrl(s.guiaPdfUrl) : `${carpetaNotas(s.numero)}/guia.pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`px-2 py-1 rounded text-[11px] border font-bold flex items-center gap-1 no-underline transition-all ${
+                        esLight
+                          ? 'bg-sky-50 border-sky-300 text-sky-900 hover:bg-sky-100'
+                          : 'bg-slate-800 border-slate-600 text-sky-300 hover:bg-slate-700'
+                      }`}
+                    >
+                      📋 Guía
+                    </a>
+                    <a
+                      href={s.notasPdfUrl ? getDownloadUrl(s.notasPdfUrl) : `${carpetaNotas(s.numero)}/notas.pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`px-2 py-1 rounded text-[11px] border font-bold flex items-center gap-1 no-underline transition-all ${
+                        esLight
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100'
+                          : 'bg-slate-800 border-slate-600 text-emerald-300 hover:bg-slate-700'
+                      }`}
+                    >
+                      📖 Notas
+                    </a>
+                    <a
+                      href={s.diapositivasPdfUrl ? getDownloadUrl(s.diapositivasPdfUrl) : `${carpetaNotas(s.numero)}/diapositivas.pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`px-2 py-1 rounded text-[11px] border font-bold flex items-center gap-1 no-underline transition-all ${
+                        esLight
+                          ? 'bg-violet-50 border-violet-300 text-violet-900 hover:bg-violet-100'
+                          : 'bg-slate-800 border-slate-600 text-violet-300 hover:bg-slate-700'
+                      }`}
+                    >
+                      📊 Slides
+                    </a>
+                  </div>
+
+                  {/* ACCIONES CLASE WEB & TEST (REQUIERE LOGIN) */}
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button
+                      onClick={() => handleAbrirClaseWeb(s)}
+                      className={`py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-sm ${
+                        semanaClaseActiva?.id === s.id
+                          ? 'bg-sky-600 text-white'
+                          : esLight
+                          ? 'bg-slate-900 text-white hover:bg-slate-800'
+                          : 'bg-white text-slate-900 hover:bg-slate-100'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-xs">computer</span>
+                      <span>Clase Web</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleIntentarPresentarTest(s)}
+                      className={`py-1.5 px-2 rounded-lg text-[11px] font-extrabold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-sm ${
+                        esLight
+                          ? 'bg-amber-100 border border-amber-300 text-amber-900 hover:bg-amber-200'
+                          : 'bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30'
+                      }`}
+                      title="Presentar test interactivo de evaluación (requiere estar logueado)"
+                    >
+                      <span className="material-symbols-outlined text-xs">quiz</span>
+                      <span>Test</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              );
+            })
+          )}
+        </div>
+
+      </div>
+
+      {/* MODAL DE AVISO DE INICIO DE SESIÓN REQUERIDO PARA PRESENTAR TEST */}
+      {mostrarAvisoLogin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className={`p-6 rounded-2xl border max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-3 animate-fadeIn ${
+            esLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-slate-700 text-white'
+          }`}>
+            <div className="w-14 h-14 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center">
+              <span className="material-symbols-outlined text-3xl">lock</span>
+            </div>
+
+            <h3 className="text-xl font-extrabold">Inicio de Sesión Requerido</h3>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Para presentar un <strong>test o evaluación interactiva</strong> y guardar tus calificaciones, debes iniciar sesión con tu cuenta en la plataforma.
+            </p>
+
+            <div className="flex gap-3 mt-2 w-full">
+              <button
+                onClick={() => setMostrarAvisoLogin(false)}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                  esLight ? 'border-slate-300 text-slate-700 hover:bg-slate-100' : 'border-slate-700 text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                Continuar Viendo Material
+              </button>
+
+              <button
+                onClick={() => {
+                  setMostrarAvisoLogin(false);
+                  const btnLogin = document.querySelector('button[title*="Login"]');
+                  if (btnLogin) btnLogin.click();
+                }}
+                className="flex-1 py-2 rounded-xl text-xs font-bold bg-sky-500 text-white hover:bg-sky-600 shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-sm">login</span>
+                <span>Iniciar Sesión</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* MODAL DE EVALUACIÓN INTERACTIVA (bajo demanda, por semana) */}
-      {semanaExamen && (
+      {/* MODAL DE EVALUACIÓN INTERACTIVA (Solo para usuarios autenticados) */}
+      {semanaExamen && estaAutenticado && (
         <ExamenModal
           isOpen={Boolean(semanaExamen)}
           onClose={() => setSemanaExamen(null)}
@@ -374,14 +471,14 @@ export default function EstudianteView() {
         />
       )}
 
-      {/* MODAL DE EXAMEN PROGRAMADO (calendario + fullscreen + detección de infracciones) */}
-      {examenProgramadoActivo && (
-        <ExamenModal
-          isOpen={Boolean(examenProgramadoActivo)}
-          onClose={() => { setExamenProgramadoActivo(null); cargarMisExamenesFromService(); }}
-          examenProgramado={examenProgramadoActivo}
-        />
-      )}
+      {/* FOOTER PANTALLA ÚNICA */}
+      <footer className={`w-full pt-2 flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px] sm:text-[11px] font-mono border-t ${
+        esLight ? 'border-slate-300 text-slate-600' : 'border-white/15 text-white/70'
+      }`}>
+        <div>© 2026 Universidad del Cauca · Departamento de Instrumentación y Control</div>
+        <div>Ingeniería en Automática Industrial</div>
+      </footer>
+
     </div>
   );
 }

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulación: llenado de una matriz — Semana 2 (Programación)</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Simulación: llenado de una matriz</h1>
+    <p class="subtitulo">Ciclos for anidados · Programación · Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="notas.html">Notas</a></li>
+    <li><a href="ejercicios.html">Ejercicios</a></li>
+    <li><a href="simulacion-matriz.html" class="activo">Simulación</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<p>
+  Este simulador anima, celda por celda, cómo un ciclo <code>for</code> anidado va
+  <strong>llenando</strong> una matriz: en cada paso resalta la línea de código que se está
+  ejecutando y los índices <code>[fila][col]</code> activos, para que se vea claramente la
+  relación entre el código y lo que va quedando guardado en memoria. Es el mismo mecanismo de los
+  ejemplos de <a href="notas.html#sec5">Notas §5</a> y de los ejercicios 9–12.
+</p>
+
+<div class="simulador">
+  <div id="simulador-app">
+    <div class="controles-sim">
+      <label>Tamaño (N×N):
+        <select id="sel-tam">
+          <option value="3">3×3</option>
+          <option value="4" selected>4×4</option>
+          <option value="5">5×5</option>
+          <option value="6">6×6</option>
+        </select>
+      </label>
+      <label>Modo de llenado:
+        <select id="sel-modo">
+          <option value="producto" selected>Producto de índices</option>
+          <option value="suma">Suma de índices</option>
+          <option value="identidad">Matriz identidad</option>
+          <option value="aleatorio">Valores aleatorios</option>
+        </select>
+      </label>
+      <label>Orden de recorrido:
+        <select id="sel-orden">
+          <option value="filas" selected>Por filas (fila es el ciclo externo)</option>
+          <option value="columnas">Por columnas (col es el ciclo externo)</option>
+        </select>
+      </label>
+      <label>Velocidad:
+        <input type="range" id="rango-velocidad" min="120" max="1200" step="20" value="500">
+        <span id="etiqueta-velocidad"></span>
+      </label>
+    </div>
+
+    <div class="controles-sim">
+      <button id="btn-simular" class="btn">▶ Simular</button>
+      <button id="btn-paso" class="btn secundario">Paso a paso →</button>
+      <button id="btn-reiniciar" class="btn secundario">⟲ Reiniciar</button>
+    </div>
+
+    <div class="sim-layout">
+      <div>
+        <div id="matriz-grid" class="matriz-grid"></div>
+        <div class="leyenda-sim">
+          <span><span class="muestra-celda vacia"></span> vacía</span>
+          <span><span class="muestra-celda actual"></span> asignándose ahora</span>
+          <span><span class="muestra-celda llena"></span> ya llena</span>
+        </div>
+      </div>
+      <pre class="panel-codigo" id="panel-codigo"></pre>
+    </div>
+
+    <div class="estado-sim" id="estado-sim"></div>
+
+    <div class="vector-wrap">
+      <p class="vector-titulo">
+        La misma matriz, como memoria lineal (<b>row-major</b>, igual que en CUDA/C):
+        un arreglo 2D no existe de verdad en memoria — es un vector de <code>N×N</code> casillas
+        consecutivas, y cada <code>matriz[fila][col]</code> vive en el índice
+        <code id="formula-idx">idx = fila·N + col</code>.
+      </p>
+      <div id="vector-grid" class="vector-grid"></div>
+    </div>
+
+    <div class="recuadro propiedad">
+      <span class="titulo">Para observar</span>
+      Deja el modo en "por columnas" y mira el vector lineal: aunque el ciclo llena la matriz
+      saltando de columna en columna, en el vector se ve claro que esos saltos <b>no son
+      consecutivos en memoria</b> — el índice lineal salta de <code>N</code> en <code>N</code>. En
+      cambio con "por filas" el llenado avanza en el vector una casilla a la vez, sin saltos: por
+      eso recorrer una matriz por filas es más eficiente en memoria que por columnas (es la razón
+      por la que en CUDA se organizan los hilos para que accedan a memoria contigua).
+    </div>
+  </div>
+</div>
+
+<div class="paginacion">
+  <a href="ejercicios.html">&larr; Ejercicios de refuerzo</a>
+  <a href="cuestionario.html">Cuestionario &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>Programacion/semana-02/</code> — Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+<script src="js/simulacion-matriz.js"></script>
+</body>
+</html>

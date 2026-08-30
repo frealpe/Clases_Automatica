@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notas de clase — Semana 4 (Programación)</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="marca">
+    <h1>Notas de clase — Semana 4</h1>
+    <p class="subtitulo">Ámbito avanzado y recursión · Programación · Universidad del Cauca</p>
+  </div>
+</header>
+
+<nav class="principal">
+  <ul>
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="notas.html" class="activo">Notas</a></li>
+    <li><a href="cuestionario.html">Cuestionario</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="indice-secciones">
+  <h2>Contenido</h2>
+  <ol>
+    <li><a href="#sec1">Variables estáticas locales: tiempo de vida frente a ámbito</a></li>
+    <li><a href="#sec2">Ámbito avanzado: bloques anidados y sombreado</a></li>
+    <li><a href="#sec3">Recursión: caso base y caso recursivo</a></li>
+    <li><a href="#sec4">La pila de llamadas; recursión frente a iteración</a></li>
+    <li><a href="#sec5">Ejercicios propuestos y soluciones</a></li>
+  </ol>
+</div>
+
+<h2 id="sec1">1. Variables estáticas locales: tiempo de vida frente a ámbito</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Ámbito y tiempo de vida</span>
+  El <em>ámbito</em> (<em>scope</em>) de una variable es la región del código donde su nombre es
+  visible y se puede usar. El <em>tiempo de vida</em> (<em>storage duration</em>) es el período
+  durante el cual la variable existe realmente en memoria. En una variable local ordinaria ambos
+  coinciden: nace y muere con cada ejecución de la función. La palabra clave <code>static</code>
+  rompe esa coincidencia.
+</div>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Variable estática local</span>
+  Una variable local declarada con el calificador <code>static</code> conserva su <em>ámbito</em>
+  normal (solo es visible dentro de la función donde se declaró), pero su <em>tiempo de vida</em>
+  pasa a ser el de todo el programa: se inicializa una única vez, y conserva su valor de una
+  llamada a la siguiente en lugar de recrearse cada vez.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Contador que persiste entre llamadas</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int contadorLlamadas(void) {
+    static int veces = 0;   // se inicializa UNA sola vez, en toda la ejecucion
+    veces++;
+    return veces;
+}
+
+int main(void) {
+    printf("%d\n", contadorLlamadas());   // imprime 1
+    printf("%d\n", contadorLlamadas());   // imprime 2
+    printf("%d\n", contadorLlamadas());   // imprime 3
+    return 0;
+}</code></pre>
+  A diferencia de una variable local ordinaria (que reiniciaría <code>veces</code> a 0 en cada
+  llamada), <code>static int veces = 0;</code> solo ejecuta la inicialización <code>= 0</code> la
+  primera vez que el programa pasa por esa línea; en las llamadas siguientes conserva el valor que
+  tenía al salir de la función anterior.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — <code>static</code> local frente a variable global</span>
+  Una variable estática local y una variable global comparten el mismo tiempo de vida (todo el
+  programa), pero difieren en ámbito: la global es visible desde cualquier función que la vea
+  declarada, mientras que la estática local solo es visible <em>dentro</em> de la función donde se
+  declaró. Esto la hace preferible cuando el estado que se quiere conservar (un contador, una
+  bandera de "primera vez") le pertenece conceptualmente a una sola función y no debe poder ser
+  leído ni modificado por el resto del programa.
+</div>
+
+<h2 id="sec2">2. Ámbito avanzado: bloques anidados y sombreado</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Bloque</span>
+  En C, cualquier par de llaves <code>{ }</code> delimita un <em>bloque</em>: el cuerpo de una
+  función, de un <code>if</code>, de un <code>for</code>, o incluso un bloque suelto. Una variable
+  declarada dentro de un bloque es local a ese bloque: su ámbito termina en la llave de cierre
+  <code>}</code> correspondiente.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Sombreado dentro de bloques anidados</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int x = 1;
+    printf("Afuera: x = %d\n", x);        // 1
+    {
+        int x = 2;                        // sombrea (oculta) la x externa
+        printf("Bloque interno: x = %d\n", x);  // 2
+    }
+    printf("Afuera de nuevo: x = %d\n", x);     // 1 (la x externa no cambio)
+    return 0;
+}</code></pre>
+  Dentro del bloque interno, el nombre <code>x</code> se refiere a la nueva variable declarada ahí
+  (que <em>sombrea</em> a la externa); al salir del bloque, esa <code>x</code> interna desaparece y
+  el nombre vuelve a referirse a la <code>x</code> original, que nunca fue tocada.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Regla práctica</span>
+  Combinar <code>static</code> con bloques anidados o con nombres repetidos entre funciones
+  distintas es una fuente común de errores difíciles de rastrear: antes de declarar una variable
+  estática o de reutilizar un nombre en un bloque anidado, conviene preguntarse explícitamente qué
+  ámbito y qué tiempo de vida necesita realmente esa variable.
+</div>
+
+<h2 id="sec3">3. Recursión: caso base y caso recursivo</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Función recursiva</span>
+  Una función es <em>recursiva</em> cuando, en su propio cuerpo, se llama a sí misma (directamente,
+  o indirectamente a través de otra función). Toda función recursiva correcta necesita dos partes:
+  un <em>caso base</em> que se resuelve directamente sin volver a llamarse, y uno o más <em>casos
+  recursivos</em> que reducen el problema a una versión más pequeña del mismo problema y se apoyan
+  en esa llamada más pequeña para construir el resultado.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Factorial recursivo</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int factorial(int n) {
+    if (n &lt;= 1) {           // caso base
+        return 1;
+    }
+    return n * factorial(n - 1);   // caso recursivo
+}
+
+int main(void) {
+    printf("5! = %d\n", factorial(5));   // 120
+    return 0;
+}</code></pre>
+  <code>factorial(5)</code> llama a <code>factorial(4)</code>, que llama a
+  <code>factorial(3)</code>, y así sucesivamente hasta <code>factorial(1)</code>, que es el caso
+  base y devuelve 1 sin generar más llamadas. A partir de ahí, cada llamada pendiente multiplica su
+  <code>n</code> por el resultado que recibió: 1 → 1 → 2 → 6 → 24 → 120.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Por qué el caso base es obligatorio</span>
+  Sin un caso base que detenga las llamadas, una función recursiva se llama a sí misma
+  indefinidamente. Cada llamada consume memoria adicional (ver §4), así que una recursión sin caso
+  base —o con un caso base que nunca se alcanza para ciertas entradas— termina agotando esa
+  memoria (<em>stack overflow</em>) y el programa se detiene con un error en tiempo de ejecución,
+  no en tiempo de compilación.
+</div>
+
+<h2 id="sec4">4. La pila de llamadas; recursión frente a iteración</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Pila de llamadas</span>
+  La <em>pila de llamadas</em> (<em>call stack</em>) es la estructura que usa el programa en
+  ejecución para llevar el control de las funciones activas: cada vez que se llama a una función se
+  apila un nuevo <em>marco</em> con sus parámetros y variables locales, y ese marco se retira de la
+  pila (<em>desapila</em>) cuando la función termina y devuelve su resultado a quien la llamó. En
+  una función recursiva, cada llamada activa agrega un marco nuevo, distinto de los anteriores: los
+  parámetros <code>n</code> de <code>factorial(5)</code>, <code>factorial(4)</code>, …,
+  <code>factorial(1)</code> coexisten en la pila, cada uno en su propio marco, mientras las
+  llamadas están pendientes de terminar.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Fibonacci: recursivo frente a iterativo</span>
+<pre class="codigo"><code>// Version recursiva
+int fibonacciRec(int n) {
+    if (n == 0) return 0;         // caso base 1
+    if (n == 1) return 1;         // caso base 2
+    return fibonacciRec(n - 1) + fibonacciRec(n - 2);   // caso recursivo
+}
+
+// Version iterativa equivalente
+int fibonacciIter(int n) {
+    if (n == 0) return 0;
+    int anterior = 0, actual = 1;
+    for (int i = 2; i &lt;= n; i++) {
+        int siguiente = anterior + actual;
+        anterior = actual;
+        actual = siguiente;
+    }
+    return actual;
+}</code></pre>
+  Ambas funciones calculan el mismo resultado, pero <code>fibonacciRec</code> genera dos llamadas
+  nuevas por cada llamada que no es caso base (crece exponencialmente en número de llamadas),
+  mientras que <code>fibonacciIter</code> usa un solo ciclo y un tamaño de memoria constante. La
+  versión recursiva suele ser más clara de leer porque refleja directamente la definición
+  matemática; la versión iterativa suele ser más eficiente en tiempo y memoria. Elegir entre una y
+  otra es una decisión de diseño, no una regla fija.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — Cuándo preferir cada una</span>
+  Se prefiere recursión cuando el problema tiene una estructura naturalmente recursiva y la
+  claridad del código importa más que el costo adicional de las llamadas (por ejemplo, recorrer una
+  estructura con subestructuras del mismo tipo). Se prefiere iteración cuando el problema es
+  esencialmente un conteo o acumulación simple, o cuando el número de llamadas recursivas
+  necesarias podría ser muy grande y el costo en memoria de la pila de llamadas es una
+  preocupación real.
+</div>
+
+<h2 id="sec5">5. Ejercicios propuestos y soluciones</h2>
+
+<div class="ejercicio">
+  <span class="num">1</span><strong>Escribe una función <code>int siguienteId(void)</code> que use
+  una variable estática local para devolver 1 en la primera llamada, 2 en la segunda, 3 en la
+  tercera, y así sucesivamente.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int siguienteId(void);
+
+int main(void) {
+    printf("%d\n", siguienteId());
+    printf("%d\n", siguienteId());
+    printf("%d\n", siguienteId());
+    return 0;
+}
+
+int siguienteId(void) {
+    static int id = 0;
+    id++;
+    return id;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Salida</span>Imprime <code>1</code>,
+  <code>2</code>, <code>3</code>.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">2</span><strong>Escribe una función recursiva <code>int potencia(int base, int
+  exp)</code> que calcule base<sup>exp</sup> (con exp ≥ 0), identificando claramente su caso
+  base.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int potencia(int base, int exp);
+
+int main(void) {
+    printf("2^5 = %d\n", potencia(2, 5));
+    return 0;
+}
+
+int potencia(int base, int exp) {
+    if (exp == 0) {          // caso base
+        return 1;
+    }
+    return base * potencia(base, exp - 1);   // caso recursivo
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">3</span><strong>Escribe una función recursiva <code>int sumaHasta(int
+  n)</code> que calcule 1 + 2 + … + n para n ≥ 1.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int sumaHasta(int n);
+
+int main(void) {
+    printf("Suma 1..6 = %d\n", sumaHasta(6));
+    return 0;
+}
+
+int sumaHasta(int n) {
+    if (n == 1) {             // caso base
+        return 1;
+    }
+    return n + sumaHasta(n - 1);   // caso recursivo
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">4</span><strong>Escribe una función recursiva <code>int fibonacci(int
+  n)</code> (como en el ejemplo de §4) y una función iterativa <code>int fibonacciIter(int
+  n)</code> equivalente; verifica que ambas producen el mismo resultado para n = 0, 1, …,
+  10.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int fibonacci(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+int fibonacciIter(int n) {
+    if (n == 0) return 0;
+    int anterior = 0, actual = 1;
+    for (int i = 2; i &lt;= n; i++) {
+        int siguiente = anterior + actual;
+        anterior = actual;
+        actual = siguiente;
+    }
+    return actual;
+}
+
+int main(void) {
+    for (int n = 0; n &lt;= 10; n++) {
+        printf("n=%d rec=%d iter=%d\n", n, fibonacci(n), fibonacciIter(n));
+    }
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Salida</span>Para n = 0, …, 10 ambas funciones
+  producen la misma secuencia: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">5</span><strong>Dado el código <code>int f(void) { static int c = 0; c++;
+  return c; }</code>, llamado tres veces seguidas desde <code>main</code> e imprimiendo cada
+  resultado, indica qué se imprime y explica por qué.</strong>
+  <div class="salida"><span class="etiqueta-salida">Solución</span>Se imprime <code>1</code>,
+  <code>2</code>, <code>3</code>. La variable <code>static int c = 0;</code> se inicializa una sola
+  vez, en la primera llamada a <code>f</code>; en cada llamada posterior conserva el valor que
+  tenía al salir de la llamada anterior, así que <code>c++</code> lo va incrementando de forma
+  acumulada (1, luego 2, luego 3) en vez de reiniciarse a 0 en cada llamada como haría una variable
+  local ordinaria.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">6</span><strong>Explica con tus palabras por qué una función recursiva sin
+  caso base (o con un caso base inalcanzable) eventualmente provoca un error de <em>stack
+  overflow</em> en vez de un error de compilación.</strong>
+  <div class="salida"><span class="etiqueta-salida">Solución</span>Cada llamada recursiva pendiente
+  agrega un marco nuevo a la pila de llamadas (con sus propios parámetros y variables locales), y
+  ese marco solo se retira cuando la llamada termina y regresa un valor. Si nunca se alcanza un
+  caso base, ninguna llamada termina nunca: los marcos se siguen apilando sin límite hasta agotar
+  la memoria reservada para la pila. Esto ocurre en tiempo de ejecución (mientras el programa corre
+  y va haciendo las llamadas), no en tiempo de compilación, porque el compilador no puede saber en
+  general si el caso base se alcanzará o no para una entrada dada.</div>
+</div>
+
+<div class="paginacion">
+  <a href="index.html">&larr; Inicio</a>
+  <a href="cuestionario.html">Cuestionario &rarr;</a>
+</div>
+
+</main>
+
+<footer class="pie">
+  <p>Material web de <code>Programacion/semana-04/</code> — Universidad del Cauca, 2026.</p>
+</footer>
+
+<script src="js/nav.js"></script>
+</body>
+</html>

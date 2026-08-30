@@ -61,7 +61,8 @@ CREATE TABLE IF NOT EXISTS semanas (
     diapositivas_pdf_url VARCHAR(500),
     clase_web_url VARCHAR(500),
     ejercicios_resueltos_url VARCHAR(500),
-    banco_preguntas_url VARCHAR(500)
+    banco_preguntas_url VARCHAR(500),
+    codigo_fuente_url VARCHAR(500)
 );
 
 ALTER TABLE semanas ADD COLUMN IF NOT EXISTS objetivos_json JSONB DEFAULT '[]'::jsonb;
@@ -72,6 +73,7 @@ ALTER TABLE semanas ADD COLUMN IF NOT EXISTS diapositivas_pdf_url VARCHAR(500);
 ALTER TABLE semanas ADD COLUMN IF NOT EXISTS clase_web_url VARCHAR(500);
 ALTER TABLE semanas ADD COLUMN IF NOT EXISTS ejercicios_resueltos_url VARCHAR(500);
 ALTER TABLE semanas ADD COLUMN IF NOT EXISTS banco_preguntas_url VARCHAR(500);
+ALTER TABLE semanas ADD COLUMN IF NOT EXISTS codigo_fuente_url VARCHAR(500);
 
 
 -- 5. Tabla de Preguntas de Evaluación

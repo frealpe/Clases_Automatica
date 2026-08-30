@@ -62,6 +62,11 @@ for arg in "$@"; do
       DEPLOY_FRONTEND=true
       shift
       ;;
+    --frontend-only)
+      DEPLOY_BACKEND=false
+      DEPLOY_FRONTEND=true
+      shift
+      ;;
     --all)
       DEPLOY_DB=true
       DEPLOY_FRONTEND=true
@@ -75,10 +80,11 @@ for arg in "$@"; do
     --help|-h)
       echo -e "${BLUE}Modo de uso:${NC} ./deploy.sh [opciones]"
       echo "Opciones disponibles:"
-      echo "  --db         Envía la copia de la base de datos de desarrollo al servidor."
-      echo "  --frontend   Compila y despliega también el Frontend React."
-      echo "  --all        Despliega Backend, Frontend y Base de Datos."
-      echo "  --db-only    Envía e importa únicamente la Base de Datos sin re-desplegar código."
+      echo "  --db             Envía la copia de la base de datos de desarrollo al servidor."
+      echo "  --frontend       Compila y despliega Backend + Frontend React."
+      echo "  --frontend-only  Compila y despliega únicamente el Frontend React (sin tocar Backend)."
+      echo "  --all            Despliega Backend, Frontend y Base de Datos."
+      echo "  --db-only        Envía e importa únicamente la Base de Datos sin re-desplegar código."
       exit 0
       ;;
   esac

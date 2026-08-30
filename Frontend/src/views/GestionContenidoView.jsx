@@ -34,6 +34,7 @@ function GestionContenidoViewBase() {
   const [agregandoSesion, setAgregandoSesion] = useState(false);
   const [eliminandoSesion, setEliminandoSesion] = useState({});
   const [subiendoHtml, setSubiendoHtml] = useState({});
+  const [subiendoCodigo, setSubiendoCodigo] = useState({});
   const [subiendoBancoZip, setSubiendoBancoZip] = useState({});
   const [preguntasCount, setPreguntasCount] = useState({});
   const [semanaPreguntas, setSemanaPreguntas] = useState(null);
@@ -152,6 +153,15 @@ function GestionContenidoViewBase() {
     if (res?.ok) cargarSemanasFromService(materiaActivaId);
   };
 
+  const handleSubirCodigoFuente = async (id, archivo) => {
+    if (!archivo) return;
+    setSubiendoCodigo((prev) => ({ ...prev, [id]: true }));
+    const res = await semanasService.subirCodigoFuente(id, archivo);
+    setSubiendoCodigo((prev) => ({ ...prev, [id]: false }));
+    mostrarMensaje(`codigo-${id}`, res?.ok ? '✅ Código fuente subido' : `❌ ${res?.error || 'Error al subir el código'}`);
+    if (res?.ok) cargarSemanasFromService(materiaActivaId);
+  };
+
   const handleSubirBancoZip = async (id, archivo) => {
     if (!archivo) return;
     if (!archivo.name.toLowerCase().endsWith('.zip')) {
@@ -230,12 +240,12 @@ function GestionContenidoViewBase() {
   };
 
   return (
-    <div className="h-full w-full flex gap-6 items-start overflow-hidden">
+    <div className="w-full flex flex-col md:flex-row gap-4 md:gap-6 items-start">
       {/* SIDEBAR UNIFICADO */}
       <Sidebar />
 
       {/* ÁREA PRINCIPAL: ADMINISTRACIÓN DE CONTENIDO A PANTALLA COMPLETA */}
-      <main className="flex-1 flex flex-col h-full w-full overflow-hidden gap-4">
+      <main className="flex-1 flex flex-col w-full overflow-y-auto gap-4">
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0 pb-3 border-b border-slate-700/40">
           <div className="flex items-center gap-3">
@@ -468,6 +478,45 @@ function GestionContenidoViewBase() {
                       />
                     </label>
                     {mensaje[`html-${s.id}`] && <span className="text-[9px] font-mono font-bold">{mensaje[`html-${s.id}`]}</span>}
+                  </div>
+
+                  {/* CÓDIGO FUENTE (VHDL / C / QSYS / ZIP) DE ESTA SESIÓN */}
+                  <div
+                    className={`min-w-0 p-2.5 rounded-lg border flex flex-col items-center gap-1 text-center ${
+                      esLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-950/70 border-slate-800'
+                    }`}
+                  >
+                    <span className={`material-symbols-outlined text-base ${esLight ? 'text-amber-600' : 'text-amber-400'}`}>
+                      code
+                    </span>
+                    <span className="text-[10px] font-bold leading-tight">Código Fuente</span>
+                    {s.codigoFuenteUrl ? (
+                      <a
+                        href={`${API_URL}${s.codigoFuenteUrl}`}
+                        download
+                        className="text-[10px] font-bold text-amber-400 underline"
+                        title="Descargar código fuente"
+                      >
+                        Descargar ✓
+                      </a>
+                    ) : (
+                      <span className={`text-[10px] ${textoSecundario}`}>Sin código</span>
+                    )}
+                    <label
+                      className={`text-[10px] font-extrabold px-2 py-1 rounded-md cursor-pointer transition-all ${
+                        esLight ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-amber-400 text-black hover:bg-amber-300'
+                      }`}
+                      title="Sube archivos de código (.c, .vhd, .qsys, .zip)"
+                    >
+                      {subiendoCodigo[s.id] ? 'Subiendo...' : s.codigoFuenteUrl ? 'Reemplazar' : 'Subir Código'}
+                      <input
+                        type="file"
+                        accept=".c,.h,.vhd,.qsys,.zip,.py,.cpp,.txt"
+                        className="hidden"
+                        onChange={(e) => handleSubirCodigoFuente(s.id, e.target.files[0])}
+                      />
+                    </label>
+                    {mensaje[`codigo-${s.id}`] && <span className="text-[9px] font-mono font-bold">{mensaje[`codigo-${s.id}`]}</span>}
                   </div>
 
                   {/* BANCO DE PREGUNTAS: PREGUNTAS DE OPCIÓN MÚLTIPLE DEL EXAMEN WEB DE ESTA SESIÓN */}

@@ -52,16 +52,16 @@ export default function MaterialApoyoView() {
   const semanaSiguiente = idxClaseActual >= 0 && idxClaseActual < semanas.length - 1 ? semanas[idxClaseActual + 1] : null;
 
   return (
-    <div className="h-full w-full flex gap-6 items-start overflow-hidden">
+    <div className="w-full flex flex-col md:flex-row gap-4 md:gap-6 items-start">
       {/* BARRA DE MENÚ LATERAL PERSISTENTE UNIFICADA */}
       <Sidebar />
 
       {/* ÁREA PRINCIPAL CON EL MATERIAL DE APOYO */}
-      <main className="flex-1 flex flex-col justify-start gap-3 h-full w-full overflow-hidden">
+      <main className="flex-1 flex flex-col justify-start gap-3 w-full overflow-y-auto">
         
         {/* VISTA A: LECTURA DE CLASE WEB DESDE LA BD CON NAVEGACIÓN CONTINUA */}
         {semanaClaseActiva ? (
-          <div className={`flex-1 flex flex-col h-full w-full overflow-hidden rounded-2xl border shadow-2xl p-5 transition-all ${
+          <div className={`flex-1 flex flex-col min-h-0 w-full overflow-y-auto rounded-2xl border shadow-2xl p-5 transition-all ${
             esLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900/95 border-slate-700 text-white'
           }`}>
             {/* Header Superior del Visor: Cuadrícula + navegación Anterior/Siguiente */}
@@ -121,13 +121,26 @@ export default function MaterialApoyoView() {
                 </span>
               </div>
 
-              <button
-                onClick={() => setSemanaExamen(semanaClaseActiva)}
-                className="px-3 py-1 rounded-lg bg-white text-black font-extrabold text-xs hover:bg-slate-100 transition-all flex items-center gap-1 shadow-md cursor-pointer shrink-0"
-              >
-                <span className="material-symbols-outlined text-sm">quiz</span>
-                <span>Presentar Test</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                {semanaClaseActiva.codigoFuenteUrl && (
+                  <a
+                    href={getDownloadUrl(semanaClaseActiva.codigoFuenteUrl)}
+                    download
+                    className="px-3 py-1 rounded-lg bg-amber-400 text-black font-extrabold text-xs hover:bg-amber-300 transition-all flex items-center gap-1 shadow-md no-underline shrink-0"
+                    title="Descargar código fuente VHDL / C / Qsys / ZIP"
+                  >
+                    <span className="material-symbols-outlined text-sm">code</span>
+                    <span>Descargar Código</span>
+                  </a>
+                )}
+                <button
+                  onClick={() => setSemanaExamen(semanaClaseActiva)}
+                  className="px-3 py-1 rounded-lg bg-white text-black font-extrabold text-xs hover:bg-slate-100 transition-all flex items-center gap-1 shadow-md cursor-pointer shrink-0"
+                >
+                  <span className="material-symbols-outlined text-sm">quiz</span>
+                  <span>Presentar Test</span>
+                </button>
+              </div>
             </div>
 
             {/* ÁREA DE CONTENIDO NATIVO WEB RECUPERADO DINÁMICAMENTE DE LA BASE DE DATOS */}
@@ -211,7 +224,9 @@ export default function MaterialApoyoView() {
                     Esta asignatura ([{materiaActiva?.codigo}] {materiaActiva?.nombre}) aún no cuenta con guías redactadas ni evaluaciones registradas.
                   </div>
                 ) : (
-                  semanas.map((s) => (
+                  semanas.map((s) => {
+                    const codigoSesion = `${materiaActiva?.codigo || 'MAT'}-S${s.numero}`;
+                    return (
                     <div
                       key={s.id}
                       onClick={() => handleAbrirClaseEnHoja(s)}
@@ -228,6 +243,16 @@ export default function MaterialApoyoView() {
                             ⏱ {s.min}m
                           </span>
                         </div>
+
+                        <span
+                          onClick={(e) => { e.stopPropagation(); navigator.clipboard?.writeText(codigoSesion); }}
+                          title="Código de sesión — clic para copiar"
+                          className={`inline-block text-[9px] font-mono mb-1.5 px-1.5 py-0.5 rounded border cursor-pointer ${
+                            esLight ? 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200' : 'bg-slate-950/60 text-slate-400 border-slate-700 hover:bg-slate-800'
+                          }`}
+                        >
+                          🔑 {codigoSesion}
+                        </span>
 
                         <h3 className={`text-xs font-bold mb-1 line-clamp-1 group-hover:text-[#38bdf8] transition-colors ${textoTitulo}`} title={s.unidad}>
                           {s.unidad}
@@ -275,6 +300,17 @@ export default function MaterialApoyoView() {
                               📥 Slides
                             </a>
                           )}
+                          {s.codigoFuenteUrl && (
+                            <a
+                              href={getDownloadUrl(s.codigoFuenteUrl)}
+                              download
+                              onClick={(e) => e.stopPropagation()}
+                              className="px-2 py-0.5 rounded text-[10px] border font-bold bg-amber-500/20 border-amber-500/40 text-amber-300 flex items-center gap-0.5 hover:bg-amber-500/30 no-underline"
+                              title="Descargar código fuente VHDL / C / Qsys / ZIP"
+                            >
+                              💻 Código
+                            </a>
+                          )}
                         </div>
 
                         <button
@@ -289,7 +325,8 @@ export default function MaterialApoyoView() {
                         </button>
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

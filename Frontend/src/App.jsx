@@ -51,17 +51,17 @@ export default function App() {
   const esLight = themeMode === 'light';
 
   return (
-    <div className={`relative min-h-screen md:h-screen w-full md:w-screen overflow-y-auto md:overflow-hidden font-sans antialiased transition-colors duration-300 ${
+    <div className={`relative min-h-screen w-full overflow-y-auto font-sans antialiased transition-colors duration-300 ${
       esLight ? 'bg-slate-50 text-slate-900' : 'bg-[#0a0a0a] text-white selection:bg-white/20'
     }`}>
       {/* Background 3D Scroll Video */}
       {!esLight && !esVistaProyectos && <ScrollVideo />}
 
       {/* Content Wrapper Adaptativo a Móviles y Escritorio */}
-      <div className="relative z-10 flex flex-col min-h-screen md:h-full w-full overflow-y-auto md:overflow-hidden">
+      <div className="relative z-10 flex flex-col min-h-screen w-full">
         <Navbar />
-        <main className={`flex-1 w-full overflow-y-auto md:overflow-hidden ${
-          esVistaProyectos ? 'px-2 sm:px-4 pt-20 pb-4' : 'max-w-[1600px] mx-auto px-2 sm:px-4 pt-20 pb-4'
+        <main className={`flex-1 w-full overflow-y-auto ${
+          esVistaProyectos ? 'px-2 sm:px-4 pt-16 md:pt-20 pb-4' : 'max-w-[1600px] mx-auto px-2 sm:px-4 pt-16 md:pt-20 pb-4'
         }`}>
           <Routes>
             <Route path="/" element={<EstudianteView />} />

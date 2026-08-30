@@ -1,0 +1,157 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\definecolor{unicaucaverde}{RGB}{0,90,60}
+\setbeamercolor{structure}{fg=unicaucaverde}
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{cstyle}{
+  language=C,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{unicaucaverde}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{orange!70!black},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2
+}
+\lstset{style=cstyle}
+
+\title[Semana 4: Ámbito avanzado y recursión]{Ámbito avanzado y recursión}
+\subtitle{Programación --- Semana 4 de 16}
+\author{Universidad del Cauca}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Semana 4: dónde estamos}
+  \begin{itemize}
+    \item Continuación de Funciones y modularidad (Semana 3): RA3, parte 2 de 2.
+    \item Subtemas 4.1--4.2 --- RA3.3, RA3.4.
+    \item 4 horas: variables estáticas locales, luego recursión y pila de llamadas.
+  \end{itemize}
+  \tableofcontents
+\end{frame}
+
+\section{Variables estáticas y ámbito avanzado}
+
+\begin{frame}{Ámbito frente a tiempo de vida}
+  \begin{itemize}
+    \item \textbf{Ámbito}: dónde es visible el nombre de la variable.
+    \item \textbf{Tiempo de vida}: cuánto tiempo existe la variable en memoria.
+    \item En una variable local ordinaria coinciden; \texttt{static} los separa.
+  \end{itemize}
+  \begin{block}{Variable estática local}
+    Ámbito: solo dentro de su función. Tiempo de vida: todo el programa. Se inicializa una única
+    vez y conserva su valor entre llamadas.
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{static}: contador que persiste}
+\begin{lstlisting}
+int contadorLlamadas(void) {
+    static int veces = 0;   // se inicializa UNA sola vez
+    veces++;
+    return veces;
+}
+
+int main(void) {
+    printf("%d\n", contadorLlamadas());   // 1
+    printf("%d\n", contadorLlamadas());   // 2
+    printf("%d\n", contadorLlamadas());   // 3
+    return 0;
+}
+\end{lstlisting}
+  \textbf{Taller (hora 2):} \texttt{contadorLlamadas}, \texttt{siguienteId}.
+\end{frame}
+
+\begin{frame}[fragile]{Bloques anidados y sombreado}
+\begin{lstlisting}
+int main(void) {
+    int x = 1;
+    {
+        int x = 2;   // sombrea (oculta) la x externa
+        printf("%d\n", x);   // 2
+    }
+    printf("%d\n", x);       // 1: la x externa no cambio
+    return 0;
+}
+\end{lstlisting}
+  \begin{alertblock}{Cuidado}
+    Combinar \texttt{static} con nombres repetidos entre bloques o funciones es fuente de errores
+    difíciles de rastrear.
+  \end{alertblock}
+\end{frame}
+
+\section{Recursión}
+
+\begin{frame}[fragile]{Caso base y caso recursivo}
+\begin{lstlisting}
+int factorial(int n) {
+    if (n <= 1) {                  // caso base
+        return 1;
+    }
+    return n * factorial(n - 1);   // caso recursivo
+}
+\end{lstlisting}
+  \begin{itemize}
+    \item \textbf{Caso base}: se resuelve directamente, sin más llamadas.
+    \item \textbf{Caso recursivo}: reduce el problema y se apoya en la llamada más pequeña.
+    \item Sin caso base alcanzable $\Rightarrow$ recursión infinita $\Rightarrow$
+          \emph{stack overflow}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{La pila de llamadas}
+  \begin{itemize}
+    \item Cada llamada activa apila un \textbf{marco} (parámetros + variables locales).
+    \item El marco se retira al terminar y devolver su resultado.
+    \item En \texttt{factorial(5)}: los marcos de \texttt{factorial(5..1)} coexisten mientras las
+          llamadas están pendientes.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Recursión frente a iteración: Fibonacci}
+\begin{lstlisting}
+int fibonacciRec(int n) {
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    return fibonacciRec(n-1) + fibonacciRec(n-2);
+}
+
+int fibonacciIter(int n) {
+    if (n == 0) return 0;
+    int a = 0, b = 1;
+    for (int i = 2; i <= n; i++) { int s = a+b; a = b; b = s; }
+    return b;
+}
+\end{lstlisting}
+  \begin{alertblock}{Clave}
+    Recursiva: más clara, refleja la definición matemática. Iterativa: más eficiente en tiempo y
+    memoria. La elección es de diseño, no una regla fija.
+  \end{alertblock}
+  \vfill
+  \textbf{Taller (hora 4):} \texttt{potencia}, \texttt{sumaHasta}, \texttt{fibonacci} recursivas
+  y sus versiones iterativas.
+\end{frame}
+
+\begin{frame}{Cierre de la semana}
+  \begin{itemize}
+    \item RA3.3: variables estáticas locales, ámbito frente a tiempo de vida.
+    \item RA3.4: recursión, caso base/recursivo, pila de llamadas, recursión frente a iteración.
+    \item Taller calificado al cierre de la Hora 4.
+  \end{itemize}
+\end{frame}
+
+\end{document}

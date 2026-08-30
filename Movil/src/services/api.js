@@ -20,6 +20,36 @@ mobileApiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
+// Normaliza `opciones` a [{id, texto}], igual que el frontend web: la BD puede devolver el
+// campo como string JSON, como array de strings, o como objetos con claves distintas
+// (letra/opcion/label en vez de id/texto) según cómo se haya cargado la pregunta.
+function normalizarListaPreguntas(lista) {
+  if (!Array.isArray(lista)) return [];
+  return lista.map((p) => {
+    let opciones = p.opciones;
+    if (typeof opciones === 'string') {
+      try {
+        opciones = JSON.parse(opciones);
+      } catch (e) {
+        opciones = [];
+      }
+    }
+    if (!Array.isArray(opciones)) opciones = [];
+
+    const opcionesNorm = opciones.map((op, idx) => {
+      if (typeof op === 'string') {
+        const id = ['a', 'b', 'c', 'd', 'e'][idx] || String(idx);
+        return { id, texto: op };
+      }
+      const id = String(op?.id || op?.letra || ['a', 'b', 'c', 'd', 'e'][idx] || idx);
+      const texto = String(op?.texto || op?.opcion || op?.label || JSON.stringify(op));
+      return { id, texto };
+    });
+
+    return { ...p, opciones: opcionesNorm };
+  });
+}
+
 export const apiService = {
   // Autenticación via Axios (.env)
   async login(email, password) {
@@ -51,20 +81,21 @@ export const apiService = {
   // Obtener Preguntas via Axios (.env)
   async getPreguntasSemana(semanaId) {
     const local = await localStorageService.getPreguntasLocales(semanaId);
-    if (local && local.length > 0) return local;
+    if (local && local.length > 0) return normalizarListaPreguntas(local);
 
     try {
       const response = await mobileApiClient.get(`/preguntas/semana/${semanaId}`);
       if (response.data && response.data.length > 0) {
-        await localStorageService.guardarPreguntasLocales(semanaId, response.data);
-        return response.data;
+        const normalizadas = normalizarListaPreguntas(response.data);
+        await localStorageService.guardarPreguntasLocales(semanaId, normalizadas);
+        return normalizadas;
       }
     } catch (e) {
       console.log('Axios Móvil: Cargando del paquete local');
     }
 
     const semanaObj = SEMANAS_DATA.find(s => s.id === semanaId);
-    const preguntasFallback = semanaObj ? semanaObj.preguntas : [];
+    const preguntasFallback = normalizarListaPreguntas(semanaObj ? semanaObj.preguntas : []);
     await localStorageService.guardarPreguntasLocales(semanaId, preguntasFallback);
     return preguntasFallback;
   },
@@ -98,7 +129,7 @@ export const apiService = {
   // pueda mostrar por qué no se pudo presentar (p. ej. la ventana ya cerró).
   async getPreguntasExamenProgramado(examenId) {
     const response = await mobileApiClient.get(`/examenes-programados/${examenId}/preguntas`);
-    return response.data;
+    return { ...response.data, preguntas: normalizarListaPreguntas(response.data?.preguntas) };
   },
 
   // Enviar intento de un examen programado. También se propaga el error (no hay fallback local

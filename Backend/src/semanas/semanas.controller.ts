@@ -22,7 +22,7 @@ const COLUMNAS_SEMANA = `id, materia_id AS "materiaId", numero, unidad_nombre AS
   preguntas_examen_count AS "preguntasExamenCount", tipo_examen AS "tipoExamen", contenido_json AS "contenidoJson",
   notas_pdf_url AS "notasPdfUrl", guia_pdf_url AS "guiaPdfUrl", diapositivas_pdf_url AS "diapositivasPdfUrl",
   clase_web_url AS "claseWebUrl", ejercicios_resueltos_url AS "ejerciciosResueltosUrl",
-  banco_preguntas_url AS "bancoPreguntasUrl"`;
+  banco_preguntas_url AS "bancoPreguntasUrl", codigo_fuente_url AS "codigoFuenteUrl"`;
 
 // Versión pública (sin JWT) para la portada: excluye duracionExamenMin/preguntasExamenCount/
 // tipoExamen/bancoPreguntasUrl (información de gestión de exámenes, no debe ser pública).
@@ -30,7 +30,8 @@ const COLUMNAS_SEMANA_PUBLICA = `id, materia_id AS "materiaId", numero, unidad_n
   capitulo_grossman AS "capituloGrossman", ra, ra_descripcion AS "raDescripcion",
   objetivos_json AS "objetivosJson", contenido_json AS "contenidoJson",
   notas_pdf_url AS "notasPdfUrl", guia_pdf_url AS "guiaPdfUrl", diapositivas_pdf_url AS "diapositivasPdfUrl",
-  clase_web_url AS "claseWebUrl", ejercicios_resueltos_url AS "ejerciciosResueltosUrl"`;
+  clase_web_url AS "claseWebUrl", ejercicios_resueltos_url AS "ejerciciosResueltosUrl",
+  codigo_fuente_url AS "codigoFuenteUrl"`;
 
 const TIPOS_PDF_COLUMNA: Record<string, string> = {
   notas: 'notas_pdf_url',
@@ -78,25 +79,11 @@ function extraerProyectoZip(buffer: Buffer, destino: string): string {
   }
 
   fs.rmSync(destino, { recursive: true, force: true });
-  fs.mkdirSync(destino, { recursive: true });
-  for (const entrada of entradas) {
-    const rutaAbsoluta = path.normalize(path.join(destino, entrada.entryName));
-    if (!rutaAbsoluta.startsWith(path.normalize(destino))) {
-      throw new BadRequestException('Intento de desbordamiento de directorio (Zip Slip)');
-    }
-    if (entrada.isDirectory) {
-      fs.mkdirSync(rutaAbsoluta, { recursive: true });
-    } else {
-      fs.mkdirSync(path.dirname(rutaAbsoluta), { recursive: true });
-      fs.writeFileSync(rutaAbsoluta, entrada.getData());
-    }
-  }
-
-  if (fs.existsSync(path.join(destino, 'index.html'))) {
-    return '';
-  }
+  zip.extractAllTo(destino, true);
 
   const itemsRaiz = fs.readdirSync(destino);
+  if (itemsRaiz.includes('index.html')) return '';
+
   if (itemsRaiz.length === 1) {
     const subcarpeta = path.join(destino, itemsRaiz[0]);
     if (fs.statSync(subcarpeta).isDirectory() && fs.existsSync(path.join(subcarpeta, 'index.html'))) {
@@ -118,6 +105,7 @@ export class SemanasController implements OnModuleInit {
         ALTER TABLE semanas ADD COLUMN IF NOT EXISTS contenido_json JSONB;
         ALTER TABLE semanas ADD COLUMN IF NOT EXISTS ejercicios_resueltos_url VARCHAR(255);
         ALTER TABLE semanas ADD COLUMN IF NOT EXISTS banco_preguntas_url VARCHAR(255);
+        ALTER TABLE semanas ADD COLUMN IF NOT EXISTS codigo_fuente_url VARCHAR(500);
         ALTER TABLE semanas ADD COLUMN IF NOT EXISTS tipo_examen VARCHAR(30) DEFAULT 'combinada';
       `);
     } catch (err) {
@@ -405,5 +393,46 @@ export class SemanasController implements OnModuleInit {
   @Delete(':id/banco-preguntas')
   async eliminarBancoPreguntas(@Param('id') id: string) {
     return this.eliminarProyectoGenerico(id, 'semanas-banco-preguntas', 'banco_preguntas_url');
+  }
+
+  @Post(':id/codigo-fuente')
+  @UseInterceptors(FileInterceptor('archivo', {
+    storage: memoryStorage(),
+    limits: { fileSize: MAX_BYTES_PROYECTO },
+  }))
+  async subirCodigoFuente(
+    @Param('id') id: string,
+    @UploadedFile() archivo: Express.Multer.File,
+  ) {
+    const semanaId = parseIdOrThrow(id);
+    if (!archivo) throw new BadRequestException('No se recibió el archivo de código fuente (campo "archivo")');
+
+    const carpeta = path.join(CARPETA_UPLOADS, 'semanas-codigo');
+    fs.mkdirSync(carpeta, { recursive: true });
+    
+    const ext = path.extname(archivo.originalname) || '.zip';
+    const nombreArchivo = `${semanaId}-codigo${ext}`;
+    fs.writeFileSync(path.join(carpeta, nombreArchivo), archivo.buffer);
+
+    const url = `/uploads/semanas-codigo/${nombreArchivo}`;
+    const { rows } = await this.db.query(
+      `UPDATE semanas SET codigo_fuente_url = $1 WHERE id = $2 RETURNING ${COLUMNAS_SEMANA}`,
+      [url, semanaId],
+    );
+    return { ok: true, semana: rows[0] };
+  }
+
+  @Delete(':id/codigo-fuente')
+  async eliminarCodigoFuente(@Param('id') id: string) {
+    const semanaId = parseIdOrThrow(id);
+    const carpeta = path.join(CARPETA_UPLOADS, 'semanas-codigo');
+    if (fs.existsSync(carpeta)) {
+      const archivos = fs.readdirSync(carpeta).filter(f => f.startsWith(`${semanaId}-codigo`));
+      for (const file of archivos) {
+        fs.rmSync(path.join(carpeta, file), { force: true });
+      }
+    }
+    await this.db.query(`UPDATE semanas SET codigo_fuente_url = NULL WHERE id = $1`, [semanaId]);
+    return { ok: true };
   }
 }

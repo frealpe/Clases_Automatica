@@ -65,12 +65,12 @@ function DocenteAdminViewBase() {
   };
 
   return (
-    <div className="h-full w-full flex gap-6 items-start overflow-hidden">
+    <div className="w-full flex flex-col md:flex-row gap-4 md:gap-6 items-start">
       {/* SIDEBAR UNIFICADO */}
       <Sidebar />
 
       {/* ÁREA PRINCIPAL ADMINISTRATIVA EN PANTALLA ÚNICA (SIN SCROLLBAR) */}
-      <main className="flex-1 flex flex-col justify-start gap-4 h-full w-full overflow-hidden">
+      <main className="flex-1 flex flex-col justify-start gap-4 w-full overflow-y-auto">
 
         {/* 1. HEADER SECCIÓN MATERIAS DEL SEMESTRE */}
         <div className="flex justify-between items-center shrink-0">

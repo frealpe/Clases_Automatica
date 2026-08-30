@@ -20,6 +20,7 @@
     <li><a href="index.html">Inicio</a></li>
     <li><a href="notas.html" class="activo">Notas</a></li>
     <li><a href="ejercicios.html">Ejercicios</a></li>
+    <li><a href="simulacion-matriz.html">Simulación</a></li>
     <li><a href="cuestionario.html">Cuestionario</a></li>
   </ul>
 </nav>
@@ -33,7 +34,8 @@
     <li><a href="#sec2">La instrucción switch-case</a></li>
     <li><a href="#sec3">Ciclos: while, do-while, for</a></li>
     <li><a href="#sec4">break, continue y anidamiento</a></li>
-    <li><a href="#sec5">Ejercicios propuestos y soluciones</a></li>
+    <li><a href="#sec5">Matrices: llenado e indexación con ciclos anidados (adelanto)</a></li>
+    <li><a href="#sec6">Ejercicios propuestos y soluciones</a></li>
   </ol>
 </div>
 
@@ -260,7 +262,121 @@ do {
   pasar a la siguiente fila.
 </div>
 
-<h2 id="sec5">5. Ejercicios propuestos y soluciones</h2>
+<h2 id="sec5">5. Matrices: llenado e indexación con ciclos anidados (adelanto)</h2>
+
+<div class="recuadro definicion">
+  <span class="titulo">Definición — Matriz (arreglo bidimensional)</span>
+  Esto es un adelanto informal: el tema completo de arreglos se estudia en una unidad posterior.
+  Aquí se introduce solo lo necesario para practicar ciclos anidados sobre una estructura de dos
+  dimensiones. Una <em>matriz</em> en C se declara indicando su tipo y su número de filas y
+  columnas:
+<pre class="codigo"><code>int matriz[FILAS][COLUMNAS];</code></pre>
+  Cada elemento se accede e identifica con dos índices, <code>matriz[fila][columna]</code>, ambos
+  empezando en 0: el primer elemento es <code>matriz[0][0]</code>, y el último es
+  <code>matriz[FILAS-1][COLUMNAS-1]</code>.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Llenar una matriz con el producto de sus índices</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int matriz[4][4];
+
+    // Llenado: un ciclo anidado ASIGNA un valor a cada posicion
+    for (int fila = 0; fila &lt; 4; fila++) {
+        for (int col = 0; col &lt; 4; col++) {
+            matriz[fila][col] = (fila + 1) * (col + 1);
+        }
+    }
+
+    // Uso/impresion: un SEGUNDO ciclo anidado LEE lo que ya se guardo
+    for (int fila = 0; fila &lt; 4; fila++) {
+        for (int col = 0; col &lt; 4; col++) {
+            printf("%4d", matriz[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}</code></pre>
+  El primer par de ciclos <em>llena</em> la matriz (asigna un valor a cada
+  <code>matriz[fila][col]</code>); el segundo par la <em>recorre</em> para imprimirla. Llenar y
+  usar una matriz son dos pasos distintos, aunque el patrón de los ciclos (fila por fila, columna
+  por columna) sea igual en ambos. Puedes ver esta animación paso a paso en el
+  <a href="simulacion-matriz.html">simulador de llenado de matriz</a>.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Llenar una matriz identidad comparando índices</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int identidad[5][5];
+
+    for (int fila = 0; fila &lt; 5; fila++) {
+        for (int col = 0; col &lt; 5; col++) {
+            if (fila == col) {
+                identidad[fila][col] = 1;   // diagonal principal
+            } else {
+                identidad[fila][col] = 0;
+            }
+        }
+    }
+
+    for (int fila = 0; fila &lt; 5; fila++) {
+        for (int col = 0; col &lt; 5; col++) {
+            printf("%2d", identidad[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}</code></pre>
+  Aquí el <em>índice</em> de cada posición decide qué valor se guarda ahí: cuando
+  <code>fila</code> y <code>col</code> coinciden (la diagonal principal), se guarda 1; en
+  cualquier otra posición, 0.
+</div>
+
+<div class="recuadro ejemplo">
+  <span class="titulo">Ejemplo — Llenar una matriz leída por teclado y acumular su suma</span>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int datos[3][3];
+    int suma = 0;
+
+    for (int fila = 0; fila &lt; 3; fila++) {
+        for (int col = 0; col &lt; 3; col++) {
+            printf("Valor [%d][%d]: ", fila, col);
+            scanf("%d", &amp;datos[fila][col]);
+            suma += datos[fila][col];   // se acumula MIENTRAS se llena
+        }
+    }
+    printf("Suma total = %d\n", suma);
+    return 0;
+}</code></pre>
+  No hace falta un tercer ciclo para sumar: como el acumulador <code>suma</code> vive fuera de los
+  ciclos, se puede actualizar dentro del mismo ciclo que llena la matriz, en el mismo momento en
+  que cada valor queda disponible.
+</div>
+
+<div class="recuadro propiedad">
+  <span class="titulo">Propiedad — El orden de los ciclos decide el orden de recorrido, no el de almacenamiento</span>
+  Una vez llena, la matriz guarda sus valores en posiciones fijas (<code>matriz[fila][col]</code>);
+  pero el <em>orden en que se visita</em> cada posición depende de cuál ciclo es el externo y cuál
+  el interno. Intercambiar los ciclos externo/interno —recorrer primero por columnas y, dentro de
+  cada columna, por filas— visita las mismas posiciones pero en otro orden:
+<pre class="codigo"><code>// Recorrido por columnas (col es el ciclo externo)
+for (int col = 0; col &lt; 4; col++) {
+    for (int fila = 0; fila &lt; 4; fila++) {
+        printf("%4d", matriz[fila][col]);
+    }
+    printf("\n");
+}</code></pre>
+  Los valores impresos son los mismos que guarda la matriz; lo que cambia es el orden en que
+  aparecen en la salida.
+</div>
+
+<h2 id="sec6">6. Ejercicios propuestos y soluciones</h2>
 
 <div class="ejercicio">
   <span class="num">1</span><strong>Escribe un programa que lea un número entero e imprima si es
@@ -456,6 +572,130 @@ int main(void) {
   <div class="salida"><span class="etiqueta-salida">Nota</span>Se usa <code>do-while</code>
   porque hay que pedir el primer número antes de poder evaluar si es el centinela (<code>0</code>)
   que termina el ciclo.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">9</span><strong>Declara una matriz int de 4×4 y llénala, con ciclos anidados,
+  con la suma de sus índices (fila + col); luego imprímela con otro par de ciclos anidados.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int matriz[4][4];
+
+    for (int fila = 0; fila &lt; 4; fila++) {
+        for (int col = 0; col &lt; 4; col++) {
+            matriz[fila][col] = fila + col;
+        }
+    }
+
+    for (int fila = 0; fila &lt; 4; fila++) {
+        for (int col = 0; col &lt; 4; col++) {
+            printf("%3d", matriz[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">10</span><strong>Declara una matriz int de n×n (con n leído por teclado, hasta
+  10) y llénala con una matriz identidad: 1 en la diagonal principal, 0 en el resto.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n;
+    int identidad[10][10];
+
+    printf("Tamano n (hasta 10): ");
+    scanf("%d", &amp;n);
+
+    for (int fila = 0; fila &lt; n; fila++) {
+        for (int col = 0; col &lt; n; col++) {
+            identidad[fila][col] = (fila == col) ? 1 : 0;
+        }
+    }
+
+    for (int fila = 0; fila &lt; n; fila++) {
+        for (int col = 0; col &lt; n; col++) {
+            printf("%2d", identidad[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}</code></pre>
+</div>
+
+<div class="ejercicio">
+  <span class="num">11</span><strong>Declara una matriz float de 3×3, llénala leyendo sus 9
+  valores por teclado, y calcula e imprime la suma de cada fila por separado (un total por fila,
+  no un único total general).</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float valores[3][3];
+
+    for (int fila = 0; fila &lt; 3; fila++) {
+        for (int col = 0; col &lt; 3; col++) {
+            printf("Valor [%d][%d]: ", fila, col);
+            scanf("%f", &amp;valores[fila][col]);
+        }
+    }
+
+    for (int fila = 0; fila &lt; 3; fila++) {
+        float sumaFila = 0;
+        for (int col = 0; col &lt; 3; col++) {
+            sumaFila += valores[fila][col];
+        }
+        printf("Suma fila %d = %.2f\n", fila, sumaFila);
+    }
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Nota</span>La suma de cada fila se reinicia
+  (<code>sumaFila = 0</code>) antes de cada nueva fila: son 3 sumas independientes, no una
+  acumulada entre filas.</div>
+</div>
+
+<div class="ejercicio">
+  <span class="num">12</span><strong>Dada una matriz int de 4×4 ya llena con el producto de sus
+  índices (como en el primer ejemplo de §5), recórrela e imprímela por columnas (el ciclo externo
+  avanza en col, el interno en fila), y compara el resultado impreso con el de recorrerla por
+  filas.</strong>
+<pre class="codigo"><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int matriz[4][4];
+
+    for (int fila = 0; fila &lt; 4; fila++) {
+        for (int col = 0; col &lt; 4; col++) {
+            matriz[fila][col] = (fila + 1) * (col + 1);
+        }
+    }
+
+    printf("Por filas:\n");
+    for (int fila = 0; fila &lt; 4; fila++) {
+        for (int col = 0; col &lt; 4; col++) {
+            printf("%4d", matriz[fila][col]);
+        }
+        printf("\n");
+    }
+
+    printf("Por columnas:\n");
+    for (int col = 0; col &lt; 4; col++) {
+        for (int fila = 0; fila &lt; 4; fila++) {
+            printf("%4d", matriz[fila][col]);
+        }
+        printf("\n");
+    }
+    return 0;
+}</code></pre>
+  <div class="salida"><span class="etiqueta-salida">Nota</span>La matriz almacenada es la misma en
+  ambos casos; lo único que cambia es el orden de recorrido. Como aquí
+  <code>matriz[fila][col] = (fila+1)*(col+1)</code> es simétrica respecto a fila y columna, las
+  dos salidas se ven parecidas; con una matriz no simétrica (como la del Ejercicio 9) el cambio de
+  orden sí produce una salida visiblemente distinta. Compáralo tú mismo en el
+  <a href="simulacion-matriz.html">simulador de llenado de matriz</a>, cambiando el orden de
+  recorrido.</div>
 </div>
 
 <div class="paginacion">

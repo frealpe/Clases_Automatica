@@ -21,12 +21,14 @@ function MisMateriasViewBase() {
   };
 
   return (
-    <div className="h-full w-full flex gap-6 items-start overflow-hidden">
+    /* En móvil: columna (sidebar encima, contenido debajo)
+       En md+:  fila (sidebar lateral + contenido a la derecha) */
+    <div className="w-full flex flex-col md:flex-row gap-4 md:gap-6 items-start">
       {/* SIDEBAR UNIFICADO */}
       <Sidebar />
 
       {/* ÁREA PRINCIPAL: VISTA INICIAL INFORMATIVA DE MIS MATERIAS ASIGNADAS */}
-      <main className="flex-1 flex flex-col justify-start gap-4 h-full w-full overflow-hidden">
+      <main className="flex-1 flex flex-col justify-start gap-4 w-full overflow-y-auto">
 
         {/* HEADER */}
         <div className="shrink-0">

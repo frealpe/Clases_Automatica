@@ -20,6 +20,7 @@
 | persistencia | ninguna |
 | persistencia_cmd | — |
 | kit_origen | `https://github.com/emezav/stele` |
+| kit_sello | `8b8997c198987cf14a8dca46bafcb0100d4cb87f` |
 
 > `persistencia = ninguna` — no hay VCS: los archivos en disco **son** el registro. Verifica
 > que todo quedó escrito al cerrar cada sesión. Ver `.stele/SKILL.md` → CERRAR, paso 7.

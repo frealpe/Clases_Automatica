@@ -219,4 +219,37 @@ int main(void) {
 }
 \end{lstlisting}
 
+\section*{Ejercicio 7 --- Matriz de calificaciones}
+Un docente registra las notas de 3 estudiantes en 3 cortes (una matriz de $3\times3$: filas =
+estudiantes, columnas = cortes). Escribe un programa que llene la matriz leyendo las 9 notas por
+teclado y, después de llenarla, calcule e imprima el promedio de cada estudiante (promedio de su
+fila).
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main(void) {
+    float notas[3][3];
+
+    for (int est = 0; est < 3; est++) {
+        for (int corte = 0; corte < 3; corte++) {
+            printf("Nota del estudiante %d, corte %d: ", est + 1, corte + 1);
+            scanf("%f", &notas[est][corte]);
+        }
+    }
+
+    for (int est = 0; est < 3; est++) {
+        float suma = 0;
+        for (int corte = 0; corte < 3; corte++) {
+            suma += notas[est][corte];
+        }
+        printf("Promedio estudiante %d = %.2f\n", est + 1, suma / 3);
+    }
+    return 0;
+}
+\end{lstlisting}
+Llenar y usar la matriz son dos pasos separados: primero un par de ciclos anidados guarda las 9
+notas (índices \texttt{[est][corte]}), y luego, para cada fila (cada estudiante), un ciclo interno
+recorre sus 3 notas para calcular el promedio.
+
 \end{document}

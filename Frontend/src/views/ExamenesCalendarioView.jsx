@@ -61,10 +61,10 @@ function ExamenesCalendarioViewBase() {
   };
 
   return (
-    <div className="h-full w-full flex gap-6 items-start overflow-hidden">
+    <div className="w-full flex flex-col md:flex-row gap-4 md:gap-6 items-start">
       <Sidebar />
 
-      <main className="flex-1 flex flex-col h-full w-full overflow-hidden gap-4">
+      <main className="flex-1 flex flex-col w-full overflow-y-auto gap-4">
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0 pb-3 border-b border-slate-700/40">
           <div className="flex items-center gap-3">

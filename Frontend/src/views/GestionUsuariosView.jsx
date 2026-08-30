@@ -239,7 +239,7 @@ function GestionUsuariosView() {
   };
 
   return (
-    <div className="h-full w-full flex gap-6 items-start overflow-hidden">
+    <div className="w-full flex flex-col md:flex-row gap-4 md:gap-6 items-start">
       {/* SIDEBAR UNIFICADO */}
       <Sidebar />
 

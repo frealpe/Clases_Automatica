@@ -181,5 +181,27 @@ export const semanasService = {
     } catch (err) {
       return null;
     }
+  },
+
+  async subirCodigoFuente(id, archivo) {
+    try {
+      const formData = new FormData();
+      formData.append('archivo', archivo);
+      const response = await apiClient.post(`/semanas/${id}/codigo-fuente`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (err) {
+      return { ok: false, error: err?.response?.data?.message || 'Error al subir el código fuente' };
+    }
+  },
+
+  async eliminarCodigoFuente(id) {
+    try {
+      const response = await apiClient.delete(`/semanas/${id}/codigo-fuente`);
+      return response.data;
+    } catch (err) {
+      return null;
+    }
   }
 };
