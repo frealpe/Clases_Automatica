@@ -3211,30 +3211,37 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
               <div className="flex flex-col gap-8">
                 <style>{`
                   @media print {
-                    body * {
-                      visibility: hidden;
+                    html, body, #root, main, div {
+                      overflow: visible !important;
+                      height: auto !important;
+                      max-height: none !important;
                     }
                     .no-print, nav, header, sidebar, footer {
                       display: none !important;
                     }
-                    .area-impresion-parciales, .area-impresion-parciales * {
-                      visibility: visible;
-                    }
                     .area-impresion-parciales {
-                      position: absolute;
-                      left: 0;
-                      top: 0;
-                      width: 100%;
+                      display: block !important;
+                      position: static !important;
+                      width: 100% !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
                     }
                     .hoja-parcial {
+                      display: block !important;
+                      position: relative !important;
+                      page-break-before: auto !important;
                       page-break-after: always !important;
                       break-after: page !important;
-                      padding: 2.5cm 2cm !important;
-                      margin: 0 !important;
+                      padding: 2cm 1.8cm !important;
+                      margin: 0 0 2cm 0 !important;
                       background: #ffffff !important;
                       color: #000000 !important;
                       border: none !important;
                       box-shadow: none !important;
+                    }
+                    .hoja-parcial:last-child {
+                      page-break-after: avoid !important;
+                      break-after: avoid !important;
                     }
                     .hoja-parcial * {
                       color: #000000 !important;
@@ -3296,18 +3303,6 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
                           </tbody>
                         </table>
 
-                        {/* CUADRO DE INSTRUCCIONES OFICIALES (IGUAL AL QUIZ LATEX) */}
-                        <div className="mb-4 p-3 rounded border border-[#005A3C] bg-[#005A3C]/5 text-xs">
-                          <div className="font-black text-[#005A3C] uppercase tracking-wide mb-1">
-                            📋 Instrucciones Generales del Examen:
-                          </div>
-                          <ul className="list-disc pl-4 space-y-1 text-slate-800 text-[11px]">
-                            <li>Escriba con bolígrafo de tinta oscura. En preguntas de selección múltiple, marque una sola opción y adjunte la breve justificación.</li>
-                            <li>En las preguntas de desarrollo, se evalúa el procedimiento completo con su respectiva verificación.</li>
-                            <li>No se permite el uso de calculadora programable, teléfonos móviles ni apuntes personales.</li>
-                          </ul>
-                        </div>
-
                         {/* CUADRO DE OBJETIVOS DE APRENDIZAJE A REFORZAR (RA) */}
                         <div className="mb-5 p-3 rounded-lg border border-amber-300 bg-amber-50 text-xs">
                           <div className="font-black text-amber-900 uppercase tracking-wide flex items-center gap-1.5 mb-1">
@@ -3346,7 +3341,7 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
                                     <div className="w-5 h-5 rounded-full border-2 border-slate-700 flex items-center justify-center font-bold text-[11px] shrink-0">
                                       {op.id.toUpperCase()}
                                     </div>
-                                    <span className="font-medium text-slate-900">{op.texto}</span>
+                                    <span className="font-medium text-slate-900">{formatearEnunciado(op.texto, PRE_CLASS_IMPRESION)}</span>
                                   </div>
                                 ))}
                               </div>

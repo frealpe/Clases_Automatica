@@ -321,7 +321,7 @@ const normalizarListaPreguntas = (lista) => {
                     />
                     <div className="flex-1 leading-relaxed">
                       <strong className="font-extrabold text-sky-300 mr-1.5">{op.id.toUpperCase()})</strong>
-                      {op.texto}
+                      {formatearEnunciado(op.texto)}
                     </div>
                   </label>
                 );
