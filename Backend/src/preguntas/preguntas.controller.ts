@@ -5,12 +5,20 @@ import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 const PREGUNTA_COLUMNAS = `id, semana_id AS "semanaId", tipo, pregunta, opciones, correcta, explicacion, falencia`;
+// Columnas SIN la respuesta correcta ni la explicación/falencia: es lo único que se le entrega
+// al estudiante al presentar el examen. La calificación y la revisión se resuelven en el
+// servidor al enviar el intento (POST /evaluaciones/submit).
+const PREGUNTA_COLUMNAS_EXAMEN = `id, semana_id AS "semanaId", tipo, pregunta, opciones`;
 
 @Controller('preguntas')
 export class PreguntasController {
   constructor(private readonly db: DatabaseService) {}
 
+  // Banco completo de una semana (incluye la respuesta correcta): solo para el DOCENTE que
+  // administra las preguntas, nunca para el estudiante.
   @Get('semana/:semanaId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
   async obtenerPorSemana(@Param('semanaId', ParseIntPipe) semanaId: number) {
     const { rows } = await this.db.query(
       `SELECT ${PREGUNTA_COLUMNAS} FROM preguntas WHERE semana_id = $1 ORDER BY id`,
@@ -32,7 +40,7 @@ export class PreguntasController {
     const cantidad: number | null = semanaRows[0]?.preguntasExamenCount ?? null;
     const tipoExamen: string = semanaRows[0]?.tipoExamen ?? 'combinada';
 
-    let query = `SELECT ${PREGUNTA_COLUMNAS} FROM preguntas WHERE semana_id = $1`;
+    let query = `SELECT ${PREGUNTA_COLUMNAS_EXAMEN} FROM preguntas WHERE semana_id = $1`;
     const params: any[] = [semanaId];
 
     if (tipoExamen === 'teoria') {

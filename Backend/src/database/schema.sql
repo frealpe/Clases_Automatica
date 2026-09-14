@@ -267,22 +267,22 @@ INSERT INTO semanas (id, materia_id, numero, unidad_nombre, capitulo_grossman, r
 (316, 3, '16', 'Proyecto de Inspección Visual', 'Módulo 5', 'RA5.1-RA5.2', 'Sistema automático de control de calidad por visión industrial.', 30),
 
 -- Materia 4: Énfasis — Nios II sobre FPGA (GPIO/USART/SPI/ADC) + Procesamiento Digital de Señales
-(401, 4, '01', 'Fundamentos FPGA y Nios II', 'Módulo 1', 'RA1.1-RA1.2', 'Arquitectura de FPGA y del procesador blando Nios II; entorno Quartus y Platform Designer.', 20),
-(402, 4, '02', 'Fundamentos FPGA y Nios II', 'Módulo 1', 'RA1.3-RA1.4', 'Construcción de un sistema Nios II básico sobre el bus Avalon: memoria, compilación del hardware y carga en la FPGA.', 20),
-(403, 4, '03', 'Periféricos GPIO/USART/SPI', 'Módulo 2', 'RA2.1-RA2.2', 'Diseño e integración del núcleo GPIO (PIO) para entradas y salidas digitales controladas desde Nios II.', 20),
-(404, 4, '04', 'Periféricos GPIO/USART/SPI', 'Módulo 2', 'RA2.3-RA2.4', 'Comunicación serial asíncrona (USART) y síncrona (SPI) entre Nios II y periféricos externos.', 20),
-(405, 4, '05', 'ADC y adquisición de señal', 'Módulo 3', 'RA3.1-RA3.2', 'Conversión analógico-digital: muestreo, cuantización e interfaz del núcleo ADC con Nios II.', 20),
-(406, 4, '06', 'ADC y adquisición de señal', 'Módulo 3', 'RA3.3-RA3.4', 'Adquisición de señales en tiempo real integrando el ADC al sistema Nios II.', 20),
-(407, 4, '07', 'Fundamentos de Procesamiento Digital de Señales', 'Módulo 4', 'RA4.1-RA4.2', 'Señales discretas, muestreo y teorema de Nyquist.', 20),
-(408, 4, '08', 'Fundamentos de Procesamiento Digital de Señales', 'Módulo 4', 'RA4.3-RA4.4', 'Sistemas LTI y convolución discreta.', 20),
-(409, 4, '09', 'Filtrado digital', 'Módulo 5', 'RA5.1-RA5.2', 'Diseño de filtros FIR pasa-bajas.', 25),
-(410, 4, '10', 'Filtrado digital', 'Módulo 5', 'RA5.3-RA5.4', 'Diseño de filtros FIR pasa-altas.', 25),
-(411, 4, '11', 'Filtrado digital', 'Módulo 5', 'RA5.5-RA5.6', 'Implementación de filtros digitales en Nios II (C/HAL) — primera etapa.', 25),
-(412, 4, '12', 'Filtrado digital', 'Módulo 5', 'RA5.7-RA5.8', 'Implementación y validación de filtros digitales en Nios II sobre señal adquirida por el ADC.', 25),
-(413, 4, '13', 'Análisis frecuencial y FFT', 'Módulo 6', 'RA6.1-RA6.2', 'Transformada de Fourier discreta (DFT).', 25),
-(414, 4, '14', 'Análisis frecuencial y FFT', 'Módulo 6', 'RA6.3-RA6.4', 'Algoritmo FFT y análisis de su complejidad computacional.', 25),
-(415, 4, '15', 'Análisis frecuencial y FFT', 'Módulo 6', 'RA6.5-RA6.6', 'Implementación de la FFT en Nios II sobre una señal adquirida por el ADC.', 25),
-(416, 4, '16', 'Proyecto integrador', 'Módulo 7', 'RA7.1-RA7.2', 'Cadena completa de procesamiento: ADC → filtro digital → FFT → salida por GPIO/USART/SPI.', 30)
+(401, 4, '01', 'Práctica 1: Sistema Nios II Básico en FPGA DE1-SoC', 'Módulo 1 — Co-diseño Hardware/Software', 'RA1.1-RA1.2', 'Primer contacto con el flujo co-diseño: crear un sistema Nios II mínimo en Platform Designer (Qsys), sintetizarlo en Quartus Prime sobre DE1-SoC (Cyclone V SE) y ejecutar un programa C "Hello World" por consola JTAG UART.', 20),
+(402, 4, '02', 'Práctica 1: Arquitectura Nios II, Bus Avalon-MM y BSP', 'Módulo 1 — Bus Avalon-MM y BSP', 'RA1.3-RA1.4', 'Construcción y asignación del mapa de memoria en bus Avalon-MM, configuración de reloj maestro (50 MHz), generación del Board Support Package (BSP) y depuración por JTAG.', 20),
+(403, 4, '03', 'Práctica 2: Periféricos E/S Digitales (GPIO / PIO)', 'Módulo 2 — Periféricos y E/S', 'RA2.1-RA2.2', 'Diseño e integración de periféricos E/S paralelas (PIO) para lectura de interruptores SW[3:0], pulsadores KEY[1:0] y control de LEDs LEDR[7:0] desde Nios II.', 20),
+(404, 4, '04', 'Práctica 2: Displays 7-Seg HEX y Comunicación Serial', 'Módulo 2 — Interrupciones y Displays', 'RA2.3-RA2.4', 'Multiplexado de displays de 7 segmentos HEX[5:0] en VHDL, manejo de interrupciones por PIO y comunicación serie asíncrona (USART/UART) con la PC.', 20),
+(405, 4, '05', 'Práctica 3: Generador PWM como IP Avalon-MM Propia', 'Módulo 3 — Creación de IPs Avalon-MM', 'RA3.1-RA3.2', 'Diseño en VHDL de un generador PWM propio (pwm_avalon.vhd), empaquetado con Component Editor, integración en Platform Designer y control de periodo y duty cycle desde C (IOWR/IORD).', 20),
+(406, 4, '06', 'Práctica 4: Aritmética de Punto Fijo Q15 (Q1.15) en Hardware', 'Módulo 3 — Aritmética DSP en VHDL', 'RA3.3-RA3.4', 'Implementación del paquete VHDL pkg_q15.vhd: formato Q1.15 con signo, suma/resta con saturación, multiplicación Q15 con truncado y conversión entre entero/flotante.', 20),
+(407, 4, '07', 'Práctica 4: Conversión ADC (LTC2308) e Interrupciones Timer', 'Módulo 4 — Muestreo y Adquisición ADC', 'RA4.1-RA4.2', 'Módulo 0 de adquisición: interfaz SPI dedicada para el ADC LTC2308 (12 bits) de la DE1-SoC, muestreo periódico por interrupción de Timer e integración con la tubería Q15.', 20),
+(408, 4, '08', 'Práctica 5: Filtros Digitales FIR Reconfigurables (N=9 taps)', 'Módulo 4 — Procesamiento Digital FIR', 'RA4.3-RA4.4', 'Diseño e implementación en VHDL de IP Avalon-MM de filtro FIR (fir_avalon.vhd) con 6 modos fijos (LP, HP, BP, BR) en formato Q15 y registros de control de 32 bits.', 25),
+(409, 4, '09', 'Práctica 5: Filtros IIR 1.er Orden RC y Biquad Butterworth', 'Módulo 5 — Filtros IIR y Calculadora Web', 'RA5.1-RA5.2', 'Implementación de filtros IIR recursivos (RC y Biquad Butterworth) con 5 coeficientes de 32 bits, calculadora web interactiva y simulación continua con Web Audio API.', 25),
+(410, 4, '10', 'Práctica 6: Integración SoC del Filtro FIR en Platform Designer', 'Módulo 5 — Integración SoC Nios II', 'RA5.3-RA5.4', 'Ensamblado del sistema SoC sistema_dsp.qsys con fir_avalon, memoria de 64 KB, consola JTAG UART, PIOs de switches/LEDs y software C de filtrado de señal bi-tonal.', 25),
+(411, 4, '11', 'Práctica 7: Adquisición Analógica en Tiempo Real (ADC SPI)', 'Módulo 6 — Controladores SPI para ADC', 'RA5.5-RA5.6', 'Controlador SPI en VHDL para ADC serie de 12 bits en modo free-running, máquina de estados FSM de 16 pulsos SCLK, IP Avalon-MM y conversión a milivoltios en Nios II.', 25),
+(412, 4, '12', 'Práctica 8: Procesamiento de Audio Streaming (Avalon-ST)', 'Módulo 6 — Protocolo Streaming Avalon-ST', 'RA5.7-RA5.8', 'Diseño de tubería de procesamiento de audio por flujos (streaming) con protocolo de handshaking valid/ready y gestión de backpressure en tiempo real.', 25),
+(413, 4, '13', 'Práctica 9: Filtros Recursivos IIR de Segundo Orden (Biquad SOS)', 'Módulo 7 — Filtros Biquad IIR', 'RA6.1-RA6.2', 'Cálculo de coeficientes mediante RBJ Audio EQ Cookbook, implementación en VHDL de la ecuación en diferencias de 2º orden y almacenamiento de estados pasados.', 25),
+(414, 4, '14', 'Práctica 9: Análisis de Estabilidad y Margen de Fase en IIR', 'Módulo 7 — Estabilidad y Círculo Unitario', 'RA6.3-RA6.4', 'Evaluación de estabilidad de filtros IIR recursivos en el plano z, ubicación de polos, efecto del redondeo/saturación Q15 y prevención de oscilaciones parásitas.', 25),
+(415, 4, '15', 'Práctica 10: Proyecto Integrador — GUI Osciloscopio Python + UART', 'Módulo 8 — Proyecto Integrador y GUI', 'RA7.1-RA7.2', 'Integración completa: ADC → Filtro Digital FIR/IIR → Transmisión UART 115200 baudios → Interfaz Gráfica (GUI) Osciloscopio en Python para monitoreo y control.', 25),
+(416, 4, '16', 'Práctica 11: Automatización y Flujo Headless con Quartus CLI', 'Módulo 8 — Automatización y CI/CD', 'RA7.3-RA7.4', 'Automatización de compilación y programación de bitstreams .sof en FPGA con scripts Tcl (compilar.tcl), Shell (programar.sh) y Makefile con Quartus CLI.', 30)
 ON CONFLICT (id) DO NOTHING;
 
 -- 9. Banco de preguntas de semana 1 y 2, verificado contra semana-01/notas.tex y semana-02/notas.tex
@@ -1422,6 +1422,52 @@ INSERT INTO preguntas (id, semana_id, tipo, pregunta, opciones, correcta, explic
  'a',
  'La inversa de una matriz diagonal se obtiene invirtiendo cada uno de los elementos de su diagonal principal: diag(1/3, 1/4).',
  'Inversa de una matriz diagonal.')
+ON CONFLICT (id) DO NOTHING;
+
+-- 9h. Banco de preguntas de Álgebra Lineal semana 6 (id=6, determinantes, propiedades, regla de Cramer, adjunta y matrices 5x5 y 4x4), verificado contra semana-06/Quiz1/{quiz-semana-06.md, solucionario-quiz-semana-06.md}.
+INSERT INTO preguntas (id, semana_id, tipo, pregunta, opciones, correcta, explicacion, falencia) VALUES
+('s06_p1', 6, 'teoria',
+ 'Sea A una matriz 4 × 4 con det A = 5. Se construye la matriz B a partir de A intercambiando las filas 1 y 3 y, sobre el resultado, multiplicando la fila 2 por 4. ¿Cuánto vale det B?',
+ '[{"id":"a","texto":"det B = 20"},{"id":"b","texto":"det B = -20"},{"id":"c","texto":"det B = 80"},{"id":"d","texto":"det B = -5"}]'::jsonb,
+ 'b',
+ 'Intercambiar dos filas multiplica el determinante por -1: (-1)(5) = -5. Multiplicar una fila por k = 4 multiplica el determinante por 4: (4)(-5) = -20. Por lo tanto, det B = -20.',
+ 'Efecto de las operaciones elementales de fila sobre el determinante.'),
+('s06_p2', 6, 'teoria',
+ 'Sean A y B matrices 3 × 3 con det A = 3 y det B = -2. Usando det(AB) = det(A)det(B), det(Aᵀ) = det(A) y det(kA) = kⁿ det(A), ¿cuál es el valor de det(2 A Bᵀ)?',
+ '[{"id":"a","texto":"-12"},{"id":"b","texto":"-48"},{"id":"c","texto":"-6"},{"id":"d","texto":"48"}]'::jsonb,
+ 'b',
+ 'Con n = 3, det(2 A Bᵀ) = 2³ det(A) det(Bᵀ) = 8 · 3 · (-2) = -48.',
+ 'Propiedad multiplicativa del determinante, transpuesta y factor escalar kⁿ.'),
+('s06_p3', 6, 'teoria',
+ 'Sea A una matriz 4 × 4 tal que det A = 0. ¿Cuál de las siguientes afirmaciones es necesariamente verdadera?',
+ '[{"id":"a","texto":"El sistema homogéneo Ax = 0 tiene únicamente la solución trivial."},{"id":"b","texto":"Las columnas de A son linealmente dependientes."},{"id":"c","texto":"A es invertible y A⁻¹ = (1 / det A) adj(A)."},{"id":"d","texto":"El sistema Ax = b tiene solución única para todo b ∈ ℝ⁴."}]'::jsonb,
+ 'b',
+ 'det A = 0 equivale a que A es singular (no invertible). Esto implica que sus columnas (y filas) son linealmente dependientes, y que Ax = 0 posee soluciones no triviales.',
+ 'Teorema del resumen: Criterio de invertibilidad det A ≠ 0 y dependencia lineal.'),
+('s06_p4', 6, 'teoria',
+ 'Para un sistema Ax = b de n × n con det A ≠ 0, la regla de Cramer establece xi = det(Ai) / det(A). ¿Cómo se construye la matriz Ai?',
+ '[{"id":"a","texto":"Reemplazando la fila i de A por el vector bᵀ."},{"id":"b","texto":"Reemplazando la columna i de A por el vector de términos independientes b."},{"id":"c","texto":"Eliminando la fila i y la columna i de A."},{"id":"d","texto":"Transponiendo A y multiplicándola por b."}]'::jsonb,
+ 'b',
+ 'En la regla de Cramer, Ai se obtiene reemplazando la i-ésima columna de la matriz de coeficientes A por el vector de términos independientes b.',
+ 'Construcción formal de la matriz Ai en la Regla de Cramer.'),
+('s06_p5', 6, 'teoria',
+ 'Sea A una matriz 3 × 3 con det A = 7. A partir de la identidad fundamental A adj(A) = det(A) I, el producto A adj(A) es igual a:',
+ '[{"id":"a","texto":"I₃ (la matriz identidad 3×3)."},{"id":"b","texto":"7 I₃."},{"id":"c","texto":"(1/7) I₃."},{"id":"d","texto":"adj(A) Aᵀ."}]'::jsonb,
+ 'b',
+ 'La identidad fundamental establece A adj(A) = det(A) I. Dado det A = 7, se concluye A adj(A) = 7 I₃.',
+ 'Identidad fundamental de la matriz adjunta A adj(A) = det(A) I.'),
+('s06_p6', 6, 'ejercicio',
+ 'Considere la matriz tridiagonal A (5×5) con 2 en la diagonal principal y 1 en las subdiagonales. ¿Cuál es el valor de det A y la condición de invertibilidad de A?',
+ '[{"id":"a","texto":"det A = 5, A no es invertible."},{"id":"b","texto":"det A = 6, A es invertible."},{"id":"c","texto":"det A = 4, A es invertible."},{"id":"d","texto":"det A = 0, A es singular."}]'::jsonb,
+ 'b',
+ 'Expandiendo por cofactores se obtiene la recurrencia Dₙ = 2 Dₙ₋₁ - Dₙ₋₂, con D₁ = 2, D₂ = 3, D₃ = 4, D₅ = 6. Por reducción a forma triangular, los pivotes son (2, 3/2, 4/3, 5/4, 6/5), cuyo producto es 6. Como det A = 6 ≠ 0, A es invertible.',
+ 'Cálculo de determinantes 5×5 tridiagonales por cofactores/reducción y criterio de invertibilidad.'),
+('s06_p7', 6, 'ejercicio',
+ 'Considere la matriz 4×4: A = [[1, 2, 0, 1], [3, 1, 0, 2], [2, 0, 1, 4], [-1, 3, 0, 1]]. ¿Cuál es el valor de det A?',
+ '[{"id":"a","texto":"det A = 5"},{"id":"b","texto":"det A = -5"},{"id":"c","texto":"det A = 0"},{"id":"d","texto":"det A = -10"}]'::jsonb,
+ 'b',
+ 'Expandiendo por la tercera columna (que contiene tres ceros): det A = 1 · (-1)³⁺³ M₃₃ = M₃₃. El menor 3×3 tiene determinante -5. Por reducción triangular la diagonal es (1, -5, 1, 1), dando det A = (1)(-5)(1)(1) = -5. Como det A ≠ 0, A es invertible.',
+ 'Expansión de cofactores en matrices 4×4 con ceros y verificación por pivotes.')
 ON CONFLICT (id) DO NOTHING;
 
 -- Las filas anteriores insertan ids explícitos; se reajustan las secuencias SERIAL para que

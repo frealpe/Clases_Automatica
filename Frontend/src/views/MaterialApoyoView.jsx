@@ -2,17 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCourseStore } from '../store/useCourseStore';
 import { semanasService } from '../services/semanas.service';
-import { API_URL } from '../services/apiClient';
+import { API_URL, getDownloadUrl } from '../services/apiClient';
 import Sidebar from '../components/Sidebar';
-import ExamenModal from '../components/ExamenModal';
 import NotasSemana01 from '../components/NotasSemana01';
+import ExamenModal from '../components/ExamenModal';
 
-const getDownloadUrl = (url) => {
-  if (!url) return '';
-  if (url.startsWith('http://')) return url.replace(/^http:\/\//i, 'https://');
-  if (url.startsWith('/notas') || url.startsWith('/uploads')) return url;
-  return `${API_URL}${url}`.replace(/^http:\/\//i, 'https://');
-};
+import VisitasCounter from '../components/VisitasCounter';
 
 export default function MaterialApoyoView() {
   const navigate = useNavigate();
@@ -192,8 +187,8 @@ export default function MaterialApoyoView() {
                 </div>
               </div>
 
-              {/* Selector de Materia */}
-              <div className="flex items-center gap-2">
+              {/* Selector de Materia + Botón de Calificaciones */}
+              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                 <span className={`text-xs font-mono font-bold ${textoMuted}`}>Asignatura:</span>
                 <select
                   value={materiaActivaId}
@@ -210,6 +205,19 @@ export default function MaterialApoyoView() {
                     </option>
                   ))}
                 </select>
+
+                <button
+                  onClick={() => navigate('/materias/evaluacion-quices')}
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                    esLight
+                      ? 'bg-sky-600 text-white border-sky-600 hover:bg-sky-700'
+                      : 'bg-slate-800 border-slate-600 text-[#38bdf8] hover:bg-slate-700'
+                  }`}
+                  title="Ver Mis Calificaciones de Quices y Parciales"
+                >
+                  <span className="material-symbols-outlined text-base">fact_check</span>
+                  <span>Mis Calificaciones</span>
+                </button>
               </div>
             </div>
 
@@ -244,15 +252,31 @@ export default function MaterialApoyoView() {
                           </span>
                         </div>
 
-                        <span
-                          onClick={(e) => { e.stopPropagation(); navigator.clipboard?.writeText(codigoSesion); }}
-                          title="Código de sesión — clic para copiar"
-                          className={`inline-block text-[9px] font-mono mb-1.5 px-1.5 py-0.5 rounded border cursor-pointer ${
-                            esLight ? 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200' : 'bg-slate-950/60 text-slate-400 border-slate-700 hover:bg-slate-800'
-                          }`}
-                        >
-                          🔑 {codigoSesion}
-                        </span>
+                        {s.codigoFuenteUrl ? (
+                          <a
+                            href={getDownloadUrl(s.codigoFuenteUrl)}
+                            download
+                            onClick={(e) => e.stopPropagation()}
+                            title={`Descargar paquete comprimido (.ZIP) con todo el código fuente y proyectos de esta semana (${codigoSesion})`}
+                            className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold mb-1.5 px-2 py-0.5 rounded border transition-all no-underline ${
+                              esLight
+                                ? 'bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200 shadow-sm'
+                                : 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30 shadow-sm'
+                            }`}
+                          >
+                            <span>📥</span> {codigoSesion} (Descargar .ZIP)
+                          </a>
+                        ) : (
+                          <span
+                            onClick={(e) => { e.stopPropagation(); navigator.clipboard?.writeText(codigoSesion); }}
+                            title="Código de sesión — clic para copiar"
+                            className={`inline-block text-[9px] font-mono mb-1.5 px-1.5 py-0.5 rounded border cursor-pointer ${
+                              esLight ? 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200' : 'bg-slate-950/60 text-slate-400 border-slate-700 hover:bg-slate-800'
+                            }`}
+                          >
+                            🔑 {codigoSesion}
+                          </span>
+                        )}
 
                         <h3 className={`text-xs font-bold mb-1 line-clamp-1 group-hover:text-[#38bdf8] transition-colors ${textoTitulo}`} title={s.unidad}>
                           {s.unidad}

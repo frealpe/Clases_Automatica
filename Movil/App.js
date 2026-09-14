@@ -63,7 +63,6 @@ export default function App() {
   };
 
   const handleCerrarSesion = async () => {
-    setMenuHamburguesaAbierto(false);
     await localStorageService.cerrarSesion();
     setUsuario(null);
     setPantallaActual('login');
@@ -85,32 +84,47 @@ export default function App() {
   };
 
   const finalizarExamen = async (resultado) => {
-    const totalPreguntas = preguntasSemana.length || 1;
-    let correctas = 0;
-    preguntasSemana.forEach((p) => {
-      if (resultado.respuestas[p.id] === p.correcta) {
-        correctas += 1;
-      }
-    });
-
-    const porcentaje = Math.round((correctas / totalPreguntas) * 100);
-    const nota5 = ((correctas / totalPreguntas) * 5.0).toFixed(1);
-    const aprobado = porcentaje >= 70 && !resultado.infraccionIA;
-
-    const nuevoResultado = {
+    const base = {
       ...resultado,
       estudianteId: usuario?.id,
       estudianteNombre: usuario?.nombre,
       semanaId: semanaSeleccionada.id,
       semanaNumero: semanaSeleccionada.numero,
-      correctas,
-      porcentaje,
-      nota5,
-      aprobado
     };
 
-    // Registrar en Servidor NestJS y Base de Datos Local
-    await apiService.submitEvaluacion(nuevoResultado);
+    // La nota autoritativa la calcula el servidor (compara contra el banco de preguntas).
+    const resp = await apiService.submitEvaluacion(base);
+    const r = resp?.resultado;
+
+    let nuevoResultado;
+    if (r) {
+      nuevoResultado = {
+        ...base,
+        correctas: r.correctas,
+        porcentaje: r.porcentaje,
+        nota5: r.nota5,
+        aprobado: r.aprobado,
+        revision: r.revision || [],
+        sinCalificar: false,
+      };
+    } else {
+      // Fallback sin conexión: calcular con lo que haya en local (paquete offline).
+      const totalPreguntas = preguntasSemana.length || 1;
+      let correctas = 0;
+      preguntasSemana.forEach((p) => {
+        if (resultado.respuestas[p.id] === p.correcta) correctas += 1;
+      });
+      const porcentaje = Math.round((correctas / totalPreguntas) * 100);
+      nuevoResultado = {
+        ...base,
+        correctas,
+        porcentaje,
+        nota5: ((correctas / totalPreguntas) * 5.0).toFixed(1),
+        aprobado: porcentaje >= 60 && !resultado.infraccionIA,
+        revision: [],
+        sinCalificar: true,
+      };
+    }
 
     setResultadoActual(nuevoResultado);
     setResultadosGuardados((prev) => ({
@@ -153,40 +167,29 @@ export default function App() {
   };
 
   const finalizarExamenProgramado = async (resultado) => {
-    const preguntas = examenProgramadoActivo.preguntas;
-    const totalPreguntas = preguntas.length || 1;
-    let correctas = 0;
-    preguntas.forEach((p) => {
-      if (resultado.respuestas[p.id] === p.correcta) correctas += 1;
-    });
-
-    const porcentaje = Math.round((correctas / totalPreguntas) * 100);
-    const nota5 = ((correctas / totalPreguntas) * 5.0).toFixed(1);
-    const aprobado = porcentaje >= 70 && !resultado.infraccionIA;
-
-    const nuevoResultado = {
+    const base = {
       ...resultado,
       estudianteId: usuario?.id,
       estudianteNombre: usuario?.nombre,
       examenProgramadoId: examenProgramadoActivo.id,
-      correctas,
-      porcentaje,
-      nota5,
-      aprobado
     };
 
+    let r = null;
     try {
-      await apiService.submitExamenProgramado(examenProgramadoActivo.id, {
+      const resp = await apiService.submitExamenProgramado(examenProgramadoActivo.id, {
         respuestas: resultado.respuestas,
-        nota5,
-        porcentaje,
-        aprobado,
         tiempoEmpleadoSeg: resultado.tiempoEmpleadoSeg,
+        infraccionIA: (resultado.infracciones || []).length > 0 || !!resultado.infraccionIA,
         infracciones: resultado.infracciones || []
       });
+      r = resp?.resultado || null;
     } catch (e) {
       console.log('Error enviando examen programado al backend:', e);
     }
+
+    const nuevoResultado = r
+      ? { ...base, correctas: r.correctas, porcentaje: r.porcentaje, nota5: r.nota5, aprobado: r.aprobado, revision: r.revision || [], sinCalificar: false }
+      : { ...base, correctas: 0, porcentaje: 0, nota5: '0.0', aprobado: false, revision: [], sinCalificar: true };
 
     setResultadoActual(nuevoResultado);
     setPantallaActual('reporteProgramado');

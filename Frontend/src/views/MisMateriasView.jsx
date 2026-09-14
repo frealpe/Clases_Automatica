@@ -31,11 +31,25 @@ function MisMateriasViewBase() {
       <main className="flex-1 flex flex-col justify-start gap-4 w-full overflow-y-auto">
 
         {/* HEADER */}
-        <div className="shrink-0">
-          <h2 className="text-xl font-extrabold tracking-tight">Mis Materias ({materias.length})</h2>
-          <p className={`text-xs mt-0.5 ${textoSecundario}`}>
-            Cursos que tienes asignados este semestre. Haz clic en cualquiera para ver su material.
-          </p>
+        <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-700/30">
+          <div>
+            <h2 className="text-xl font-extrabold tracking-tight">Mis Materias ({materias.length})</h2>
+            <p className={`text-xs mt-0.5 ${textoSecundario}`}>
+              Cursos asignados este semestre. Accede al material de estudio o consulta tus calificaciones.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/materias/evaluacion-quices')}
+            className={`px-3 py-2 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shrink-0 ${
+              esLight
+                ? 'bg-sky-600 text-white hover:bg-sky-700'
+                : 'bg-[#38bdf8] text-slate-950 hover:bg-sky-300'
+            }`}
+            title="Ver Mis Calificaciones de Quices y Parciales"
+          >
+            <span className="material-symbols-outlined text-base">fact_check</span>
+            <span>Mis Calificaciones</span>
+          </button>
         </div>
 
         {materias.length === 0 && (
@@ -47,15 +61,14 @@ function MisMateriasViewBase() {
           </div>
         )}
 
-        {/* GRID DE TARJETAS INFORMATIVAS (SIN ACCIONES ADMINISTRATIVAS) */}
+        {/* GRID DE TARJETAS INFORMATIVAS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
           {materias.map((m) => {
             const esActiva = m.id === materiaActivaId;
             return (
               <div
                 key={m.id}
-                onClick={() => handleAbrirMateria(m.id)}
-                className={`p-4 rounded-xl border flex flex-col justify-between transition-all cursor-pointer relative group ${
+                className={`p-4 rounded-xl border flex flex-col justify-between transition-all relative group ${
                   esActiva
                     ? esLight
                       ? 'bg-sky-50/90 border-sky-400 shadow-sm ring-2 ring-sky-500/20'
@@ -87,8 +100,8 @@ function MisMateriasViewBase() {
                   {m.descripcion || m.subtitulo || 'Material pedagógico de la asignatura.'}
                 </p>
 
-                {/* ÚNICA ACCIÓN: VER MATERIAL */}
-                <div className="pt-2 border-t border-slate-700/30">
+                {/* ACCIONES: VER MATERIAL Y VER CALIFICACIONES */}
+                <div className="pt-2 border-t border-slate-700/30 flex flex-col gap-1.5">
                   <button
                     onClick={() => handleAbrirMateria(m.id)}
                     className={`w-full py-1.5 rounded-lg font-extrabold text-[11px] transition-all flex items-center justify-center gap-1 cursor-pointer shadow-sm ${
@@ -97,6 +110,21 @@ function MisMateriasViewBase() {
                   >
                     <span className="material-symbols-outlined text-sm">auto_stories</span>
                     <span>Ver Material →</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setMateriaActiva(m.id);
+                      navigate('/materias/evaluacion-quices');
+                    }}
+                    className={`w-full py-1.5 rounded-lg font-extrabold text-[11px] transition-all flex items-center justify-center gap-1 cursor-pointer shadow-sm border ${
+                      esLight
+                        ? 'bg-sky-50 border-sky-300 text-sky-900 hover:bg-sky-100'
+                        : 'bg-slate-800 border-slate-600 text-[#38bdf8] hover:bg-slate-700'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">fact_check</span>
+                    <span>Ver Calificaciones</span>
                   </button>
                 </div>
               </div>

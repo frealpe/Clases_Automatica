@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useCourseStore } from '../store/useCourseStore';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../services/apiClient';
+import { API_URL, getDownloadUrl } from '../services/apiClient';
 import { semanasService } from '../services/semanas.service';
 import NotasSemana01 from '../components/NotasSemana01';
 import ExamenModal from '../components/ExamenModal';
 
-const getDownloadUrl = (url) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  if (url.startsWith('/notas') || url.startsWith('/uploads')) return url;
-  return `${API_URL}${url}`;
-};
+import VisitasCounter from '../components/VisitasCounter';
 
 export default function EstudianteView() {
   const { estaAutenticado } = useAuth();
@@ -114,7 +109,7 @@ export default function EstudianteView() {
       
       {/* 1. ENCABEZADO DE PRESENTACIÓN */}
       <div className="flex flex-col justify-center gap-2">
-        <div className={`flex items-center gap-3 font-mono text-[10px] sm:text-xs uppercase tracking-widest overflow-x-auto pb-1 ${acentoCian}`}>
+        <div className="flex items-center gap-2 text-xs font-mono flex-wrap overflow-x-auto pb-1">
           {materias.map((m) => (
             <button
               key={m.id}
@@ -318,15 +313,31 @@ export default function EstudianteView() {
                     </span>
                   </div>
 
-                  <span
-                    onClick={() => navigator.clipboard?.writeText(codigoSesion)}
-                    title="Código de sesión — clic para copiar"
-                    className={`inline-block text-[9px] font-mono mb-1.5 px-1.5 py-0.5 rounded border cursor-pointer ${
-                      esLight ? 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200' : 'bg-slate-950/60 text-slate-400 border-slate-700 hover:bg-slate-800'
-                    }`}
-                  >
-                    🔑 {codigoSesion}
-                  </span>
+                  {s.codigoFuenteUrl ? (
+                    <a
+                      href={getDownloadUrl(s.codigoFuenteUrl)}
+                      download
+                      onClick={(e) => e.stopPropagation()}
+                      title={`Descargar paquete comprimido (.ZIP) con todo el código fuente y proyectos de esta semana (${codigoSesion})`}
+                      className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold mb-1.5 px-2 py-0.5 rounded border transition-all no-underline ${
+                        esLight
+                          ? 'bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200 shadow-sm'
+                          : 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30 shadow-sm'
+                      }`}
+                    >
+                      <span>📥</span> {codigoSesion} (Descargar .ZIP)
+                    </a>
+                  ) : (
+                    <span
+                      onClick={() => navigator.clipboard?.writeText(codigoSesion)}
+                      title="Código de sesión — clic para copiar"
+                      className={`inline-block text-[9px] font-mono mb-1.5 px-1.5 py-0.5 rounded border cursor-pointer ${
+                        esLight ? 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200' : 'bg-slate-950/60 text-slate-400 border-slate-700 hover:bg-slate-800'
+                      }`}
+                    >
+                      🔑 {codigoSesion}
+                    </span>
+                  )}
 
                   <h3 className={`text-xs sm:text-sm font-bold mb-1.5 leading-snug ${textoTitulo}`}>
                     {s.unidad}
@@ -380,6 +391,20 @@ export default function EstudianteView() {
                     >
                       📊 Slides
                     </a>
+                    {s.codigoFuenteUrl && (
+                      <a
+                        href={getDownloadUrl(s.codigoFuenteUrl)}
+                        download
+                        title="Descargar paquete .ZIP del proyecto / práctica"
+                        className={`px-2 py-1 rounded text-[11px] border font-bold flex items-center gap-1 no-underline transition-all ${
+                          esLight
+                            ? 'bg-amber-100 border-amber-400 text-amber-900 hover:bg-amber-200'
+                            : 'bg-amber-500/20 border-amber-500/50 text-amber-300 hover:bg-amber-500/30'
+                        }`}
+                      >
+                        📦 Proyecto .ZIP
+                      </a>
+                    )}
                   </div>
 
                   {/* ACCIONES CLASE WEB & TEST (REQUIERE LOGIN) */}

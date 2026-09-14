@@ -15,11 +15,13 @@ export default function Sidebar() {
 
   const esLabor = location.pathname.startsWith('/labor');
   const esExamenes = location.pathname.startsWith('/materias/examenes');
-  const esMaterias = location.pathname.startsWith('/materias') && !esExamenes;
+  const esEvaluacionQuices = location.pathname.startsWith('/materias/evaluacion-quices');
+  const esMaterias = location.pathname.startsWith('/materias') && !esExamenes && !esEvaluacionQuices;
   const esMaterialApoyo = location.pathname.startsWith('/material_apoyo');
   const esUsuarios = location.pathname.startsWith('/usuarios');
 
   const textoSecundario = esLight ? 'text-slate-600' : 'text-slate-400';
+
 
   return (
     <>
@@ -85,7 +87,29 @@ export default function Sidebar() {
                   {sidebarExpandido && <span>Material de Apoyo</span>}
                 </button>
 
-                {/* 2-5. ADMINISTRACIÓN */}
+                {/* OPCIÓN ESTUDIANTE: MIS CALIFICACIONES */}
+                {esEstudiante && (
+                  <button
+                    onClick={() => navigate('/materias/evaluacion-quices')}
+                    className={`w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
+                      esEvaluacionQuices
+                        ? esLight
+                          ? 'bg-sky-100 border border-sky-300 text-sky-900 font-extrabold shadow-sm'
+                          : 'bg-slate-800 border border-slate-600 text-[#38bdf8] font-extrabold shadow-sm'
+                        : esLight
+                        ? 'text-slate-600 hover:bg-slate-100'
+                        : 'text-slate-400 hover:bg-slate-800/50'
+                    }`}
+                    title="Mis Calificaciones (Quices y Parciales)"
+                  >
+                    <span className={`material-symbols-outlined text-base shrink-0 ${esEvaluacionQuices ? 'text-[#38bdf8]' : ''}`}>
+                      fact_check
+                    </span>
+                    {sidebarExpandido && <span>Mis Calificaciones</span>}
+                  </button>
+                )}
+
+                {/* 2-5. ADMINISTRACIÓN (DOCENTES Y SUPERUSUARIOS) */}
                 {!esEstudiante && (
                   <>
                     <button
@@ -110,7 +134,7 @@ export default function Sidebar() {
                     <button
                       onClick={() => navigate('/materias/examenes')}
                       className={`w-full p-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
-                        esExamenes
+                        esExamenes || esEvaluacionQuices
                           ? esLight
                             ? 'bg-sky-100 border border-sky-300 text-sky-900 font-extrabold shadow-sm'
                             : 'bg-slate-800 border border-slate-600 text-[#38bdf8] font-extrabold shadow-sm'
@@ -118,11 +142,13 @@ export default function Sidebar() {
                           ? 'text-slate-600 hover:bg-slate-100'
                           : 'text-slate-400 hover:bg-slate-800/50'
                       }`}
-                      title="Parámetros y Evaluaciones"
+                      title="Parámetros y Evaluaciones (Calendario, Quices, RA y Parciales)"
                     >
-                      <span className={`material-symbols-outlined text-base shrink-0 ${esExamenes ? 'text-[#38bdf8]' : ''}`}>tune</span>
+                      <span className={`material-symbols-outlined text-base shrink-0 ${esExamenes || esEvaluacionQuices ? 'text-[#38bdf8]' : ''}`}>tune</span>
                       {sidebarExpandido && <span>Parámetros / Evaluaciones</span>}
                     </button>
+
+
 
                     <button
                       onClick={() => navigate('/materias')}
@@ -207,6 +233,16 @@ export default function Sidebar() {
               <span className="material-symbols-outlined text-base text-sky-500">menu_book</span>
               Material de Apoyo
             </button>
+
+            {esEstudiante && (
+              <button
+                onClick={() => { navigate('/materias/evaluacion-quices'); setMenuMovilAbierto(false); }}
+                className="p-2 text-xs font-bold flex items-center gap-2 border-b border-slate-500/20"
+              >
+                <span className="material-symbols-outlined text-base text-sky-500">fact_check</span>
+                Mis Calificaciones
+              </button>
+            )}
 
             {!esEstudiante && (
               <>

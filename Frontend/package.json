@@ -1,8 +1,8 @@
 {
-  "name": "algebra-lineal-web-admin",
+  "name": "labor-2026-web",
   "version": "1.0.0",
   "private": true,
-  "description": "Aplicación Web en React con Zustand y SASS para administración de Álgebra Lineal 2026",
+  "description": "Aplicación web React + Vite + Zustand del ecosistema docente multimateria (Universidad del Cauca, 2026): vistas de estudiante y docente para materias, contenido, evaluaciones y usuarios.",
   "scripts": {
     "start": "vite --host",
     "dev": "vite --host",
@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "axios": "^1.6.0",
-    "lucide-react": "^1.28.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.18.2",
@@ -21,7 +20,6 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.0.0",
-    "sass": "^1.66.1",
     "vite": "^4.4.0"
   }
 }

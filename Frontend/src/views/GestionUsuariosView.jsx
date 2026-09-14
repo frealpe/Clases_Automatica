@@ -7,6 +7,7 @@ import { estudiantesService } from '../services/estudiantes.service';
 import { withRole } from '../hocs/withRole';
 import Sidebar from '../components/Sidebar';
 import CargaEstudiantesModal from '../components/CargaEstudiantesModal';
+import ModalRankingEstudiantes from '../components/ModalRankingEstudiantes';
 
 function GestionUsuariosView() {
   const location = useLocation();
@@ -14,6 +15,8 @@ function GestionUsuariosView() {
   const themeMode = useCourseStore((state) => state.themeMode);
   const materias = useCourseStore((state) => state.materias);
   const materiaActivaId = useCourseStore((state) => state.materiaActivaId);
+
+  const [mostrarModalRanking, setMostrarModalRanking] = useState(false);
 
   const esLight = themeMode === 'light';
 
@@ -223,6 +226,7 @@ function GestionUsuariosView() {
 
   const usuariosFiltrados = getUsuariosFiltrados();
   const materiaObj = materias.find((m) => m.id === Number(materiaSeleccionadaId)) || materias[0];
+  const materiaFiltroObj = materias.find((m) => m.id === Number(filtroMateriaId));
 
   const getRolPorPestaña = () => {
     if (pestañaActiva === 'docentes') return 'DOCENTE';
@@ -301,7 +305,11 @@ function GestionUsuariosView() {
             }`}
           >
             <span className="material-symbols-outlined text-base">person</span>
-            Estudiantes / Usuarios ({estudiantes.length})
+            Estudiantes / Usuarios (
+              {filtroMateriaId !== 'TODAS'
+                ? `${estudiantes.filter((u) => u.materiasAsignadas && u.materiasAsignadas.some((m) => m.id === Number(filtroMateriaId))).length} / ${estudiantes.length}`
+                : estudiantes.length}
+            )
           </button>
 
           {/* 4. TODOS */}
@@ -316,7 +324,7 @@ function GestionUsuariosView() {
             }`}
           >
             <span className="material-symbols-outlined text-base">groups</span>
-            Todos ({usuarios.length})
+            Todos
           </button>
 
           {/* 5. ESTUDIANTES ↔ MATERIAS */}
@@ -330,8 +338,18 @@ function GestionUsuariosView() {
                 : textoMuted
             }`}
           >
-            <span className="material-symbols-outlined text-base">school</span>
+            <span className="material-symbols-outlined text-base">link</span>
             Estudiantes ↔ Materias
+          </button>
+
+          {/* 6. AUDITORÍA DE INGRESOS DE ALUMNOS */}
+          <button
+            onClick={() => setMostrarModalRanking(true)}
+            className="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30"
+            title="Ver Auditoría y Ranking de Alumnos que más ingresan a la plataforma"
+          >
+            <span className="material-symbols-outlined text-base">analytics</span>
+            Auditoría / Vistas Alumnos
           </button>
         </div>
       </div>
@@ -384,6 +402,24 @@ function GestionUsuariosView() {
                 ))}
                 <option value="SIN_MATERIA">Sin materias asignadas</option>
               </select>
+
+              {/* Indicador visual de conteo de resultados */}
+              <span className={`text-[11px] font-mono font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 ${
+                filtroMateriaId !== 'TODAS' || busquedaUsuario.trim()
+                  ? 'bg-sky-500/15 text-sky-400 border-sky-500/30'
+                  : esLight ? 'bg-slate-100 text-slate-600 border-slate-300' : 'bg-slate-800 text-slate-400 border-slate-700'
+              }`}>
+                <span className="material-symbols-outlined text-sm">filter_alt</span>
+                Mostrando {usuariosFiltrados.length} {usuariosFiltrados.length === 1 ? 'registro' : 'registros'}
+                {filtroMateriaId !== 'TODAS' && (
+                  <span className="text-amber-400 font-extrabold ml-1">
+                    ({materiaFiltroObj?.nombre || 'Materia seleccionada'})
+                  </span>
+                )}
+                {(filtroMateriaId !== 'TODAS' || busquedaUsuario.trim()) && (
+                  <span className="opacity-75"> (de {usuarios.length} totales)</span>
+                )}
+              </span>
             </div>
 
             <button
@@ -413,32 +449,33 @@ function GestionUsuariosView() {
                   <tr className={`border-b font-mono uppercase tracking-wider ${
                     esLight ? 'bg-slate-100 border-slate-300 text-slate-700' : 'bg-slate-950 border-slate-800 text-slate-400'
                   }`}>
-                    <th className="p-3">ID</th>
+                    <th className="p-3 text-center font-mono w-12">N°</th>
                     <th className="p-3">Nombre</th>
                     <th className="p-3">Correo Electrónico</th>
                     <th className="p-3">Rol</th>
                     <th className="p-3">Documento</th>
                     <th className="p-3">Materias (Cargo / Inscritas)</th>
+                    <th className="p-3 font-mono">ID</th>
                     <th className="p-3 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-500/10">
                   {cargandoUsuarios ? (
                     <tr>
-                      <td colSpan={7} className="p-6 text-center text-slate-400 font-mono">
+                      <td colSpan={8} className="p-6 text-center text-slate-400 font-mono">
                         Cargando usuarios registrados...
                       </td>
                     </tr>
                   ) : usuariosFiltrados.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="p-6 text-center text-slate-400 font-mono">
+                      <td colSpan={8} className="p-6 text-center text-slate-400 font-mono">
                         No se encontraron usuarios con los criterios ingresados.
                       </td>
                     </tr>
                   ) : (
-                    usuariosFiltrados.map((u) => (
+                    usuariosFiltrados.map((u, idx) => (
                       <tr key={u.id} className="hover:bg-slate-500/5 transition-colors">
-                        <td className="p-3 font-mono font-bold">{u.id}</td>
+                        <td className="p-3 text-center font-mono font-bold text-sky-400">{idx + 1}</td>
                         <td className={`p-3 font-bold ${textoTitulo}`}>{u.nombre}</td>
                         <td className={`p-3 ${textoSub}`}>{u.email}</td>
                         <td className="p-3">
@@ -477,6 +514,7 @@ function GestionUsuariosView() {
                             </span>
                           )}
                         </td>
+                        <td className="p-3 font-mono font-bold text-xs">{u.id}</td>
                         <td className="p-3 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <button
@@ -606,35 +644,77 @@ function GestionUsuariosView() {
                   <tr className={`border-b font-mono uppercase tracking-wider ${
                     esLight ? 'bg-slate-100 border-slate-300 text-slate-700' : 'bg-slate-950 border-slate-800 text-slate-400'
                   }`}>
-                    <th className="p-3">Documento</th>
+                    <th className="p-3 text-center font-mono w-12">N°</th>
                     <th className="p-3">Nombre</th>
-                    <th className="p-3">Correo Electrónico</th>
-                    <th className="p-3">Fecha de Matrícula</th>
+                    <th className="p-3 font-mono">Documento</th>
+                    <th className="p-3 hidden md:table-cell">Correo</th>
+                    <th className="p-3 hidden sm:table-cell">Matrícula</th>
+                    <th className="p-3 text-center">
+                      <span className="flex items-center justify-center gap-1">
+                        <span className="material-symbols-outlined text-sm text-emerald-400">login</span>
+                        Ingresos
+                      </span>
+                    </th>
+                    <th className="p-3 hidden lg:table-cell">Último Ingreso</th>
                     <th className="p-3 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-500/10">
                   {cargandoEstudiantes ? (
                     <tr>
-                      <td colSpan={5} className="p-6 text-center text-slate-400 font-mono">
+                      <td colSpan={8} className="p-6 text-center text-slate-400 font-mono">
                         Cargando estudiantes matriculados...
                       </td>
                     </tr>
                   ) : estudiantesMateria.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="p-6 text-center text-slate-400 font-mono">
+                      <td colSpan={8} className="p-6 text-center text-slate-400 font-mono">
                         Aún no hay estudiantes matriculados en esta asignatura. Usa la carga masiva o ingresa el correo arriba.
                       </td>
                     </tr>
                   ) : (
-                    estudiantesMateria.map((est) => (
+                    estudiantesMateria.map((est, idx) => {
+                      const ingresos = Number(est.totalIngresos || 0);
+                      return (
                       <tr key={est.id} className="hover:bg-slate-500/5 transition-colors">
-                        <td className="p-3 font-mono font-bold">{est.documentoIdentidad || 'N/A'}</td>
+                        <td className="p-3 text-center font-mono font-extrabold text-sky-400">{idx + 1}</td>
                         <td className={`p-3 font-bold ${textoTitulo}`}>{est.nombre}</td>
-                        <td className={`p-3 ${textoSub}`}>{est.email}</td>
-                        <td className={`p-3 font-mono ${textoMuted}`}>
-                          {est.inscritoEn ? new Date(est.inscritoEn).toLocaleDateString() : 'N/A'}
+                        <td className="p-3 font-mono font-bold text-xs">{est.documentoIdentidad || '—'}</td>
+                        <td className={`p-3 text-xs hidden md:table-cell ${textoSub}`}>{est.email}</td>
+                        <td className={`p-3 font-mono text-xs hidden sm:table-cell ${textoMuted}`}>
+                          {est.inscritoEn ? new Date(est.inscritoEn).toLocaleDateString('es-CO') : '—'}
                         </td>
+
+                        {/* ── CONTADOR DE INGRESOS POR ALUMNO ────────── */}
+                        <td className="p-3 text-center">
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className={`flex items-center gap-1 font-mono font-extrabold text-base ${
+                              ingresos === 0 ? 'text-slate-500' : ingresos >= 5 ? 'text-emerald-400' : 'text-amber-400'
+                            }`}>
+                              {ingresos > 0 && (
+                                <span className="relative flex h-1.5 w-1.5 mr-0.5">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+                                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                                </span>
+                              )}
+                              {ingresos}
+                            </div>
+                            <div className={`text-[9px] font-mono uppercase tracking-wide ${
+                              ingresos === 0 ? 'text-slate-600' : 'text-slate-400'
+                            }`}>
+                              {ingresos === 0 ? 'sin ingreso' : ingresos === 1 ? 'ingreso' : 'ingresos'}
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* ── ÚLTIMO INGRESO ─────────────────────────── */}
+                        <td className={`p-3 font-mono text-[10px] hidden lg:table-cell ${textoMuted}`}>
+                          {est.ultimaVisita
+                            ? new Date(est.ultimaVisita).toLocaleString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                            : <span className="italic text-slate-600">No ha ingresado</span>
+                          }
+                        </td>
+
                         <td className="p-3 text-right">
                           <button
                             onClick={() => handleDesmatricularEstudiante(est)}
@@ -643,9 +723,10 @@ function GestionUsuariosView() {
                           >
                             <span className="material-symbols-outlined text-base">person_remove</span>
                           </button>
-                        </td>
-                      </tr>
-                    ))
+                         </td>
+                       </tr>
+                    );
+                    })
                   )}
                 </tbody>
               </table>
@@ -830,6 +911,12 @@ function GestionUsuariosView() {
           cargarEstudiantesDeMateria(materiaSeleccionadaId);
         }}
         materiaId={materiaSeleccionadaId}
+      />
+
+      {/* MODAL AUDITORÍA Y RANKING DE VISTAS DE ESTUDIANTES LOGUEADOS */}
+      <ModalRankingEstudiantes
+        isOpen={mostrarModalRanking}
+        onClose={() => setMostrarModalRanking(false)}
       />
       </div>
     </div>

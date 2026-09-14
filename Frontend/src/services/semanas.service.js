@@ -73,11 +73,14 @@ export const semanasService = {
       const formData = new FormData();
       formData.append('archivo', archivo);
       const response = await apiClient.post(`/semanas/${id}/pdf/${tipo}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000,
       });
       return response.data;
     } catch (err) {
-      return null;
+      const msg = err?.code === 'ECONNABORTED'
+        ? 'Tiempo de espera agotado (superó 5 min)'
+        : (err?.response?.data?.message || err?.message || 'Error al subir el PDF');
+      return { ok: false, error: msg };
     }
   },
 
@@ -113,11 +116,14 @@ export const semanasService = {
       const formData = new FormData();
       formData.append('proyecto', archivoZip);
       const response = await apiClient.post(`/semanas/${id}/html`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000,
       });
       return response.data;
     } catch (err) {
-      return { ok: false, error: err?.response?.data?.message || 'Error al subir el proyecto HTML' };
+      const msg = err?.code === 'ECONNABORTED'
+        ? 'Tiempo de espera agotado (superó 5 min)'
+        : (err?.response?.data?.message || err?.message || 'Error al subir el proyecto HTML');
+      return { ok: false, error: msg };
     }
   },
 
@@ -144,11 +150,14 @@ export const semanasService = {
       const formData = new FormData();
       formData.append('proyecto', archivoZip);
       const response = await apiClient.post(`/semanas/${id}/ejercicios-resueltos`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000,
       });
       return response.data;
     } catch (err) {
-      return { ok: false, error: err?.response?.data?.message || 'Error al subir los ejercicios resueltos' };
+      const msg = err?.code === 'ECONNABORTED'
+        ? 'Tiempo de espera agotado (superó 5 min)'
+        : (err?.response?.data?.message || err?.message || 'Error al subir los ejercicios resueltos');
+      return { ok: false, error: msg };
     }
   },
 
@@ -166,11 +175,14 @@ export const semanasService = {
       const formData = new FormData();
       formData.append('proyecto', archivoZip);
       const response = await apiClient.post(`/semanas/${id}/banco-preguntas`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000,
       });
       return response.data;
     } catch (err) {
-      return { ok: false, error: err?.response?.data?.message || 'Error al subir el banco de preguntas' };
+      const msg = err?.code === 'ECONNABORTED'
+        ? 'Tiempo de espera agotado (superó 5 min)'
+        : (err?.response?.data?.message || err?.message || 'Error al subir el banco de preguntas');
+      return { ok: false, error: msg };
     }
   },
 
@@ -188,11 +200,14 @@ export const semanasService = {
       const formData = new FormData();
       formData.append('archivo', archivo);
       const response = await apiClient.post(`/semanas/${id}/codigo-fuente`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000,
       });
       return response.data;
     } catch (err) {
-      return { ok: false, error: err?.response?.data?.message || 'Error al subir el código fuente' };
+      const msg = err?.code === 'ECONNABORTED'
+        ? 'Tiempo de espera agotado al subir el archivo (superó los 5 min)'
+        : (err?.response?.data?.message || err?.message || 'Error al subir el código fuente');
+      return { ok: false, error: msg };
     }
   },
 

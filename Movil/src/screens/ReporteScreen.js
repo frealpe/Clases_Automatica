@@ -5,41 +5,59 @@ import MathText from '../components/MathText';
 export default function ReporteScreen({ semana, resultado, onVolverInicio, onReintentar }) {
   if (!semana || !resultado) return null;
 
-  const { respuestas, tiempoEmpleadoSeg, infraccionIA } = resultado;
-  const totalPreguntas = semana.preguntas.length;
+  const { respuestas = {}, tiempoEmpleadoSeg = 0, infraccionIA } = resultado;
+  const preguntas = semana.preguntas || [];
+  // Cuando el servidor calificó el intento, `resultado.revision` trae la corrección oficial
+  // (incluye la respuesta correcta y la explicación). Sin conexión se recalcula con lo local.
+  const revision = Array.isArray(resultado.revision) ? resultado.revision : [];
+  const usarServidor = revision.length > 0;
 
   let correctas = 0;
   const falenciasDetectadas = [];
-  const detalleRespuestas = [];
 
-  semana.preguntas.forEach((p) => {
-    const elegida = respuestas[p.id];
-    const esCorrecta = elegida === p.correcta;
-
-    if (esCorrecta) {
-      correctas += 1;
-    } else {
+  if (usarServidor) {
+    correctas = revision.filter((r) => r.esCorrecta).length;
+    revision.forEach((r) => {
+      if (r.esCorrecta) return;
+      const p = preguntas.find((q) => String(q.id) === String(r.preguntaId)) || {};
+      const ops = p.opciones || [];
+      falenciasDetectadas.push({
+        preguntaId: r.preguntaId,
+        tipo: p.tipo,
+        preguntaTexto: p.pregunta || '',
+        elegidaTexto: ops.find((o) => o.id === r.seleccionada)?.texto || 'Sin responder',
+        correctaTexto: ops.find((o) => o.id === r.correcta)?.texto || (r.correcta ? String(r.correcta).toUpperCase() : ''),
+        explicacion: r.explicacion,
+        falencia: r.falencia,
+      });
+    });
+  } else {
+    preguntas.forEach((p) => {
+      const elegida = respuestas[p.id];
+      if (elegida === p.correcta) {
+        correctas += 1;
+        return;
+      }
       falenciasDetectadas.push({
         preguntaId: p.id,
         tipo: p.tipo,
         preguntaTexto: p.pregunta,
-        elegidaTexto: p.opciones.find(o => o.id === elegida)?.texto || 'Sin responder',
-        correctaTexto: p.opciones.find(o => o.id === p.correcta)?.texto,
+        elegidaTexto: p.opciones.find((o) => o.id === elegida)?.texto || 'Sin responder',
+        correctaTexto: p.opciones.find((o) => o.id === p.correcta)?.texto,
         explicacion: p.explicacion,
-        falencia: p.falencia
+        falencia: p.falencia,
       });
-    }
-
-    detalleRespuestas.push({
-      ...p,
-      elegida,
-      esCorrecta
     });
-  });
+  }
 
-  const porcentaje = Math.round((correctas / totalPreguntas) * 100);
-  const nota5 = ((correctas / totalPreguntas) * 5.0).toFixed(1);
-  const logroAlcanzado = porcentaje >= 70 && !infraccionIA;
+  const totalPreguntas = (usarServidor ? revision.length : preguntas.length) || 1;
+  const porcentaje = Number.isFinite(resultado.porcentaje)
+    ? resultado.porcentaje
+    : Math.round((correctas / totalPreguntas) * 100);
+  const nota5 = (resultado.nota5 !== undefined && resultado.nota5 !== null)
+    ? resultado.nota5
+    : ((correctas / totalPreguntas) * 5.0).toFixed(1);
+  const logroAlcanzado = (resultado.aprobado !== undefined ? resultado.aprobado : porcentaje >= 60) && !infraccionIA;
 
   const minutosEmpleados = Math.floor(tiempoEmpleadoSeg / 60);
   const segundosEmpleados = tiempoEmpleadoSeg % 60;

@@ -1,6 +1,8 @@
 {
-  "name": "automatica-industrial-movil",
+  "name": "labor-2026-movil",
   "version": "1.0.0",
+  "private": true,
+  "description": "Aplicación móvil Expo / React Native del ecosistema docente multimateria (Universidad del Cauca, 2026): presentación de exámenes y reportes por objetivos de aprendizaje.",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
@@ -14,13 +16,10 @@
     "expo-keep-awake": "~15.0.8",
     "expo-screen-capture": "~8.0.9",
     "expo-screen-orientation": "~9.0.9",
-    "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-native": "0.81.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@react-native/dev-middleware": "^0.86.2"
-  },
-  "private": true
+    "@babel/core": "^7.20.0"
+  }
 }

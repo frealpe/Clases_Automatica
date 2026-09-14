@@ -232,7 +232,7 @@ server {
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
 
-    client_max_body_size 25M;
+    client_max_body_size 150M;
 
     location / {
         try_files \$uri \$uri/ /index.html;
@@ -295,8 +295,8 @@ server {
     root ${REMOTE_FRONTEND_DIR};
     index index.html;
 
-    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
-    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+    ssl_certificate /etc/letsencrypt/live/176.57.150.155.sslip.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/176.57.150.155.sslip.io/privkey.pem;
 
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
@@ -308,7 +308,7 @@ server {
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
 
-    client_max_body_size 25M;
+    client_max_body_size 150M;
 
     location / {
         try_files \$uri \$uri/ /index.html;

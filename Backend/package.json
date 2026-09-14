@@ -1,15 +1,15 @@
 {
-  "name": "algebra-lineal-servidor-nestjs",
+  "name": "labor-2026-servidor",
   "version": "1.0.0",
-  "description": "Servidor NestJS y PostgreSQL para evaluaciones de Álgebra Lineal 2026",
-  "author": "Universidad del Cauca",
   "private": true,
+  "description": "Servidor NestJS + PostgreSQL del ecosistema docente multimateria (Universidad del Cauca, 2026): banco de preguntas, evaluaciones, quices, asistencia y autenticación JWT.",
+  "author": "Universidad del Cauca",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "start": "ts-node src/main.ts",
-    "start:prod": "node dist/main",
-    "start:dev": "ts-node src/main.ts"
+    "start:dev": "ts-node src/main.ts",
+    "start:prod": "node dist/main"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -18,7 +18,6 @@
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/serve-static": "^5.0.5",
-    "@nestjs/typeorm": "^10.0.0",
     "adm-zip": "^0.6.0",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
@@ -29,11 +28,9 @@
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1",
-    "typeorm": "^0.3.17"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.0.0",
     "@types/adm-zip": "^0.5.8",
     "@types/bcrypt": "^5.0.0",
     "@types/multer": "^2.2.0",

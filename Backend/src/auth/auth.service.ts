@@ -1,7 +1,9 @@
 import { Injectable, UnauthorizedException, BadRequestException, ForbiddenException, OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { DatabaseService } from '../database/database.service';
+import { enviarCorreo } from '../common/mail.service';
 
 interface UsuarioRow {
   id: number;
@@ -24,29 +26,40 @@ export class AuthService implements OnModuleInit {
       // caliente (patrón ya usado en el proyecto para evolucionar el esquema sin migraciones).
       await this.db.query(`ALTER TYPE user_role_enum ADD VALUE IF NOT EXISTS 'SUPERUSUARIO';`);
 
-      const hashSuperusuario = await bcrypt.hash('Fr34lp3_83', 10);
-      const hashEstudiante = await bcrypt.hash('algebra2026', 10);
-
       // Semilla del superusuario (frealpe@gmail.com): solo crea la fila si el correo no existe.
       // ON CONFLICT DO NOTHING (sin DO UPDATE SET rol=...) a propósito: una versión anterior
       // forzaba el rol en cada arranque del backend, lo que deshacía en silencio cualquier
       // cambio de rol hecho desde la UI de gestión de usuarios (bug real: reconvertía a
       // frealpe@unicauca.edu.co de vuelta a SUPERUSUARIO en cada reinicio). Este seed es solo
       // para el primer arranque en una BD vacía; después de eso, el rol lo administra la UI.
-      await this.db.query(
-        `INSERT INTO usuarios (nombre, email, password_hash, rol)
-         VALUES ('Fabio Hernán Realpe (Admin)', 'frealpe@gmail.com', $1, 'SUPERUSUARIO')
-         ON CONFLICT (email) DO NOTHING`,
-        [hashSuperusuario]
-      );
+      //
+      // La contraseña NO se codea aquí: viene de SEED_SUPERUSER_PASSWORD. Sin esa variable no
+      // se crea la fila semilla (evita dejar una cuenta admin con contraseña conocida).
+      const seedPassword = process.env.SEED_SUPERUSER_PASSWORD;
+      if (seedPassword && seedPassword.trim()) {
+        const hashSuperusuario = await bcrypt.hash(seedPassword.trim(), 10);
+        await this.db.query(
+          `INSERT INTO usuarios (nombre, email, password_hash, rol)
+           VALUES ('Fabio Hernán Realpe (Admin)', 'frealpe@gmail.com', $1, 'SUPERUSUARIO')
+           ON CONFLICT (email) DO NOTHING`,
+          [hashSuperusuario]
+        );
+      } else {
+        console.warn('[auth] SEED_SUPERUSER_PASSWORD no configurada; se omite la semilla del superusuario.');
+      }
 
-      // Semilla de cuenta demo de estudiante, mismo criterio: no toca nada si ya existe.
-      await this.db.query(
-        `INSERT INTO usuarios (nombre, email, password_hash, rol)
-         VALUES ('Carlos Perez (Estudiante)', 'estudiante@unicauca.edu.co', $1, 'ESTUDIANTE')
-         ON CONFLICT (email) DO NOTHING`,
-        [hashEstudiante]
-      );
+      // Semilla de cuenta demo de estudiante, mismo criterio: solo si SEED_DEMO_STUDENT_PASSWORD
+      // está puesta. Sin ella no se crea (no dejar una cuenta con contraseña conocida por defecto).
+      const seedDemoPassword = process.env.SEED_DEMO_STUDENT_PASSWORD;
+      if (seedDemoPassword && seedDemoPassword.trim()) {
+        const hashEstudiante = await bcrypt.hash(seedDemoPassword.trim(), 10);
+        await this.db.query(
+          `INSERT INTO usuarios (nombre, email, password_hash, rol)
+           VALUES ('Carlos Perez (Estudiante)', 'estudiante@unicauca.edu.co', $1, 'ESTUDIANTE')
+           ON CONFLICT (email) DO NOTHING`,
+          [hashEstudiante]
+        );
+      }
     } catch (err) {
       console.error('Error al inicializar usuarios en PostgreSQL DB:', err);
     }
@@ -72,6 +85,12 @@ export class AuthService implements OnModuleInit {
     if (!esValido) {
       throw new UnauthorizedException('Credenciales inválidas: contraseña incorrecta');
     }
+
+    // Registrar actividad de ingreso / login del usuario en PostgreSQL
+    await this.db.query(
+      "INSERT INTO actividad_estudiantes (usuario_id, accion) VALUES ($1, 'login')",
+      [user.id],
+    ).catch(() => {});
 
     return this.emitirToken(user);
   }
@@ -132,7 +151,6 @@ export class AuthService implements OnModuleInit {
       throw new BadRequestException('No se encontraron estudiantes para procesar');
     }
 
-    const defaultPasswordHash = await bcrypt.hash('algebra2026', 10);
     let creados = 0;
     let actualizados = 0;
 
@@ -151,9 +169,15 @@ export class AuthService implements OnModuleInit {
         await this.db.query('UPDATE usuarios SET documento_identidad = COALESCE($1, documento_identidad), nombre = $2 WHERE id = $3', [doc, nombre, estudianteId]);
         actualizados++;
       } else {
+        // Contraseña inicial = documento de identidad (mismo criterio que la carga por archivo
+        // en EstudiantesController). Si no hay documento, se usa un aleatorio: la cuenta se crea
+        // pero el estudiante deberá usar "recuperar contraseña" para entrar (no queda una
+        // contraseña conocida por defecto).
+        const passwordInicial = doc || crypto.randomBytes(12).toString('base64url');
+        const hashInicial = await bcrypt.hash(passwordInicial, 10);
         const { rows: newRows } = await this.db.query(
           `INSERT INTO usuarios (nombre, email, password_hash, rol, documento_identidad) VALUES ($1, $2, $3, 'ESTUDIANTE', $4) RETURNING id`,
-          [nombre, email, defaultPasswordHash, doc],
+          [nombre, email, hashInicial, doc],
         );
         estudianteId = newRows[0].id;
         creados++;
@@ -185,6 +209,8 @@ export class AuthService implements OnModuleInit {
 
     const { rows } = await this.db.query(
       `SELECT u.id, u.nombre, u.email, u.rol, u.documento_identidad AS "documentoIdentidad", u.creado_en AS "creadoEn",
+              COALESCE((SELECT COUNT(id)::int FROM actividad_estudiantes WHERE usuario_id = u.id), 0) AS "totalIngresos",
+              (SELECT MAX(creado_en) FROM actividad_estudiantes WHERE usuario_id = u.id) AS "ultimaVisita",
               COALESCE(
                 (
                   SELECT JSON_AGG(JSON_BUILD_OBJECT('id', mat.id, 'codigo', mat.codigo, 'nombre', mat.nombre))
@@ -325,6 +351,13 @@ export class AuthService implements OnModuleInit {
       throw new BadRequestException('Debe ingresar el correo electrónico asociado');
     }
 
+    // Respuesta genérica siempre: no revela si el correo existe (evita enumeración de cuentas)
+    // y NUNCA devuelve el código en la respuesta HTTP — el código viaja solo por correo.
+    const respuestaGenerica = {
+      ok: true,
+      mensaje: 'Si el correo está registrado, enviaremos un código de recuperación con 15 minutos de validez. Revisa tu bandeja de entrada y la carpeta de spam.',
+    };
+
     const emailNorm = dto.email.trim().toLowerCase();
     const { rows } = await this.db.query<UsuarioRow>(
       'SELECT id, nombre, email FROM usuarios WHERE LOWER(email) = $1',
@@ -332,10 +365,10 @@ export class AuthService implements OnModuleInit {
     );
     const user = rows[0];
     if (!user) {
-      throw new BadRequestException('El correo electrónico ingresado no se encuentra registrado');
+      return respuestaGenerica;
     }
 
-    // Código numérico seguro de 6 dígitos con 15 min de validez
+    // Código numérico de 6 dígitos con 15 min de validez
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
     const expira = new Date(Date.now() + 15 * 60 * 1000);
 
@@ -344,11 +377,20 @@ export class AuthService implements OnModuleInit {
       [codigo, expira, user.id],
     );
 
-    return {
-      ok: true,
-      mensaje: `Código de recuperación enviado al correo ${user.email}. (Código de verificación: ${codigo})`,
-      codigoRecuperacion: codigo,
-    };
+    const envio = await enviarCorreo(
+      user.email,
+      'Código de recuperación de contraseña',
+      `<p>Hola ${user.nombre},</p>
+       <p>Tu código de recuperación es <strong style="font-size:1.2rem;letter-spacing:2px">${codigo}</strong>.</p>
+       <p>Vence en 15 minutos. Si no solicitaste este cambio, ignora este mensaje.</p>`,
+    );
+    if (!envio.enviado) {
+      // Sin SMTP configurado el correo no sale; se deja rastro en el log del servidor para que
+      // el administrador pueda entregar el código manualmente. Nunca se expone al cliente.
+      console.warn(`[auth] Código de recuperación para ${user.email}: ${codigo} (SMTP no configurado)`);
+    }
+
+    return respuestaGenerica;
   }
 
   async restablecerPassword(dto: { email: string; codigo: string; passwordNueva: string }) {

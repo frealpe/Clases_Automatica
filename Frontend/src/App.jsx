@@ -9,6 +9,7 @@ import MaterialApoyoView from './views/MaterialApoyoView';
 import GestionContenidoView from './views/GestionContenidoView';
 import GestionUsuariosView from './views/GestionUsuariosView';
 import ExamenesCalendarioView from './views/ExamenesCalendarioView';
+import EvaluacionQuicesView from './views/EvaluacionQuicesView';
 import { useCourseStore } from './store/useCourseStore';
 
 export default function App() {
@@ -69,6 +70,7 @@ export default function App() {
             <Route path="/materias" element={<DocenteAdminView />} />
             <Route path="/materias/contenido" element={<GestionContenidoView />} />
             <Route path="/materias/examenes" element={<ExamenesCalendarioView />} />
+            <Route path="/materias/evaluacion-quices" element={<EvaluacionQuicesView />} />
             <Route path="/usuarios" element={<GestionUsuariosView />} />
             <Route path="/material_apoyo" element={<MaterialApoyoView />} />
             <Route path="/admin" element={<Navigate to="/materias" replace />} />
@@ -81,3 +83,4 @@ export default function App() {
     </div>
   );
 }
+

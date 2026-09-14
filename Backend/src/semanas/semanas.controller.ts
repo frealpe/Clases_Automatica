@@ -3,6 +3,8 @@ import {
   UploadedFile, UseInterceptors, UseGuards, BadRequestException, ForbiddenException, OnModuleInit,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { DatabaseService } from '../database/database.service';
@@ -12,9 +14,9 @@ import * as path from 'path';
 import AdmZip = require('adm-zip');
 
 const CARPETA_UPLOADS = path.join(__dirname, '..', '..', 'uploads');
-const MAX_BYTES_PROYECTO = 50 * 1024 * 1024; // 50MB descomprimido
-const MAX_ARCHIVOS_PROYECTO = 500;
-const MAX_BYTES_PDF = 25 * 1024 * 1024; // 25MB
+const MAX_BYTES_PROYECTO = 300 * 1024 * 1024; // 300MB descomprimido
+const MAX_ARCHIVOS_PROYECTO = 10000;
+const MAX_BYTES_PDF = 100 * 1024 * 1024; // 100MB
 
 const COLUMNAS_SEMANA = `id, materia_id AS "materiaId", numero, unidad_nombre AS "unidadNombre",
   capitulo_grossman AS "capituloGrossman", ra, ra_descripcion AS "raDescripcion",
@@ -98,6 +100,33 @@ function extraerProyectoZip(buffer: Buffer, destino: string): string {
 @Controller('semanas')
 export class SemanasController implements OnModuleInit {
   constructor(private readonly db: DatabaseService) {}
+
+  // Un DOCENTE solo puede tocar semanas de materias que dicta; un SUPERUSUARIO, cualquiera.
+  // Devuelve el materiaId de la semana para reutilizarlo en el handler.
+  private async verificarSemanaDeDocente(semanaId: number, req: any): Promise<number> {
+    const { rows } = await this.db.query(
+      `SELECT s.materia_id AS "materiaId", m.docente_id AS "docenteId"
+       FROM semanas s JOIN materias m ON m.id = s.materia_id
+       WHERE s.id = $1`,
+      [semanaId],
+    );
+    if (!rows[0]) throw new BadRequestException('Semana no encontrada');
+    if (req.user?.rol !== 'SUPERUSUARIO' && rows[0].docenteId !== req.user?.id) {
+      throw new ForbiddenException('Esta semana no pertenece a una materia del docente autenticado');
+    }
+    return rows[0].materiaId;
+  }
+
+  private async verificarMateriaDeDocente(materiaId: number, req: any) {
+    if (req.user?.rol === 'SUPERUSUARIO') return;
+    const { rows } = await this.db.query(
+      `SELECT docente_id AS "docenteId" FROM materias WHERE id = $1`,
+      [materiaId],
+    );
+    if (!rows[0] || rows[0].docenteId !== req.user?.id) {
+      throw new ForbiddenException('No administras esta materia');
+    }
+  }
 
   async onModuleInit() {
     try {
@@ -203,10 +232,15 @@ export class SemanasController implements OnModuleInit {
     return semana;
   }
 
-  // API REST para guardar/actualizar cualquier JSON de clase en PostgreSQL
+  // API REST para guardar/actualizar cualquier JSON de clase en PostgreSQL.
+  // Todos los endpoints de escritura exigen DOCENTE (o SUPERUSUARIO) y que la semana pertenezca
+  // a una materia del docente autenticado.
   @Put(':id/contenido')
-  async guardarContenido(@Param('id') id: string, @Body() body: any) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async guardarContenido(@Param('id') id: string, @Body() body: any, @Req() req: any) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     const jsonStr = typeof body === 'string' ? body : JSON.stringify(body);
     const { rows } = await this.db.query(
       `UPDATE semanas SET contenido_json = $1 WHERE id = $2 RETURNING ${COLUMNAS_SEMANA}`,
@@ -216,20 +250,28 @@ export class SemanasController implements OnModuleInit {
   }
 
   @Post(':id/contenido')
-  async guardarContenidoPost(@Param('id') id: string, @Body() body: any) {
-    return this.guardarContenido(id, body);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async guardarContenidoPost(@Param('id') id: string, @Body() body: any, @Req() req: any) {
+    return this.guardarContenido(id, body, req);
   }
 
   @Delete(':id/contenido')
-  async eliminarContenido(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async eliminarContenido(@Param('id') id: string, @Req() req: any) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     await this.db.query(`UPDATE semanas SET contenido_json = NULL WHERE id = $1`, [semanaId]);
     return { ok: true, mensaje: `Contenido de la semana ${semanaId} eliminado` };
   }
 
   @Patch(':id/objetivo')
-  async actualizarObjetivo(@Param('id') id: string, @Body() body: { objetivos?: any[] }) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async actualizarObjetivo(@Param('id') id: string, @Body() body: { objetivos?: any[] }, @Req() req: any) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     const { rows } = await this.db.query(
       `UPDATE semanas SET objetivos_json = $1 WHERE id = $2 RETURNING ${COLUMNAS_SEMANA}`,
       [JSON.stringify(body?.objetivos || []), semanaId],
@@ -238,8 +280,11 @@ export class SemanasController implements OnModuleInit {
   }
 
   @Patch(':id/nombre')
-  async actualizarNombre(@Param('id') id: string, @Body() body: { nombre?: string }) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async actualizarNombre(@Param('id') id: string, @Body() body: { nombre?: string }, @Req() req: any) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     const nombre = (body?.nombre || '').trim();
     if (!nombre) throw new BadRequestException('El nombre no puede estar vacío');
     const { rows } = await this.db.query(
@@ -250,11 +295,15 @@ export class SemanasController implements OnModuleInit {
   }
 
   @Patch(':id/examen-config')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
   async actualizarConfigExamen(
     @Param('id') id: string,
     @Body() body: { duracionExamenMin?: number; preguntasExamenCount?: number | null; tipoExamen?: string },
+    @Req() req: any,
   ) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     const duracion = Number.isFinite(body?.duracionExamenMin) ? body.duracionExamenMin : 15;
     const cantidad = body?.preguntasExamenCount ?? null;
     const tipo = ['teoria', 'ejercicio', 'combinada'].includes(body?.tipoExamen || '') ? body.tipoExamen : 'combinada';
@@ -267,9 +316,12 @@ export class SemanasController implements OnModuleInit {
   }
 
   @Post()
-  async crearSemana(@Body() body: { materiaId?: number; nombre?: string }) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async crearSemana(@Body() body: { materiaId?: number; nombre?: string }, @Req() req: any) {
     const materiaId = parseInt(String(body?.materiaId), 10);
     if (!materiaId) throw new BadRequestException('materiaId requerido');
+    await this.verificarMateriaDeDocente(materiaId, req);
     const { rows: maxRows } = await this.db.query(
       `SELECT COALESCE(MAX(numero::integer), 0) + 1 AS siguiente FROM semanas WHERE materia_id = $1`,
       [materiaId],
@@ -287,8 +339,11 @@ export class SemanasController implements OnModuleInit {
   }
 
   @Delete(':id')
-  async eliminarSemana(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async eliminarSemana(@Param('id') id: string, @Req() req: any) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     for (const carpeta of ['semanas-html', 'semanas-ejercicios', 'semanas-banco-preguntas']) {
       fs.rmSync(path.join(CARPETA_UPLOADS, carpeta, String(semanaId)), { recursive: true, force: true });
     }
@@ -300,6 +355,8 @@ export class SemanasController implements OnModuleInit {
   }
 
   @Post(':id/pdf/:tipo')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
   @UseInterceptors(FileInterceptor('archivo', {
     storage: memoryStorage(),
     fileFilter: fileFilterPdf,
@@ -309,8 +366,10 @@ export class SemanasController implements OnModuleInit {
     @Param('id') id: string,
     @Param('tipo') tipo: string,
     @UploadedFile() archivo: Express.Multer.File,
+    @Req() req: any,
   ) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     const columna = TIPOS_PDF_COLUMNA[tipo];
     if (!columna) throw new BadRequestException('Tipo de PDF inválido (usa notas, guia o diapositivas)');
     if (!archivo) throw new BadRequestException('No se recibió el archivo PDF (campo "archivo")');
@@ -328,8 +387,9 @@ export class SemanasController implements OnModuleInit {
     return { ok: true, semana: rows[0] };
   }
 
-  private async subirProyectoGenerico(id: string, archivo: Express.Multer.File, subcarpetaBase: string, columna: string) {
+  private async subirProyectoGenerico(id: string, archivo: Express.Multer.File, subcarpetaBase: string, columna: string, req: any) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     if (!archivo) throw new BadRequestException('No se recibió el archivo .zip (campo "proyecto")');
 
     const destino = path.join(CARPETA_UPLOADS, subcarpetaBase, String(semanaId));
@@ -343,59 +403,74 @@ export class SemanasController implements OnModuleInit {
     return { ok: true, semana: rows[0] };
   }
 
-  private async eliminarProyectoGenerico(id: string, subcarpetaBase: string, columna: string) {
+  private async eliminarProyectoGenerico(id: string, subcarpetaBase: string, columna: string, req: any) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     fs.rmSync(path.join(CARPETA_UPLOADS, subcarpetaBase, String(semanaId)), { recursive: true, force: true });
     await this.db.query(`UPDATE semanas SET ${columna} = NULL WHERE id = $1`, [semanaId]);
     return { ok: true };
   }
 
   @Post(':id/html')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
   @UseInterceptors(FileInterceptor('proyecto', {
     storage: memoryStorage(),
     fileFilter: fileFilterZip,
     limits: { fileSize: MAX_BYTES_PROYECTO },
   }))
-  async subirHtml(@Param('id') id: string, @UploadedFile() archivo: Express.Multer.File) {
-    return this.subirProyectoGenerico(id, archivo, 'semanas-html', 'clase_web_url');
+  async subirHtml(@Param('id') id: string, @UploadedFile() archivo: Express.Multer.File, @Req() req: any) {
+    return this.subirProyectoGenerico(id, archivo, 'semanas-html', 'clase_web_url', req);
   }
 
   @Delete(':id/html')
-  async eliminarHtml(@Param('id') id: string) {
-    return this.eliminarProyectoGenerico(id, 'semanas-html', 'clase_web_url');
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async eliminarHtml(@Param('id') id: string, @Req() req: any) {
+    return this.eliminarProyectoGenerico(id, 'semanas-html', 'clase_web_url', req);
   }
 
   @Post(':id/ejercicios-resueltos')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
   @UseInterceptors(FileInterceptor('proyecto', {
     storage: memoryStorage(),
     fileFilter: fileFilterZip,
     limits: { fileSize: MAX_BYTES_PROYECTO },
   }))
-  async subirEjerciciosResueltos(@Param('id') id: string, @UploadedFile() archivo: Express.Multer.File) {
-    return this.subirProyectoGenerico(id, archivo, 'semanas-ejercicios', 'ejercicios_resueltos_url');
+  async subirEjerciciosResueltos(@Param('id') id: string, @UploadedFile() archivo: Express.Multer.File, @Req() req: any) {
+    return this.subirProyectoGenerico(id, archivo, 'semanas-ejercicios', 'ejercicios_resueltos_url', req);
   }
 
   @Delete(':id/ejercicios-resueltos')
-  async eliminarEjerciciosResueltos(@Param('id') id: string) {
-    return this.eliminarProyectoGenerico(id, 'semanas-ejercicios', 'ejercicios_resueltos_url');
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async eliminarEjerciciosResueltos(@Param('id') id: string, @Req() req: any) {
+    return this.eliminarProyectoGenerico(id, 'semanas-ejercicios', 'ejercicios_resueltos_url', req);
   }
 
   @Post(':id/banco-preguntas')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
   @UseInterceptors(FileInterceptor('proyecto', {
     storage: memoryStorage(),
     fileFilter: fileFilterZip,
     limits: { fileSize: MAX_BYTES_PROYECTO },
   }))
-  async subirBancoPreguntas(@Param('id') id: string, @UploadedFile() archivo: Express.Multer.File) {
-    return this.subirProyectoGenerico(id, archivo, 'semanas-banco-preguntas', 'banco_preguntas_url');
+  async subirBancoPreguntas(@Param('id') id: string, @UploadedFile() archivo: Express.Multer.File, @Req() req: any) {
+    return this.subirProyectoGenerico(id, archivo, 'semanas-banco-preguntas', 'banco_preguntas_url', req);
   }
 
   @Delete(':id/banco-preguntas')
-  async eliminarBancoPreguntas(@Param('id') id: string) {
-    return this.eliminarProyectoGenerico(id, 'semanas-banco-preguntas', 'banco_preguntas_url');
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async eliminarBancoPreguntas(@Param('id') id: string, @Req() req: any) {
+    return this.eliminarProyectoGenerico(id, 'semanas-banco-preguntas', 'banco_preguntas_url', req);
   }
 
   @Post(':id/codigo-fuente')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
   @UseInterceptors(FileInterceptor('archivo', {
     storage: memoryStorage(),
     limits: { fileSize: MAX_BYTES_PROYECTO },
@@ -403,8 +478,10 @@ export class SemanasController implements OnModuleInit {
   async subirCodigoFuente(
     @Param('id') id: string,
     @UploadedFile() archivo: Express.Multer.File,
+    @Req() req: any,
   ) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     if (!archivo) throw new BadRequestException('No se recibió el archivo de código fuente (campo "archivo")');
 
     const carpeta = path.join(CARPETA_UPLOADS, 'semanas-codigo');
@@ -423,8 +500,11 @@ export class SemanasController implements OnModuleInit {
   }
 
   @Delete(':id/codigo-fuente')
-  async eliminarCodigoFuente(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('DOCENTE')
+  async eliminarCodigoFuente(@Param('id') id: string, @Req() req: any) {
     const semanaId = parseIdOrThrow(id);
+    await this.verificarSemanaDeDocente(semanaId, req);
     const carpeta = path.join(CARPETA_UPLOADS, 'semanas-codigo');
     if (fs.existsSync(carpeta)) {
       const archivos = fs.readdirSync(carpeta).filter(f => f.startsWith(`${semanaId}-codigo`));

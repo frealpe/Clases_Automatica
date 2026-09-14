@@ -107,6 +107,10 @@ necesita acceso a un servicio, el doc nombra la herramienta y de dónde toma sus
   p. ej. Plotly.js); se abre con `index.html` directo o con un servidor estático simple. Todo
   cambio de UI se prueba en un navegador real (o headless) antes de darlo por terminado, no solo
   con `node --check`.
+- En `Programacion/`, cada `semana-NN/` con material tiene una carpeta `codigos/` con los
+  programas en C extraídos del material (Notas y ejercicios), en subcarpetas por tema, más un
+  `Makefile` común (`make` compila todo a `bin/`; sin `-O2` a propósito, para 0 warnings con
+  `scanf` sin revisar retorno) y un `README.md`. Fuentes bajo control; `bin/` se ignora.
 - Con `persistencia = ninguna`: los archivos en disco son el registro, sin red de recuperación.
   La disciplina de escritura al cerrar cada sesión es crítica.
 

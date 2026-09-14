@@ -13,7 +13,9 @@ import { SemanasController } from './semanas/semanas.controller';
 import { EstudiantesController } from './estudiantes/estudiantes.controller';
 import { ExamenesProgramadosController } from './examenes-programados/examenes-programados.controller';
 import { AsistenciaController } from './asistencia/asistencia.controller';
+import { VisitasController } from './visitas/visitas.controller';
 import { DatabaseModule } from './database/database.module';
+import { obtenerJwtSecret } from './common/config';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { DatabaseModule } from './database/database.module';
     PassportModule,
     JwtModule.registerAsync({
       useFactory: () => ({
-        secret: process.env.JWT_SECRET || 'super_secret_jwt_key_unicauca_2026',
+        secret: obtenerJwtSecret(),
         signOptions: { expiresIn: '2h' },
       }),
     }),
@@ -39,6 +41,7 @@ import { DatabaseModule } from './database/database.module';
     EstudiantesController,
     ExamenesProgramadosController,
     AsistenciaController,
+    VisitasController,
   ],
   providers: [AuthService, JwtStrategy],
 })

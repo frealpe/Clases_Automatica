@@ -7,6 +7,7 @@ import { DatabaseService } from '../database/database.service';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { calificar } from '../common/calificacion';
 
 // Margen tras fecha_fin durante el cual todavía se acepta el submit (auto-envío del cliente por
 // timeout puede llegar unos segundos tarde por latencia de red).
@@ -23,6 +24,9 @@ const COLUMNAS_EXAMEN_RETURNING = `id, materia_id AS "materiaId", docente_id AS 
   cantidad_teoria AS "cantidadTeoria", cantidad_ejercicio AS "cantidadEjercicio", estado`;
 
 const PREGUNTA_COLUMNAS = `id, semana_id AS "semanaId", tipo, pregunta, opciones, correcta, explicacion, falencia`;
+// Sin respuesta correcta: es lo que ve el estudiante durante el examen. La calificación y la
+// revisión se resuelven en el servidor al enviar el intento (POST :id/submit).
+const PREGUNTA_COLUMNAS_EXAMEN = `id, semana_id AS "semanaId", tipo, pregunta, opciones`;
 
 function mezclar<T>(items: T[]): T[] {
   const copia = [...items];
@@ -330,11 +334,11 @@ export class ExamenesProgramadosController implements OnModuleInit {
     const semanaIds = semanaRows.map((r: any) => r.semanaId);
 
     const { rows: teoria } = await this.db.query(
-      `SELECT ${PREGUNTA_COLUMNAS} FROM preguntas WHERE semana_id = ANY($1) AND tipo = 'teoria' ORDER BY RANDOM() LIMIT $2`,
+      `SELECT ${PREGUNTA_COLUMNAS_EXAMEN} FROM preguntas WHERE semana_id = ANY($1) AND tipo = 'teoria' ORDER BY RANDOM() LIMIT $2`,
       [semanaIds, examen.cantidadTeoria],
     );
     const { rows: ejercicio } = await this.db.query(
-      `SELECT ${PREGUNTA_COLUMNAS} FROM preguntas WHERE semana_id = ANY($1) AND tipo = 'ejercicio' ORDER BY RANDOM() LIMIT $2`,
+      `SELECT ${PREGUNTA_COLUMNAS_EXAMEN} FROM preguntas WHERE semana_id = ANY($1) AND tipo = 'ejercicio' ORDER BY RANDOM() LIMIT $2`,
       [semanaIds, examen.cantidadEjercicio],
     );
 
@@ -361,6 +365,23 @@ export class ExamenesProgramadosController implements OnModuleInit {
     }
 
     const infracciones = Array.isArray(body?.infracciones) ? body.infracciones : [];
+
+    // La nota se recalcula en el servidor: el cliente solo manda las opciones elegidas.
+    const respuestasMap =
+      body?.respuestas && typeof body.respuestas === 'object' && !Array.isArray(body.respuestas)
+        ? body.respuestas
+        : {};
+    const idsRespondidas = Object.keys(respuestasMap);
+    let preguntas: any[] = [];
+    if (idsRespondidas.length > 0) {
+      const { rows: pRows } = await this.db.query(
+        `SELECT id, correcta, explicacion, falencia, tipo, pregunta FROM preguntas WHERE id = ANY($1)`,
+        [idsRespondidas],
+      );
+      preguntas = pRows;
+    }
+    const resultado = calificar(preguntas, respuestasMap);
+
     const { rows } = await this.db.query(
       `INSERT INTO intentos_examen
          (estudiante_id, semana_id, examen_programado_id, nota5, porcentaje, aprobado, infraccion_ia, infracciones, tiempo_empleado_seg, respuestas)
@@ -370,15 +391,15 @@ export class ExamenesProgramadosController implements OnModuleInit {
       [
         req.user.id,
         id,
-        body.nota5,
-        body.porcentaje,
-        body.aprobado,
+        resultado.nota5,
+        resultado.porcentaje,
+        resultado.aprobado,
         infracciones.length > 0 || !!body.infraccionIA,
         JSON.stringify(infracciones),
-        body.tiempoEmpleadoSeg,
-        JSON.stringify(body.respuestas || {}),
+        Number.isFinite(body?.tiempoEmpleadoSeg) ? body.tiempoEmpleadoSeg : 0,
+        JSON.stringify(respuestasMap),
       ],
     );
-    return { status: 'ok', mensaje: 'Resultado del examen programado registrado en el servidor', intento: rows[0] };
+    return { status: 'ok', mensaje: 'Resultado del examen programado calificado y registrado en el servidor', intento: rows[0], resultado };
   }
 }

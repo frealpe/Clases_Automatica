@@ -83,13 +83,25 @@ function DocenteAdminViewBase() {
             </p>
           </div>
 
-          <button
-            onClick={() => setModalMateriaAbierto(true)}
-            className="px-4 py-2 rounded-xl bg-[#38bdf8] text-black font-black text-xs hover:bg-sky-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
-          >
-            <span className="material-symbols-outlined text-base">add_circle</span>
-            <span>+ Agregar Materia</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/materias/examenes')}
+              className="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black text-xs hover:bg-emerald-500/30 transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+            >
+              <span className="material-symbols-outlined text-base">tune</span>
+              <span>Parámetros y Evaluaciones</span>
+            </button>
+
+
+            <button
+              onClick={() => setModalMateriaAbierto(true)}
+              className="px-4 py-2 rounded-xl bg-[#38bdf8] text-black font-black text-xs hover:bg-sky-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+            >
+              <span className="material-symbols-outlined text-base">add_circle</span>
+              <span>+ Agregar Materia</span>
+            </button>
+          </div>
+
         </div>
 
         {materias.length === 0 && (

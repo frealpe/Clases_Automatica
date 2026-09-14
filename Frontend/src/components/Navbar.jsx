@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCourseStore } from '../store/useCourseStore';
 import LoginDropdown from './LoginDropdown';
 import DescargaMovilDropdown from './DescargaMovilDropdown';
+import VisitasCounter from './VisitasCounter';
 
 /**
  * Navbar con responsive progresivo por breakpoints:
@@ -120,6 +121,9 @@ export default function Navbar() {
 
         {/* ── CONTROLES ─────────────────────────────────────────────── */}
         <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0 relative">
+
+          {/* Contador de Visitas en Vivo */}
+          <VisitasCounter />
 
           {/* Botón descarga app: xs oculto | sm+ visible */}
           <div className="relative hidden sm:block">

@@ -1,0 +1,14 @@
+# Dependencias y build
+node_modules/
+dist/
+
+# Variables de entorno (contienen secretos)
+.env
+.env.local
+.env.production
+
+# Contenido subido por los usuarios en runtime (no versionar)
+uploads/
+
+# Logs
+*.log

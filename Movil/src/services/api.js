@@ -53,38 +53,23 @@ function normalizarListaPreguntas(lista) {
 export const apiService = {
   // Autenticación via Axios (.env)
   async login(email, password) {
-    try {
-      const response = await mobileApiClient.post('/auth/login', { email, password });
-      const data = response.data;
-      await localStorageService.setUsuarioActual(data.user, data.access_token);
-      return data;
-    } catch (e) {
-      console.log('Axios Móvil: Servidor offline, usando base local');
-    }
-
-    const esDocente = email.includes('docente') || email.includes('prof');
-    const userSimulado = {
-      id: esDocente ? 1 : 2,
-      nombre: esDocente ? 'Prof. Mario Grosso (Docente)' : 'Estudiante Álgebra',
-      email: email,
-      rol: esDocente ? 'DOCENTE' : 'ESTUDIANTE'
-    };
-    const tokenSimulado = `local_token_${Date.now()}`;
-    await localStorageService.setUsuarioActual(userSimulado, tokenSimulado);
-
-    return {
-      access_token: tokenSimulado,
-      user: userSimulado
-    };
+    // El login SIEMPRE se valida contra el servidor. No hay inicio de sesión "offline":
+    // fabricar una sesión local (y peor, adivinar el rol por el texto del correo) permitía
+    // entrar como DOCENTE sin credenciales. Si el servidor no responde, se propaga el error.
+    const response = await mobileApiClient.post('/auth/login', { email, password });
+    const data = response.data;
+    await localStorageService.setUsuarioActual(data.user, data.access_token);
+    return data;
   },
 
-  // Obtener Preguntas via Axios (.env)
+  // Obtener Preguntas via Axios (.env). Usa el endpoint /examen, que NO incluye la respuesta
+  // correcta: la calificación la hace el servidor al enviar el intento.
   async getPreguntasSemana(semanaId) {
     const local = await localStorageService.getPreguntasLocales(semanaId);
     if (local && local.length > 0) return normalizarListaPreguntas(local);
 
     try {
-      const response = await mobileApiClient.get(`/preguntas/semana/${semanaId}`);
+      const response = await mobileApiClient.get(`/preguntas/semana/${semanaId}/examen`);
       if (response.data && response.data.length > 0) {
         const normalizadas = normalizarListaPreguntas(response.data);
         await localStorageService.guardarPreguntasLocales(semanaId, normalizadas);
@@ -100,17 +85,19 @@ export const apiService = {
     return preguntasFallback;
   },
 
-  // Enviar Intento de Examen via Axios (.env)
+  // Enviar Intento de Examen via Axios (.env). Devuelve la respuesta del servidor
+  // (incluye `resultado` con la nota calculada y la revisión pregunta a pregunta) o null si
+  // no se pudo enviar (queda guardado localmente para reintentar).
   async submitEvaluacion(intentoData) {
     await localStorageService.guardarIntentoLocal(intentoData);
 
     try {
-      await mobileApiClient.post('/evaluaciones/submit', intentoData);
+      const response = await mobileApiClient.post('/evaluaciones/submit', intentoData);
+      return response.data;
     } catch (e) {
       console.log('Axios Móvil: Guardado localmente para sincronizar al reconectar');
+      return null;
     }
-
-    return true;
   },
 
   // Exámenes Programados (calendario) — agrega los de todas las materias inscritas del estudiante

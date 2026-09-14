@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useCourseStore } from '../store/useCourseStore';
 import { evaluacionesService } from '../services/evaluaciones.service';
+import { formatearEnunciado } from '../utils/formatearEnunciado';
 
 // examenProgramado, si se pasa, activa el modo "programado": ventana de calendario, pantalla
 // completa + detección de infracciones (blur/cambio de pestaña/salida de fullscreen) y timer con
@@ -19,6 +20,9 @@ export default function ExamenModal({ isOpen, onClose, semana, examenProgramado 
   const [respuestas, setRespuestas] = useState({});
   const [finalizado, setFinalizado] = useState(false);
   const [resultado, setResultado] = useState(null);
+  // Revisión pregunta a pregunta que devuelve el servidor al calificar (incluye la respuesta
+  // correcta y la explicación; ya no viajan al cliente durante el examen).
+  const [revision, setRevision] = useState([]);
   const [inicioMs, setInicioMs] = useState(null);
   const [infracciones, setInfracciones] = useState([]);
   const [errorCarga, setErrorCarga] = useState('');
@@ -65,6 +69,7 @@ const normalizarListaPreguntas = (lista) => {
     setCargando(!modoProgramado);
     setFinalizado(false);
     setResultado(null);
+    setRevision([]);
     setRespuestas({});
     setInfracciones([]);
     setErrorCarga('');
@@ -88,35 +93,33 @@ const normalizarListaPreguntas = (lista) => {
     if (entregandoRef.current) return;
     entregandoRef.current = true;
 
-    const listaPreguntas = preguntas;
+    const total = preguntas.length;
     const respuestasFinal = respuestasRef.current;
-    const correctas = listaPreguntas.filter((p) => respuestasFinal[p.id] === p.correcta).length;
-    const total = listaPreguntas.length;
-    const porcentaje = total > 0 ? Math.round((correctas / total) * 100) : 0;
-    const nota5 = Math.round(((correctas / (total || 1)) * 5) * 10) / 10;
-    const aprobado = porcentaje >= 60;
     const tiempoEmpleadoSeg = Math.round((Date.now() - (inicioMsRef.current || Date.now())) / 1000);
-
-    setResultado({ correctas, total, porcentaje, nota5, aprobado });
-    setFinalizado(true);
-    setFase('finalizado');
 
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
 
+    let resp = null;
     try {
-      await submitExamenProgramadoAction(examenProgramado.id, {
+      resp = await submitExamenProgramadoAction(examenProgramado.id, {
         respuestas: respuestasFinal,
-        nota5,
-        porcentaje,
-        aprobado,
         tiempoEmpleadoSeg,
+        infraccionIA: infraccionesRef.current.length > 0,
         infracciones: infraccionesRef.current
       });
     } catch (err) {
       console.warn('No se pudo registrar el intento programado en el servidor:', err);
     }
+
+    const r = resp?.resultado;
+    setResultado(r
+      ? { correctas: r.correctas, total: r.total, porcentaje: r.porcentaje, nota5: r.nota5, aprobado: r.aprobado, sinCalificar: false }
+      : { correctas: 0, total, porcentaje: 0, nota5: 0, aprobado: false, sinCalificar: true });
+    setRevision(r?.revision || []);
+    setFinalizado(true);
+    setFase('finalizado');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preguntas, examenProgramado, submitExamenProgramadoAction]);
 
@@ -167,22 +170,13 @@ const normalizarListaPreguntas = (lista) => {
   const entregarExamen = async () => {
     if (modoProgramado) return entregarExamenProgramado();
 
-    const correctas = preguntas.filter((p) => respuestas[p.id] === p.correcta).length;
     const total = preguntas.length;
-    const porcentaje = total > 0 ? Math.round((correctas / total) * 100) : 0;
-    const nota5 = Math.round(((correctas / (total || 1)) * 5) * 10) / 10;
-    const aprobado = porcentaje >= 60;
     const tiempoEmpleadoSeg = Math.round((Date.now() - inicioMs) / 1000);
 
-    setResultado({ correctas, total, porcentaje, nota5, aprobado });
-    setFinalizado(true);
-
+    let resp = null;
     try {
-      await evaluacionesService.submitIntento({
+      resp = await evaluacionesService.submitIntento({
         semanaId: semana.id,
-        nota5,
-        porcentaje,
-        aprobado,
         infraccionIA: false,
         tiempoEmpleadoSeg,
         respuestas
@@ -190,6 +184,13 @@ const normalizarListaPreguntas = (lista) => {
     } catch (err) {
       console.warn('No se pudo registrar el intento en el servidor:', err);
     }
+
+    const r = resp?.resultado;
+    setResultado(r
+      ? { correctas: r.correctas, total: r.total, porcentaje: r.porcentaje, nota5: r.nota5, aprobado: r.aprobado, sinCalificar: false }
+      : { correctas: 0, total, porcentaje: 0, nota5: 0, aprobado: false, sinCalificar: true });
+    setRevision(r?.revision || []);
+    setFinalizado(true);
   };
 
   // Pantalla previa del modo programado: exige un gesto de usuario explícito antes de pedir
@@ -294,8 +295,8 @@ const normalizarListaPreguntas = (lista) => {
                 {p.tipo === 'teoria' ? '📖 TEORÍA' : '🧮 EJERCICIO'}
               </span>
             </div>
-            <div className="text-xs font-medium text-slate-100 mb-3 whitespace-pre-line leading-relaxed">
-              {p.pregunta}
+            <div className="text-xs font-medium text-slate-100 mb-3 leading-relaxed">
+              {formatearEnunciado(p.pregunta)}
             </div>
             <div className="flex flex-col gap-2">
               {p.opciones.map((op) => {
@@ -365,6 +366,11 @@ const normalizarListaPreguntas = (lista) => {
               <div style={{ color: resultado.aprobado ? '#4ade80' : '#f87171', fontWeight: '700', marginTop: '4px' }}>
                 {resultado.aprobado ? 'Aprobado' : 'No aprobado'} — {resultado.correctas} de {resultado.total} correctas
               </div>
+              {resultado.sinCalificar && (
+                <div style={{ color: '#fbbf24', fontSize: '0.75rem', marginTop: '8px' }}>
+                  ⚠️ No se pudo calificar en el servidor (revisa tu conexión). Tus respuestas pueden no haber quedado registradas.
+                </div>
+              )}
               {modoProgramado && infracciones.length > 0 && (
                 <div style={{ color: '#fbbf24', fontSize: '0.75rem', marginTop: '8px' }}>
                   ⚠️ Se registraron {infracciones.length} posible(s) infracción(es) durante la prueba.
@@ -373,26 +379,145 @@ const normalizarListaPreguntas = (lista) => {
             </div>
 
             {preguntas.map((p, idx) => {
-              const esCorrecta = respuestas[p.id] === p.correcta;
+              const rev = revision.find((r) => String(r.preguntaId) === String(p.id));
+              const miRespuestaId = String(respuestas[p.id] || rev?.seleccionada || '').toLowerCase();
+              const correctaId = String(rev?.correcta || p.correcta || '').toLowerCase();
+              const esCorrecta = !!rev?.esCorrecta || (miRespuestaId !== '' && miRespuestaId === correctaId);
+
               return (
-                <div key={p.id} className="question-card" style={{ marginBottom: '12px' }}>
-                  <div className="card-top">
-                    <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '800' }}>
-                      PREGUNTA {idx + 1}
+                <div
+                  key={p.id}
+                  className="question-card"
+                  style={{
+                    marginBottom: '16px',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    backgroundColor: esCorrecta ? 'rgba(34, 197, 94, 0.06)' : 'rgba(239, 68, 68, 0.06)',
+                    border: `1px solid ${esCorrecta ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                  }}
+                >
+                  {/* ENCABEZADO DE PREGUNTA Y ESTADO DE ACIERTO */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: '800' }}>
+                      PREGUNTA {idx + 1} DE {preguntas.length} {p.ra ? `· [${p.ra}]` : ''}
                     </span>
-                    <span className="question-type" style={{ background: esCorrecta ? '#16a34a' : '#ef4444' }}>
+                    <span
+                      style={{
+                        background: esCorrecta ? '#16a34a' : '#ef4444',
+                        color: '#ffffff',
+                        fontWeight: '800',
+                        padding: '3px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.75rem'
+                      }}
+                    >
                       {esCorrecta ? '✔ Correcta' : '✘ Incorrecta'}
                     </span>
                   </div>
-                  <div className="question-body" style={{ whiteSpace: 'pre-line' }}>{p.pregunta}</div>
-                  <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '8px' }}>
-                    💡 <strong>Explicación:</strong> {p.explicacion}
+
+                  {/* ENUNCIADO DE LA PREGUNTA */}
+                  <div style={{ fontSize: '0.85rem', color: '#f8fafc', fontWeight: '600', marginBottom: '12px', lineHeight: '1.5' }}>
+                    {formatearEnunciado(p.pregunta || p.enunciado)}
                   </div>
-                  {!esCorrecta && (
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px' }}>
-                      📌 <strong>Concepto a reforzar:</strong> {p.falencia}
+
+                  {/* MATRIZ COMPARATIVA DE OPCIONES PARA ANÁLISIS DEL ESTUDIANTE */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                    {(p.opciones || []).map((op) => {
+                      const opIdLower = String(op.id).toLowerCase();
+                      const esMiRespuesta = miRespuestaId === opIdLower;
+                      const esRespuestaCorrecta = correctaId === opIdLower;
+
+                      let bg = 'rgba(15, 23, 42, 0.6)';
+                      let border = 'rgba(51, 65, 85, 0.6)';
+                      let textColor = '#cbd5e1';
+                      let badge = null;
+
+                      if (esRespuestaCorrecta && esMiRespuesta) {
+                        bg = 'rgba(34, 197, 94, 0.2)';
+                        border = '#22c55e';
+                        textColor = '#4ade80';
+                        badge = (
+                          <span style={{ background: '#16a34a', color: '#ffffff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '800' }}>
+                            ✓ TU RESPUESTA CORRECTA
+                          </span>
+                        );
+                      } else if (esRespuestaCorrecta) {
+                        bg = 'rgba(34, 197, 94, 0.15)';
+                        border = '#22c55e';
+                        textColor = '#4ade80';
+                        badge = (
+                          <span style={{ background: '#15803d', color: '#ffffff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '800' }}>
+                            ✅ RESPUESTA CORRECTA
+                          </span>
+                        );
+                      } else if (esMiRespuesta) {
+                        bg = 'rgba(239, 68, 68, 0.2)';
+                        border = '#ef4444';
+                        textColor = '#f87171';
+                        badge = (
+                          <span style={{ background: '#dc2626', color: '#ffffff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '800' }}>
+                            ❌ TU RESPUESTA (INCORRECTA)
+                          </span>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={op.id}
+                          style={{
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            backgroundColor: bg,
+                            border: `1px solid ${border}`,
+                            color: textColor,
+                            fontSize: '0.8rem',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}
+                        >
+                          <div>
+                            <strong style={{ marginRight: '6px', textTransform: 'uppercase' }}>{op.id})</strong>
+                            {op.texto}
+                          </div>
+                          {badge}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* RETROALIMENTACIÓN DE EXPLICACIÓN Y ANÁLISIS DE ERROR */}
+                  <div
+                    style={{
+                      backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                      borderRadius: '8px',
+                      padding: '10px 12px',
+                      border: '1px solid rgba(51, 65, 85, 0.8)',
+                      fontSize: '0.8rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '6px'
+                    }}
+                  >
+                    <div style={{ color: '#cbd5e1' }}>
+                      📝 <strong>Tu respuesta:</strong> {miRespuestaId ? miRespuestaId.toUpperCase() : 'Sin respuesta (N/R)'}
+                      {' | '}
+                      ✅ <strong>Respuesta correcta del docente:</strong> {correctaId ? correctaId.toUpperCase() : '—'}
                     </div>
-                  )}
+
+                    {(rev?.explicacion || p.explicacion) && (
+                      <div style={{ color: '#38bdf8', marginTop: '2px' }}>
+                        💡 <strong>Explicación del procedimiento:</strong> {rev?.explicacion || p.explicacion}
+                      </div>
+                    )}
+
+                    {(rev?.falencia || p.falencia) && !esCorrecta && (
+                      <div style={{ color: '#fbbf24', marginTop: '2px' }}>
+                        📌 <strong>Análisis del error a reforzar (RA):</strong> {rev?.falencia || p.falencia}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}

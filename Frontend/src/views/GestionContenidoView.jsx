@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCourseStore } from '../store/useCourseStore';
 import { semanasService } from '../services/semanas.service';
 import { preguntasService } from '../services/preguntas.service';
-import { API_URL } from '../services/apiClient';
+import { API_URL, getDownloadUrl } from '../services/apiClient';
 import Sidebar from '../components/Sidebar';
 import GestionPreguntasModal from '../components/GestionPreguntasModal';
 import { withAuth } from '../hocs/withAuth';
@@ -413,7 +413,7 @@ function GestionContenidoViewBase() {
                         <span className="text-[10px] font-bold leading-tight">{etiqueta}</span>
                         {url ? (
                           <a
-                            href={`${API_URL}${url}`}
+                            href={getDownloadUrl(url)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-[10px] font-bold text-emerald-500 underline"
@@ -453,7 +453,7 @@ function GestionContenidoViewBase() {
                     <span className="text-[10px] font-bold leading-tight">Material Web</span>
                     {s.claseWebUrl ? (
                       <a
-                        href={`${API_URL}${s.claseWebUrl}`}
+                        href={getDownloadUrl(s.claseWebUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[10px] font-bold text-emerald-500 underline"
@@ -467,9 +467,9 @@ function GestionContenidoViewBase() {
                       className={`text-[10px] font-extrabold px-2 py-1 rounded-md cursor-pointer transition-all ${
                         esLight ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-white text-black hover:bg-slate-100'
                       }`}
-                      title="Sube un .zip con tu proyecto HTML (debe incluir index.html en la raíz)"
+                      title="Sube un .zip con tu proyecto HTML interactivo (debe incluir index.html en la raíz o subcarpeta)"
                     >
-                      {subiendoHtml[s.id] ? 'Subiendo...' : s.claseWebUrl ? 'Reemplazar' : 'Subir .zip'}
+                      {subiendoHtml[s.id] ? 'Subiendo...' : s.claseWebUrl ? 'Reemplazar Web' : 'Subir Web (.ZIP)'}
                       <input
                         type="file"
                         accept=".zip,application/zip"
@@ -489,29 +489,29 @@ function GestionContenidoViewBase() {
                     <span className={`material-symbols-outlined text-base ${esLight ? 'text-amber-600' : 'text-amber-400'}`}>
                       code
                     </span>
-                    <span className="text-[10px] font-bold leading-tight">Código Fuente</span>
+                    <span className="text-[10px] font-bold leading-tight">Código Fuente (.ZIP)</span>
                     {s.codigoFuenteUrl ? (
                       <a
-                        href={`${API_URL}${s.codigoFuenteUrl}`}
+                        href={getDownloadUrl(s.codigoFuenteUrl)}
                         download
-                        className="text-[10px] font-bold text-amber-400 underline"
-                        title="Descargar código fuente"
+                        className="text-[10px] font-bold text-amber-400 underline hover:text-amber-300"
+                        title="Descargar paquete .ZIP del proyecto / práctica"
                       >
-                        Descargar ✓
+                        Descargar .ZIP ✓
                       </a>
                     ) : (
-                      <span className={`text-[10px] ${textoSecundario}`}>Sin código</span>
+                      <span className={`text-[10px] ${textoSecundario}`}>Sin .ZIP</span>
                     )}
                     <label
                       className={`text-[10px] font-extrabold px-2 py-1 rounded-md cursor-pointer transition-all ${
                         esLight ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-amber-400 text-black hover:bg-amber-300'
                       }`}
-                      title="Sube archivos de código (.c, .vhd, .qsys, .zip)"
+                      title="Sube el paquete .zip con el código fuente de la práctica (VHDL, C, Quartus, Python)"
                     >
-                      {subiendoCodigo[s.id] ? 'Subiendo...' : s.codigoFuenteUrl ? 'Reemplazar' : 'Subir Código'}
+                      {subiendoCodigo[s.id] ? 'Subiendo...' : s.codigoFuenteUrl ? 'Reemplazar Código' : 'Subir Código (.ZIP)'}
                       <input
                         type="file"
-                        accept=".c,.h,.vhd,.qsys,.zip,.py,.cpp,.txt"
+                        accept=".zip,.c,.h,.vhd,.qsys,.py,.cpp,.txt,application/zip"
                         className="hidden"
                         onChange={(e) => handleSubirCodigoFuente(s.id, e.target.files[0])}
                       />
@@ -554,7 +554,7 @@ function GestionContenidoViewBase() {
                     </div>
                     {s.bancoPreguntasUrl && (
                       <a
-                        href={`${API_URL}${s.bancoPreguntasUrl}`}
+                        href={getDownloadUrl(s.bancoPreguntasUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[9px] font-bold text-emerald-500 underline"

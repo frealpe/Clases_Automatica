@@ -133,7 +133,9 @@ export class EstudiantesController implements OnModuleInit {
     await this.verificarPropiedadMateria(mid, req);
 
     const { rows } = await this.db.query(
-      `SELECT u.id, u.nombre, u.email, u.documento_identidad AS "documentoIdentidad", i.creada_en AS "inscritoEn"
+      `SELECT u.id, u.nombre, u.email, u.documento_identidad AS "documentoIdentidad", i.creada_en AS "inscritoEn",
+              COALESCE((SELECT COUNT(id)::int FROM actividad_estudiantes WHERE usuario_id = u.id AND (materia_id = $1 OR materia_id IS NULL)), 0) AS "totalIngresos",
+              (SELECT MAX(creado_en) FROM actividad_estudiantes WHERE usuario_id = u.id AND (materia_id = $1 OR materia_id IS NULL)) AS "ultimaVisita"
        FROM inscripciones i
        JOIN usuarios u ON u.id = i.estudiante_id
        WHERE i.materia_id = $1

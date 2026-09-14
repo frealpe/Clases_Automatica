@@ -56,22 +56,22 @@ const PLANES_SEMANALES_MATERIAS = {
     { id: 316, materiaId: 3, numero: '16', unidad: '5. Proyecto de Inspección Visual', ra: 'RA5.1-RA5.2', min: 30, raDescripcion: 'Sistema automático de control de calidad por visión industrial.' }
   ],
   4: [ // Énfasis — Nios II sobre FPGA (GPIO/USART/SPI/ADC) + Procesamiento Digital de Señales
-    { id: 401, materiaId: 4, numero: '01', unidad: '1. Fundamentos FPGA y Nios II', ra: 'RA1.1-RA1.2', min: 20, raDescripcion: 'Arquitectura de FPGA y del procesador blando Nios II; entorno Quartus y Platform Designer.' },
-    { id: 402, materiaId: 4, numero: '02', unidad: '1. Fundamentos FPGA y Nios II', ra: 'RA1.3-RA1.4', min: 20, raDescripcion: 'Construcción de un sistema Nios II básico sobre el bus Avalon: memoria, compilación del hardware y carga en la FPGA.' },
-    { id: 403, materiaId: 4, numero: '03', unidad: '2. Periféricos GPIO/USART/SPI', ra: 'RA2.1-RA2.2', min: 20, raDescripcion: 'Diseño e integración del núcleo GPIO (PIO) para entradas y salidas digitales controladas desde Nios II.' },
-    { id: 404, materiaId: 4, numero: '04', unidad: '2. Periféricos GPIO/USART/SPI', ra: 'RA2.3-RA2.4', min: 20, raDescripcion: 'Comunicación serial asíncrona (USART) y síncrona (SPI) entre Nios II y periféricos externos.' },
-    { id: 405, materiaId: 4, numero: '05', unidad: '3. ADC y adquisición de señal', ra: 'RA3.1-RA3.2', min: 20, raDescripcion: 'Conversión analógico-digital: muestreo, cuantización e interfaz del núcleo ADC con Nios II.' },
-    { id: 406, materiaId: 4, numero: '06', unidad: '3. ADC y adquisición de señal', ra: 'RA3.3-RA3.4', min: 20, raDescripcion: 'Adquisición de señales en tiempo real integrando el ADC al sistema Nios II.' },
-    { id: 407, materiaId: 4, numero: '07', unidad: '4. Fundamentos de Procesamiento Digital de Señales', ra: 'RA4.1-RA4.2', min: 20, raDescripcion: 'Señales discretas, muestreo y teorema de Nyquist.' },
-    { id: 408, materiaId: 4, numero: '08', unidad: '4. Fundamentos de Procesamiento Digital de Señales', ra: 'RA4.3-RA4.4', min: 20, raDescripcion: 'Sistemas LTI y convolución discreta.' },
-    { id: 409, materiaId: 4, numero: '09', unidad: '5. Filtrado digital', ra: 'RA5.1-RA5.2', min: 25, raDescripcion: 'Diseño de filtros FIR pasa-bajas.' },
-    { id: 410, materiaId: 4, numero: '10', unidad: '5. Filtrado digital', ra: 'RA5.3-RA5.4', min: 25, raDescripcion: 'Diseño de filtros FIR pasa-altas.' },
-    { id: 411, materiaId: 4, numero: '11', unidad: '5. Filtrado digital', ra: 'RA5.5-RA5.6', min: 25, raDescripcion: 'Implementación de filtros digitales en Nios II (C/HAL) — primera etapa.' },
-    { id: 412, materiaId: 4, numero: '12', unidad: '5. Filtrado digital', ra: 'RA5.7-RA5.8', min: 25, raDescripcion: 'Implementación y validación de filtros digitales en Nios II sobre señal adquirida por el ADC.' },
-    { id: 413, materiaId: 4, numero: '13', unidad: '6. Análisis frecuencial y FFT', ra: 'RA6.1-RA6.2', min: 25, raDescripcion: 'Transformada de Fourier discreta (DFT).' },
-    { id: 414, materiaId: 4, numero: '14', unidad: '6. Análisis frecuencial y FFT', ra: 'RA6.3-RA6.4', min: 25, raDescripcion: 'Algoritmo FFT y análisis de su complejidad computacional.' },
-    { id: 415, materiaId: 4, numero: '15', unidad: '6. Análisis frecuencial y FFT', ra: 'RA6.5-RA6.6', min: 25, raDescripcion: 'Implementación de la FFT en Nios II sobre una señal adquirida por el ADC.' },
-    { id: 416, materiaId: 4, numero: '16', unidad: '16. Proyecto integrador', ra: 'RA7.1-RA7.2', min: 30, raDescripcion: 'Cadena completa de procesamiento: ADC → filtro digital → FFT → salida por GPIO/USART/SPI.' }
+    { id: 401, materiaId: 4, numero: '01', unidad: 'Práctica 1: Sistema Nios II Básico en FPGA DE1-SoC (Módulo 1)', ra: 'RA1.1-RA1.2', min: 20, raDescripcion: 'Primer contacto con el flujo co-diseño: crear un sistema Nios II mínimo en Platform Designer (Qsys), sintetizarlo en Quartus Prime sobre DE1-SoC y ejecutar "Hello World".' },
+    { id: 402, materiaId: 4, numero: '02', unidad: 'Práctica 1: Arquitectura Nios II, Bus Avalon-MM y BSP (Módulo 1)', ra: 'RA1.3-RA1.4', min: 20, raDescripcion: 'Construcción y asignación del mapa de memoria en bus Avalon-MM, configuración de reloj maestro (50 MHz), generación del Board Support Package (BSP) y depuración por JTAG.' },
+    { id: 403, materiaId: 4, numero: '03', unidad: 'Práctica 3: Generador PWM como IP Avalon-MM Propia (Módulo 2)', ra: 'RA2.1-RA2.2', min: 20, raDescripcion: 'Diseño en VHDL de un generador PWM propio (pwm_avalon.vhd), empaquetado con Component Editor, integración en Platform Designer y control de periodo y duty cycle desde C (IOWR/IORD).' },
+    { id: 404, materiaId: 4, numero: '04', unidad: 'Práctica 4: Aritmética Q15 y Adquisición ADC LTC2308 (Módulo 2)', ra: 'RA2.3-RA2.4', min: 20, raDescripcion: 'Aritmética de punto fijo Q15 (pkg_q15.vhd), adquisición analógica con ADC LTC2308 (12 bits), muestreo periódico por interrupción de Timer e integración en hardware DE1-SoC.' },
+    { id: 405, materiaId: 4, numero: '05', unidad: 'Práctica 3: Generador PWM Avanzado (Módulo 3)', ra: 'RA3.1-RA3.2', min: 20, raDescripcion: 'Modulación por ancho de pulso (PWM) avanzada en hardware VHDL con control de frecuencia dinámico y registros Avalon-MM de 32 bits.' },
+    { id: 406, materiaId: 4, numero: '06', unidad: 'Práctica 4: Aritmética de Punto Fijo Q15 en Hardware (Módulo 3)', ra: 'RA3.3-RA3.4', min: 20, raDescripcion: 'Implementación del paquete VHDL pkg_q15.vhd: formato Q1.15 con signo, suma/resta con saturación, multiplicación Q15 con truncado y conversión entre entero/flotante.' },
+    { id: 407, materiaId: 4, numero: '07', unidad: 'Práctica 4: Conversión ADC e Interrupciones Timer (Módulo 4)', ra: 'RA4.1-RA4.2', min: 20, raDescripcion: 'Módulo 0 de adquisición: interfaz SPI dedicada para el ADC LTC2308 (12 bits) de la DE1-SoC, muestreo periódico por interrupción de Timer e integración con la tubería Q15.' },
+    { id: 408, materiaId: 4, numero: '08', unidad: 'Práctica 5: Filtros Digitales FIR Reconfigurables (Módulo 4)', ra: 'RA4.3-RA4.4', min: 25, raDescripcion: 'Diseño e implementación en VHDL de IP Avalon-MM de filtro FIR (fir_avalon.vhd) con 6 modos fijos (LP, HP, BP, BR) en formato Q15 y registros de control de 32 bits.' },
+    { id: 409, materiaId: 4, numero: '09', unidad: 'Práctica 5: Filtros IIR 1.er Orden RC y Biquad (Módulo 5)', ra: 'RA5.1-RA5.2', min: 25, raDescripcion: 'Implementación de filtros IIR recursivos (RC y Biquad Butterworth) con 5 coeficientes de 32 bits, calculadora web interactiva y simulación continua con Web Audio API.' },
+    { id: 410, materiaId: 4, numero: '10', unidad: 'Práctica 6: Integración SoC del Filtro FIR (Módulo 5)', ra: 'RA5.3-RA5.4', min: 25, raDescripcion: 'Ensamblado del sistema SoC sistema_dsp.qsys con fir_avalon, memoria de 64 KB, consola JTAG UART, PIOs de switches/LEDs y software C de filtrado de señal bi-tonal.' },
+    { id: 411, materiaId: 4, numero: '11', unidad: 'Práctica 7: Adquisición Analógica en Tiempo Real (Módulo 6)', ra: 'RA5.5-RA5.6', min: 25, raDescripcion: 'Controlador SPI en VHDL para ADC serie de 12 bits en modo free-running, máquina de estados FSM de 16 pulsos SCLK, IP Avalon-MM y conversión a milivoltios en Nios II.' },
+    { id: 412, materiaId: 4, numero: '12', unidad: 'Práctica 8: Procesamiento de Audio Streaming (Módulo 6)', ra: 'RA5.7-RA5.8', min: 25, raDescripcion: 'Diseño de tubería de procesamiento de audio por flujos (streaming) con protocolo de handshaking valid/ready y gestión de backpressure en tiempo real.' },
+    { id: 413, materiaId: 4, numero: '13', unidad: 'Práctica 9: Filtros Recursivos IIR Biquad SOS (Módulo 7)', ra: 'RA6.1-RA6.2', min: 25, raDescripcion: 'Cálculo de coeficientes mediante RBJ Audio EQ Cookbook, implementación en VHDL de la ecuación en diferencias de 2º orden y almacenamiento de estados pasados.' },
+    { id: 414, materiaId: 4, numero: '14', unidad: 'Práctica 9: Análisis de Estabilidad en IIR (Módulo 7)', ra: 'RA6.3-RA6.4', min: 25, raDescripcion: 'Evaluación de estabilidad de filtros IIR recursivos en el plano z, ubicación de polos, efecto del redondeo/saturación Q15 y prevención de oscilaciones parásitas.' },
+    { id: 415, materiaId: 4, numero: '15', unidad: 'Práctica 10: Proyecto Integrador — Osciloscopio Python (Módulo 8)', ra: 'RA7.1-RA7.2', min: 25, raDescripcion: 'Integración completa: ADC → Filtro Digital FIR/IIR → Transmisión UART 115200 baudios → Interfaz Gráfica (GUI) Osciloscopio en Python para monitoreo y control.' },
+    { id: 416, materiaId: 4, numero: '16', unidad: 'Práctica 11: Automatización y Flujo Headless Quartus CLI (Módulo 8)', ra: 'RA7.3-RA7.4', min: 30, raDescripcion: 'Automatización de compilación y programación de bitstreams .sof en FPGA con scripts Tcl (compilar.tcl), Shell (programar.sh) y Makefile con Quartus CLI.' }
   ]
 };
 
@@ -187,18 +187,25 @@ export const useCourseStore = create((set, get) => ({
   // ej. un docente sin materias asignadas), y en ese caso se conserva lo que ya había en pantalla.
   cargarMateriasFromService: async () => {
     const list = await materiasService.getMaterias();
-    if (Array.isArray(list)) {
+    if (Array.isArray(list) && list.length > 0) {
       set((state) => {
-        // Si la materia activa (por defecto la 1, "Álgebra Lineal") no está entre las que este
-        // usuario puede ver/administrar (p. ej. un DOCENTE cuya única materia tiene otro id),
-        // se corrige a la primera disponible — si no, quedan peticiones a la materia equivocada
-        // (403 en endpoints que sí validan propiedad, datos de otro curso en los que no validan).
         const activaSigueValida = list.some((m) => m.id === state.materiaActivaId);
         return {
           materias: list,
           materiaActivaId: activaSigueValida ? state.materiaActivaId : (list[0]?.id ?? state.materiaActivaId)
         };
       });
+    } else {
+      const listPub = await materiasService.getMateriasPublicas();
+      if (Array.isArray(listPub) && listPub.length > 0) {
+        set((state) => {
+          const activaSigueValida = listPub.some((m) => m.id === state.materiaActivaId);
+          return {
+            materias: listPub,
+            materiaActivaId: activaSigueValida ? state.materiaActivaId : (listPub[0]?.id ?? state.materiaActivaId)
+          };
+        });
+      }
     }
   },
 
@@ -214,7 +221,7 @@ export const useCourseStore = create((set, get) => ({
       semanaSeleccionadaId: semMateria[0]?.id || null,
       preguntasMap: {}
     });
-    if (state.tokenJWT) {
+    if (state.tokenJWT && localStorage.getItem('jwt_token')) {
       get().cargarSemanasFromService(materiaId);
     } else {
       get().cargarSemanasPublicasFromService(materiaId);
@@ -228,8 +235,14 @@ export const useCourseStore = create((set, get) => ({
       const normalizadas = normalizarSemanas(list);
       set({ semanas: normalizadas, semanaSeleccionadaId: normalizadas[0]?.id || null });
     } else {
-      const semResp = PLANES_SEMANALES_MATERIAS[materiaId] || [];
-      set({ semanas: semResp, semanaSeleccionadaId: semResp[0]?.id || null });
+      const listPub = await semanasService.getSemanasPublicas(materiaId);
+      if (listPub && listPub.length > 0) {
+        const normalizadas = normalizarSemanas(listPub);
+        set({ semanas: normalizadas, semanaSeleccionadaId: normalizadas[0]?.id || null });
+      } else {
+        const semResp = PLANES_SEMANALES_MATERIAS[materiaId] || [];
+        set({ semanas: semResp, semanaSeleccionadaId: semResp[0]?.id || null });
+      }
     }
   },
 
