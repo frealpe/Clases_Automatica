@@ -1111,7 +1111,7 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
 
       <main className="flex-1 flex flex-col w-full overflow-y-auto gap-4">
         {/* HEADER PRINCIPAL DE LA SECCIÓN */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0 pb-3 border-b border-slate-700/40">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0 pb-3 border-b border-slate-700/40 no-print">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/materias')}
@@ -1153,7 +1153,7 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
         </div>
 
         {/* SELECTOR DE PESTAÑAS (TABS) */}
-        <div className="flex flex-wrap gap-2 border-b border-slate-700/40 pb-2">
+        <div className="flex flex-wrap gap-2 border-b border-slate-700/40 pb-2 no-print">
           {!esEstudiante && (
             <>
               <button
@@ -3211,29 +3211,41 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
               <div className="flex flex-col gap-8">
                 <style>{`
                   @media print {
+                    body * {
+                      visibility: hidden !important;
+                    }
+                    nav, header, sidebar, footer, .no-print, [class*="Navbar"], [class*="navbar"], button, select, input {
+                      display: none !important;
+                    }
                     html, body, #root, main, div {
                       overflow: visible !important;
                       height: auto !important;
                       max-height: none !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                      background: #ffffff !important;
                     }
-                    .no-print, nav, header, sidebar, footer {
-                      display: none !important;
+                    .area-impresion-parciales, .area-impresion-parciales * {
+                      visibility: visible !important;
                     }
                     .area-impresion-parciales {
                       display: block !important;
-                      position: static !important;
+                      position: absolute !important;
+                      left: 0 !important;
+                      top: 0 !important;
                       width: 100% !important;
                       margin: 0 !important;
                       padding: 0 !important;
                     }
                     .hoja-parcial {
-                      display: block !important;
-                      position: relative !important;
-                      page-break-before: auto !important;
+                      display: flex !important;
+                      flex-direction: column !important;
+                      justify-content: space-between !important;
+                      min-height: 1450px !important;
                       page-break-after: always !important;
                       break-after: page !important;
-                      padding: 2cm 1.8cm !important;
-                      margin: 0 0 2cm 0 !important;
+                      padding: 1.8cm 1.5cm !important;
+                      margin: 0 !important;
                       background: #ffffff !important;
                       color: #000000 !important;
                       border: none !important;
@@ -3242,6 +3254,14 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
                     .hoja-parcial:last-child {
                       page-break-after: avoid !important;
                       break-after: avoid !important;
+                    }
+                    .pregunta-item {
+                      page-break-inside: avoid !important;
+                      break-inside: avoid !important;
+                    }
+                    .firma-block {
+                      page-break-inside: avoid !important;
+                      break-inside: avoid !important;
                     }
                     .hoja-parcial * {
                       color: #000000 !important;
@@ -3254,7 +3274,7 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
                   {parcialesResultado.examenesEstudiantes.map((ex, idx) => (
                     <div
                       key={ex.estudianteId || idx}
-                      className="hoja-parcial bg-white text-slate-900 p-8 rounded-xl border border-slate-300 shadow-lg flex flex-col justify-between min-h-[1050px]"
+                      className="hoja-parcial bg-white text-slate-900 p-8 rounded-xl border border-slate-300 shadow-lg flex flex-col justify-between min-h-[1450px]"
                     >
                       <div>
                         {/* ENCABEZADO INSTITUCIONAL UNICAUCA (FORMATO OFICIAL CARÁTULA LATEX) */}
@@ -3320,7 +3340,7 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
                         {/* CUESTIONARIO IMPRESO */}
                         <div className="flex flex-col gap-5">
                           {ex.preguntas.map((preg) => (
-                            <div key={preg.num} className="p-4 rounded-lg border border-slate-200 bg-slate-50/50 flex flex-col gap-2.5">
+                            <div key={preg.num} className="pregunta-item p-4 rounded-lg border border-slate-200 bg-slate-50/50 flex flex-col gap-2.5">
                               <div className="flex justify-between items-start gap-2">
                                 <div className="font-black text-xs text-slate-900 font-mono">
                                   PREGUNTA #{preg.num} <span className="font-normal text-slate-600">[{preg.ra}]</span>
@@ -3351,7 +3371,7 @@ export function EvaluacionQuicesViewBase({ defaultTab = 'calendario' }) {
                       </div>
 
                       {/* PIE DE PÁGINA Y FIRMAS */}
-                      <div className="mt-8 pt-4 border-t border-slate-300 flex justify-between items-end text-xs text-slate-600">
+                      <div className="firma-block mt-8 pt-4 border-t border-slate-300 flex justify-between items-end text-xs text-slate-600">
                         <div className="flex flex-col gap-8 w-64">
                           <div className="border-b border-slate-800"></div>
                           <div className="text-center font-bold text-[11px]">

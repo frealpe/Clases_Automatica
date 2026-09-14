@@ -56,7 +56,7 @@ export default function Navbar() {
     : esLight ? 'bg-sky-100 text-sky-900 border-sky-300'        : 'bg-sky-500/25 text-sky-300 border-sky-500/40';
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 border-b transition-colors duration-300 ${
+    <nav className={`fixed top-0 left-0 w-full z-50 border-b transition-colors duration-300 no-print ${
       esLight
         ? 'bg-white/90 border-slate-300 text-slate-900 shadow-md backdrop-blur-md'
         : 'bg-[#0a0a0a]/80 border-white/15 text-white backdrop-blur-md'
